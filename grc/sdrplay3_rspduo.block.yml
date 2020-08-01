@@ -1,0 +1,471 @@
+id: sdrplay3_rspduo
+label: 'SDRplay: RSPduo'
+category: '[sdrplay3]'
+flags: [python, cpp, throttle]
+
+
+templates:
+  imports: import sdrplay3
+  make: |
+    sdrplay3.rspduo(
+        ${rsp_selector},
+        rspduo_mode="${rspduo_mode}",
+        antenna="${antenna_both if rspduo_mode.nchan == '2' else antenna}",
+        stream_args=sdrplay3.stream_args(
+            output_type='${output_type}',
+            channels_size=${rspduo_mode.nchan}
+        ),
+    )
+    self.${id}.set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
+    % if rspduo_mode.nindeprx == '1':
+    self.${id}.set_center_freq(${center_freq})
+    % elif rspduo_mode.nindeprx == '2':
+    self.${id}.set_center_freq(${center_freq0}, 0)
+    self.${id}.set_center_freq(${center_freq1}, 1)
+    % endif
+    self.${id}.set_bandwidth(${bandwidth})
+    self.${id}.set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}")
+    % if rspduo_mode.nindeprx == '1':
+    self.${id}.set_gain_mode(${AGC})
+    self.${id}.set_gain(-${if_gRdB}, "IF")
+    self.${id}.set_gain(-${rf_gRdB}, "RF")
+    % elif rspduo_mode.nindeprx == '2':
+    self.${id}.set_gain_mode(${AGC0})
+    self.${id}.set_gain_mode(${AGC1})
+    self.${id}.set_gain(-${if_gRdB0}, "IF", 0)
+    self.${id}.set_gain(-${if_gRdB1}, "IF", 1)
+    self.${id}.set_gain(-${rf_gRdB0}, "RF", 0)
+    self.${id}.set_gain(-${rf_gRdB1}, "RF", 1)
+    % endif
+    self.${id}.set_freq_corr(${freq_corr})
+    self.${id}.set_dc_offset_mode(${dc_offset_mode})
+    self.${id}.set_iq_balance_mode(${iq_balance_mode})
+    self.${id}.set_agc_setpoint(${agc_set_point})
+    self.${id}.set_rf_notch_filter(${rf_notch_filter})
+    self.${id}.set_dab_notch_filter(${dab_notch_filter})
+    self.${id}.set_am_notch_filter(${am_notch_filter})
+    self.${id}.set_biasT(${biasT})
+    self.${id}.set_debug_mode(${debug_mode})
+    self.${id}.set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
+    self.${id}.set_show_gain_changes(${show_gain_changes})
+  callbacks:
+  - set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
+  - ${'set_center_freq(' + center_freq + ')' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_center_freq(' + center_freq0 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_center_freq(' + center_freq1 + ', 1)' if rspduo_mode.nindeprx == '2' else ''}
+  - set_bandwidth(${bandwidth})
+  - set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}")
+  - ${'set_gain_mode(' + AGC + ')' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_gain_mode(' + AGC0 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain_mode(' + AGC1 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(if_gRdB))) + ', "IF")' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_gain(' + str((-float(if_gRdB0))) + ', "IF", 0)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(if_gRdB1))) + ', "IF", 1)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(rf_gRdB))) + ', "RF")' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_gain(' + str((-float(rf_gRdB0))) + ', "RF", 0)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(rf_gRdB1))) + ', "RF", 1)' if rspduo_mode.nindeprx == '2' else ''}
+  - set_freq_corr(${freq_corr})
+  - set_dc_offset_mode(${dc_offset_mode})
+  - set_iq_balance_mode(${iq_balance_mode})
+  - set_agc_setpoint(${agc_set_point})
+  - set_rf_notch_filter(${rf_notch_filter})
+  - set_dab_notch_filter(${dab_notch_filter})
+  - set_am_notch_filter(${am_notch_filter})
+  - set_biasT(${biasT})
+  - set_debug_mode(${debug_mode})
+  - set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
+  - set_show_gain_changes(${show_gain_changes})
+
+
+cpp_templates:
+  includes: [ '#include <sdrplay3/rspduo.h>' ]
+  declarations: 'gr::sdrplay3::rspduo::sptr ${id};'
+  make: |
+    this->${id} = gr::sdrplay3::rspduo::make(
+        "${rsp_selector}",
+        "${rspduo_mode}",
+        "${antenna_both if rspduo_mode.nchan == '2' else antenna}",
+        stream_args(
+            output_type("${output_type}"),
+            channels_size(${rspduo_mode.nchan})
+        )
+    );
+    this->${id}->set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner});
+    % if rspduo_mode.nindeprx == '1':
+    this->${id}->set_center_freq(${center_freq});
+    % elif rspduo_mode.nindeprx == '2':
+    this->${id}->set_center_freq(${center_freq0}, 0);
+    this->${id}->set_center_freq(${center_freq1}, 1);
+    % endif
+    this->${id}->set_bandwidth(${bandwidth});
+    this->${id}->set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}");
+    % if rspduo_mode.nindeprx == '1':
+    this->${id}->set_gain_mode(${AGC})
+    this->${id}->set_gain(-${if_gRdB}, "IF")
+    this->${id}->set_gain(-${rf_gRdB}, "RF")
+    % elif rspduo_mode.nindeprx == '2':
+    this->${id}->set_gain_mode(${AGC0})
+    this->${id}->set_gain_mode(${AGC1})
+    this->${id}->set_gain(-${if_gRdB0}, "IF", 0)
+    this->${id}->set_gain(-${if_gRdB1}, "IF", 1)
+    this->${id}->set_gain(-${rf_gRdB0}, "RF", 0)
+    this->${id}->set_gain(-${rf_gRdB1}, "RF", 1)
+    % endif
+    this->${id}->set_freq_corr(${freq_corr});
+    this->${id}->set_dc_offset_mode(${dc_offset_mode});
+    this->${id}->set_iq_balance_mode(${iq_balance_mode});
+    this->${id}->set_agc_setpoint(${agc_set_point});
+    this->${id}->set_rf_notch_filter(${rf_notch_filter});
+    this->${id}->set_dab_notch_filter(${dab_notch_filter});
+    this->${id}->set_am_notch_filter(${am_notch_filter});
+    this->${id}->set_biasT(${biasT});
+    this->${id}->set_debug_mode(${debug_mode});
+    this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
+    this->${id}->set_show_gain_changes(${show_gain_changes});
+  callbacks:
+  - set_samp_rate(${samp_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
+  - ${'set_center_freq(' + center_freq + ')' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_center_freq(' + center_freq0 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_center_freq(' + center_freq1 + ', 1)' if rspduo_mode.nindeprx == '2' else ''}
+  - set_bandwidth(${bandwidth});
+  - set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}");
+  - ${'set_gain_mode(' + AGC + ')' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_gain_mode(' + AGC0 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain_mode(' + AGC1 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(if_gRdB))) + ', "IF")' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_gain(' + str((-float(if_gRdB0))) + ', "IF", 0)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(if_gRdB1))) + ', "IF", 1)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(rf_gRdB))) + ', "RF")' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_gain(' + str((-float(rf_gRdB0))) + ', "RF", 0)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(rf_gRdB1))) + ', "RF", 1)' if rspduo_mode.nindeprx == '2' else ''}
+  - set_freq_corr(${freq_corr});
+  - set_dc_offset_mode(${dc_offset_mode});
+  - set_iq_balance_mode(${iq_balance_mode});
+  - set_agc_setpoint(${agc_set_point});
+  - set_rf_notch_filter(${rf_notch_filter});
+  - set_dab_notch_filter(${dab_notch_filter});
+  - set_am_notch_filter(${am_notch_filter});
+  - set_biasT(${biasT});
+  - set_debug_mode(${debug_mode});
+  - set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
+  - set_show_gain_changes(${show_gain_changes});
+
+
+parameters:
+
+- id: rsp_selector
+  label: RSP Selector
+  dtype: string
+  default: '""'
+- id: rspduo_mode
+  label: RSPduo mode
+  dtype: enum
+  options: [Single Tuner, Dual Tuner (diversity reception), Dual Tuner (independent RX), Master, Master (SR=8Mhz), Slave]
+  option_attributes:
+    nchan: [1, 2, 2, 1, 1, 1]
+    nindeprx: [1, 1, 2, 1, 1, 1]
+
+- id: antenna
+  label: Antenna
+  dtype: enum
+  options: [Tuner 1 50 ohm, Tuner 2 50 ohm, High Z]
+  hide: ${'all' if rspduo_mode.nchan == 2 else 'none'}
+- id: antenna_both
+  label: Antenna
+  dtype: enum
+  options: [Both Tuners]
+  hide: ${'none' if rspduo_mode.nchan == 2 else 'all'}
+
+- id: sample_rate
+  label: Sample rate (Sps)
+  dtype: enum
+  options: [samp_rate, 62.5e3, 125e3, 250e3, 500e3, 1000e3, 2000e3, 2048e3,
+            3000e3, 4000e3, 5000e3, 6000e3, 7000e3, 8000e3, 9000e3, 10000e3]
+  option_labels: [samp_rate, 62.5k, 125k, 250k, 500k, 1M, 2M, 2.048M,
+                  3M, 4M, 5M, 6M, 7M, 8M, 9M, 10M]
+  default: samp_rate
+  hide: ${'none' if rspduo_mode == 'Single Tuner' else 'all'}
+- id: sample_rate_non_single_tuner
+  label: Sample rate (Sps)
+  dtype: enum
+  options: [samp_rate, 62.5e3, 125e3, 250e3, 500e3, 1000e3, 2000e3]
+  option_labels: [samp_rate, 62.5k, 125k, 250k, 500k, 1M, 2M]
+  default: samp_rate
+  hide: ${'none' if rspduo_mode != 'Single Tuner' else 'all'}
+
+- id: center_freq
+  label: Center Freq (Hz)
+  dtype: real
+  default: 0
+  hide: ${'none' if rspduo_mode.nindeprx == 1 else 'all'}
+- id: center_freq0
+  label: 'RX0: Center Freq (Hz)'
+  dtype: real
+  default: 0
+  hide: ${'none' if rspduo_mode.nindeprx == 2 else 'all'}
+- id: center_freq1
+  label: 'RX1: Center Freq (Hz)'
+  dtype: real
+  default: 0
+  hide: ${'none' if rspduo_mode.nindeprx == 2 else 'all'}
+
+- id: bandwidth
+  label: Bandwidth (Hz)
+  dtype: enum
+  options: [0, 200e3, 300e3, 600e3, 1536e3, 5000e3, 6000e3, 7000e3, 8000e3]
+  option_labels: [AUTO, 200k, 300k, 600k, 1.536M, 5M, 6M, 7M, 8M]
+  default: 0
+
+# Gain options
+- id: AGC
+  label: AGC
+  category: Gain Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: ${'part' if rspduo_mode.nindeprx == 1 else 'all'}
+- id: AGC0
+  label: 'RX0: AGC'
+  category: Gain Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+- id: AGC1
+  label: 'RX1: AGC'
+  category: Gain Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+
+- id: if_gRdB
+  label: IF Attenuation (dB)
+  category: Gain Options
+  dtype: real
+  default: 40
+  hide: ${'part' if rspduo_mode.nindeprx == 1 else 'all'}
+- id: if_gRdB0
+  label: 'RX0: IF Attenuation (dB)'
+  category: Gain Options
+  dtype: real
+  default: 40
+  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+- id: if_gRdB1
+  label: 'RX1: IF Attenuation (dB)'
+  category: Gain Options
+  dtype: real
+  default: 40
+  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+
+- id: rf_gRdB
+  label: RF Attenuation (dB)
+  category: Gain Options
+  dtype: real
+  default: 0
+  hide: ${'part' if rspduo_mode.nindeprx == 1 else 'all'}
+- id: rf_gRdB0
+  label: 'RX0: RF Attenuation (dB)'
+  category: Gain Options
+  dtype: real
+  default: 0
+  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+- id: rf_gRdB1
+  label: 'RX1: RF Attenuation (dB)'
+  category: Gain Options
+  dtype: real
+  default: 0
+  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+
+- id: agc_set_point
+  label: AGC set point (dBfs)
+  category: Gain Options
+  dtype: real
+  default: -30
+  hide: part
+
+# Other options
+- id: freq_corr
+  label: Frequency correction (ppm)
+  category: Other Options
+  dtype: real
+  default: 0
+  hide: part
+
+- id: dc_offset_mode
+  label: DC offset correction
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
+- id: iq_balance_mode
+  label: IQ imbalance correction
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
+- id: rf_notch_filter
+  label: RF notch filter
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
+- id: dab_notch_filter
+  label: DAB notch filter
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
+- id: am_notch_filter
+  label: AM RF notch filter
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
+- id: biasT
+  label: Bias-T
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
+- id: output_type
+  label: Output Type
+  category: Other Options
+  dtype: enum
+  options: [fc32, sc16]
+  option_labels: [Complex float32, Complex int16]
+  hide: part
+
+# Debug options
+- id: debug_mode
+  label: SDRplay API debug mode (DEBUG)
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
+- id: sample_sequence_gaps_check
+  label: Sample gaps check (DEBUG)
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
+- id: show_gain_changes
+  label: Show IF gain changes (DEBUG)
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
+
+outputs:
+- dtype: ${output_type}
+  multiplicity: ${rspduo_mode.nchan}
+
+
+documentation: |-
+    The SDRplay RSPduo Source Block:
+
+    Device Selector:
+    The device selector is a delimited string used to locate SDRplay devices on your system. \
+    If left blank, the first SDRplay RSP found will be used. \
+    Use the device serial number to specify a specific device.
+    Example: 1234567890
+
+    RSPduo Mode:
+    This parameter selects the operating mode of the RSPduo device.
+    Valid selections are:
+    Single Tuner
+    Dual Tuner (diversity reception)
+    Dual Tuner (independent RX)
+    Master (default sampling rate)
+    Master (RSPduo sample rate=8MHz)
+    Slave
+
+    Sample rate:
+    The sample rate is the number of samples per second from this block.
+
+    Center frequency:
+    The center frequency is the center frequency of the tuner.
+
+    Antenna:
+    The antenna selection ('Tuner 1 50ohm', 'Tuner 2 50ohm', 'Tuner 1 High-Z',
+                           'Both Tuners')
+
+    Bandwidth:
+    RX bandwidth (AUTO chooses the largest bandwidth below the sample rate)
+
+    AGC:
+    Enables/disables the AGC
+
+    IF Attenuation:
+    IF attenuation in dB [20-59]
+
+    RF Attenuation:
+    RF attenuation in dB [0-X] where X depends on center freq and High-Z antenna
+    (see LNAstate table in the Users Guide)
+
+    AGC set point (dBfs)
+
+
+    Other options:
+
+        Frequency correction (ppm)
+
+        DC offset correction
+
+        IQ imbalance correction
+
+        RF notch filter
+
+        DAB notch filter
+
+        AM RF notch filter
+
+        Bias-T
+
+        Output Type:
+        This parameter controls the data type of the stream in gnuradio.
+        Valid selections are:
+        Complex float
+        Complex short (native)
+
+        Debug mode (DEBUG)
+        Enable (or disable) debug mode for SDRplay API
+
+        Sample gaps check (DEBUG)
+        Enable (or disable) check for gaps in sample sequence numbers
+
+        Show IF gain changes (DEBUG)
+        If enabled logs a message every time the IF gain changes (can be very noisy when AGC is enabled)
+
+
+file_format: 1
