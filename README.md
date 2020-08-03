@@ -1,6 +1,6 @@
 # gr-sdrplay3: GNU Radio OOT module for SDRplay RSP devices (SDRplay API V3.x) - EXPERIMENTAL
 
-**Please note that this module is still experimental and has not ben thoroughly been tested - for a stable GNU Radio module for SDRplay RSP devices pleas see below**
+**Please note that this module is still experimental and has not ben thoroughly been tested - for a stable GNU Radio module for SDRplay RSP devices, please see below**
 
 This OOT GNU Radio module supports the following SDRplay RSP devices:
   - RSP1
