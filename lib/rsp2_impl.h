@@ -33,7 +33,7 @@ public:
 private:
 
     static const std::vector<int> rf_gr_values(const double freq, const bool hdr_mode);
-    const std::vector<int> rf_gr_values() const;
+    const std::vector<int> rf_gr_values() const override;
 
     void print_device_config() const override;
 };

@@ -48,10 +48,10 @@ public:
         return rsp_impl::get_gain(name);
     }
     double get_gain(const std::string& name, const int tuner) const override;
-    const double (&get_gain_range(const std::string& name) const override)[2] {
+    const pair_of_doubles &get_gain_range(const std::string& name) const override {
         return rsp_impl::get_gain_range(name);
     }
-    const double (&get_gain_range(const std::string& name, const int tuner) const override)[2];
+    const pair_of_doubles &get_gain_range(const std::string& name, const int tuner) const override;
     bool set_gain_mode(bool automatic) override { return rsp_impl::set_gain_mode(automatic); }
     bool set_gain_mode(bool automatic, const int tuner) override;
     bool get_gain_mode() const override { return rsp_impl::get_gain_mode(); };
@@ -76,7 +76,7 @@ private:
     sdrplay_api_TunerSelectT get_independent_rx_tuner(int tuner) const;
 
     static const std::vector<int> rf_gr_values(const double freq, const bool highz);
-    const std::vector<int> rf_gr_values() const;
+    const std::vector<int> rf_gr_values() const override;
     const std::vector<int> rf_gr_values(const int tuner) const;
 
     // we need to redefine the overloaded methods because of C++ name hiding

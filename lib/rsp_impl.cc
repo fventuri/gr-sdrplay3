@@ -755,6 +755,8 @@ void rsp_impl::event_callback(sdrplay_api_EventT eventId,
     case sdrplay_api_DeviceRemoved:
         GR_LOG_ERROR(d_logger, "device removed");
         break;
+    case sdrplay_api_RspDuoModeChange:
+        break;
     }
 }
 

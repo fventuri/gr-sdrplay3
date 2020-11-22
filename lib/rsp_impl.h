@@ -19,6 +19,11 @@ namespace sdrplay3 {
 class rsp_impl : virtual public rsp
 {
 public:
+    // needed to make both gcc/g++ and clang/clang++ compile without errors
+    // (because of the position of the 'override' keyboard with a function
+    // returning a reference to an array)
+    typedef double pair_of_doubles[2];
+
     /**********************************************************************
      * Structors
      * ********************************************************************/ 
@@ -32,7 +37,7 @@ public:
     // Center frequency methods
     double set_center_freq(const double freq) override;
     double get_center_freq() const override;
-    const double (&get_freq_range() const override)[2];
+    const pair_of_doubles &get_freq_range() const override;
 
     // Bandwidth methods
     double set_bandwidth(const double bandwidth) override;
@@ -43,7 +48,7 @@ public:
     const std::vector<std::string> get_gain_names() const override;
     double set_gain(const double gain, const std::string& name) override;
     double get_gain(const std::string& name) const override;
-    const double (&get_gain_range(const std::string& name) const override)[2];
+    const pair_of_doubles &get_gain_range(const std::string& name) const override;
     bool set_gain_mode(bool automatic) override;
     bool get_gain_mode() const override;
 
@@ -55,17 +60,17 @@ public:
     void set_agc_setpoint(double set_point) override;
 
     // Streaming methods
-    virtual bool start();
-    virtual bool stop();
+    virtual bool start() override;
+    virtual bool stop() override;
 
     virtual int work(int noutput_items,
                      gr_vector_const_void_star& input_items,
-                     gr_vector_void_star& output_items);
+                     gr_vector_void_star& output_items) override;
 
     // Debug methods
-    void set_debug_mode(bool enable);
-    void set_sample_sequence_gaps_check(bool enable);
-    void set_show_gain_changes(bool enable);
+    void set_debug_mode(bool enable) override;
+    void set_sample_sequence_gaps_check(bool enable) override;
+    void set_show_gain_changes(bool enable) override;
 
 protected:
 

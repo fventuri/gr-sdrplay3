@@ -37,7 +37,7 @@ private:
 
     void update_ext1_if_streaming(sdrplay_api_ReasonForUpdateExtension1T reason_for_update);
     static const std::vector<int> rf_gr_values(const double freq, const bool hdr_mode);
-    const std::vector<int> rf_gr_values() const;
+    const std::vector<int> rf_gr_values() const override;
 
     void print_device_config() const override;
 };

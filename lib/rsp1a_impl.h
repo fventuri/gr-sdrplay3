@@ -29,7 +29,7 @@ public:
 private:
 
     static const std::vector<int> rf_gr_values(const double freq);
-    const std::vector<int> rf_gr_values() const;
+    const std::vector<int> rf_gr_values() const override;
 };
 
 } // namespace sdrplay3
