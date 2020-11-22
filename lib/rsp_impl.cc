@@ -847,7 +847,7 @@ void rsp_impl::update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_updat
 
 static const std::string reason_as_text(sdrplay_api_ReasonForUpdateT reason_for_update)
 {
-    static const std::unordered_map<sdrplay_api_ReasonForUpdateT, const std::string> reasons = {
+    static const std::unordered_map<sdrplay_api_ReasonForUpdateT, const std::string, std::hash<int>> reasons = {
         { sdrplay_api_Update_Dev_Fs, "Dev_Fs" },
         { sdrplay_api_Update_Dev_Ppm, "Dev_Ppm" },
         { sdrplay_api_Update_Dev_SyncUpdate, "Dev_SyncUpdate" },

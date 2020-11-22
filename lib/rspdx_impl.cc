@@ -177,7 +177,7 @@ void rspdx_impl::update_ext1_if_streaming(sdrplay_api_ReasonForUpdateExtension1T
 
 static const std::string reason_ext1_as_text(sdrplay_api_ReasonForUpdateExtension1T reason_for_update)
 {
-    static const std::unordered_map<sdrplay_api_ReasonForUpdateExtension1T, const std::string> reasons = {
+    static const std::unordered_map<sdrplay_api_ReasonForUpdateExtension1T, const std::string, std::hash<int>> reasons = {
         { sdrplay_api_Update_RspDx_HdrEnable, "RspDx_HdrEnable" },
         { sdrplay_api_Update_RspDx_BiasTControl, "RspDx_BiasTControl" },
         { sdrplay_api_Update_RspDx_AntennaControl, "RspDx_AntennaControl" },
