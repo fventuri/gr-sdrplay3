@@ -2,7 +2,7 @@ if(NOT LIBSDRPLAY_FOUND)
     # pkg_check_modules (LIBSDRPLAY_PKG libsdrplay)
 
     IF(WIN32)
-        GET_FILENAME_COMPONENT(SDRPLAY_API_DIR "[HKEY_LOCAL_MACHINE\\SOFTWARE\\SDRplaySDR\\API;Install_Dir]" ABSOLUTE)
+        GET_FILENAME_COMPONENT(SDRPLAY_API_DIR "[HKEY_LOCAL_MACHINE\\SOFTWARE\\SDRplay\\Service\\API;Install_Dir]" ABSOLUTE)
 
         if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
             MESSAGE( "64 bit compiler detected" )
@@ -19,7 +19,7 @@ if(NOT LIBSDRPLAY_FOUND)
                 "${SDRPLAY_API_DIR}/inc"
                 )
 
-        find_library(LIBSDRPLAY_LIBRARIES NAMES sdrply_api.lib
+        find_library(LIBSDRPLAY_LIBRARIES NAMES sdrplay_api.lib
                 PATHS
                 "${SDRPLAY_API_DIR}/${EX_PLATFORM_NAME}"
                 )

@@ -39,10 +39,13 @@ add_library(gnuradio-sdrplay3 SHARED ${sdrplay3_sources})
 target_link_libraries(gnuradio-sdrplay3
     gnuradio::gnuradio-runtime
     ${LIBSDRPLAY_LIBRARIES}
+    ${Boost_LIBRARIES}
   )
 target_include_directories(gnuradio-sdrplay3
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
     PUBLIC $<INSTALL_INTERFACE:include>
+    PRIVATE ${LIBSDRPLAY_INCLUDE_DIRS}
+    PRIVATE ${Boost_INCLUDE_DIRS}
   )
 set_target_properties(gnuradio-sdrplay3 PROPERTIES DEFINE_SYMBOL "gnuradio_sdrplay3_EXPORTS")
 

@@ -70,6 +70,25 @@ ELSE()
     message(WARNING "C standard could not be set because compiler is not GNU, Clang or MSVC.")
 ENDIF()
 
+IF(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    #fix min/max errors in gnuradio headers
+    add_definitions(-DNOMINMAX)
+ENDIF()
+
+########################################################################
+# Find boost
+########################################################################
+find_package(Boost "1.65" REQUIRED filesystem)
+
+if(NOT Boost_FOUND)
+    message(FATAL_ERROR "Boost not found")
+endif()
+
+if(MSVC)
+    add_definitions(-DBOOST_ALL_NO_LIB)
+    add_definitions(-DNOMINMAX)
+endif()
+
 ########################################################################
 # Install directories
 ########################################################################
