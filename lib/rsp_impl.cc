@@ -707,7 +707,7 @@ void rsp_impl::stream_callback(short *xi, short *xq,
         // no wrap around - just one memcpy for I and Q
         size_t memcpy_size = numSamples * sizeof(short);
         std::memcpy(ring_buffer.xi + start, xi, memcpy_size);
-        std::memcpy(ring_buffer.xq + start, xi, memcpy_size);
+        std::memcpy(ring_buffer.xq + start, xq, memcpy_size);
     } else {
         // wrap around - two memcpy's for I and two for Q
         size_t first = numSamples - end;
