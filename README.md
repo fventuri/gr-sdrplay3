@@ -33,6 +33,12 @@ mkdir build && cd build && cmake .. && make
 sudo make install
 ```
 
+
+## Credits
+
+- Tom Breyer, DJ6TB for providing the very useful FM receiver example
+
+
 ## License
 
 GPLv3
