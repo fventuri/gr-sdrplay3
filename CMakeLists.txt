@@ -78,7 +78,7 @@ ENDIF()
 ########################################################################
 # Find boost
 ########################################################################
-find_package(Boost "1.65" REQUIRED filesystem)
+find_package(Boost "1.65" REQUIRED filesystem program_options regex thread)
 
 if(NOT Boost_FOUND)
     message(FATAL_ERROR "Boost not found")
