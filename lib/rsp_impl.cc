@@ -146,16 +146,27 @@ double rsp_impl::set_sample_rate(const double rate)
     int decimation;
     double fsHz;
     sdrplay_api_If_kHzT if_type;
-    if (rate <= 2000e3) {
+    if (rate == 62.5e3 || rate == 125e3 || rate == 250e3 || rate == 500e3 ||
+        rate == 1000e3 || rate == 2000e3) {
         decimation = int(2000e3 / rate);
         fsHz = 6000e3;
         sample_rate = 2000e3 / decimation;
         if_type = sdrplay_api_IF_1_620;
     } else {
-        decimation = 1;
-        fsHz = rate;
-        sample_rate = rate;
-        if_type = sdrplay_api_IF_Zero;
+        int new_decimation;
+        double new_fsHz;
+        for (new_decimation = 1; new_decimation <= 32; new_decimation *= 2) {
+            new_fsHz = rate * new_decimation;
+            if (new_fsHz > 2000e3) {
+                break;
+            }
+        }
+        if (new_decimation <= 32) {
+            decimation = new_decimation;
+            fsHz = new_fsHz;
+            sample_rate = rate;
+            if_type = sdrplay_api_IF_Zero;
+        }
     }
     update_sample_rate_and_decimation(fsHz, decimation, if_type);
     return get_sample_rate();
@@ -169,8 +180,8 @@ double rsp_impl::get_sample_rate() const
 const std::vector<double> rsp_impl::get_sample_rates() const
 {
     static const std::vector<double> rates = { 62.5e3, 125e3, 250e3, 500e3,
-            1000e3, 2000e3, 2048e3, 3000e3, 4000e3, 5000e3, 6000e3, 7000e3,
-            8000e3, 9000e3, 10000e3 };
+            1000e3, 1920e3, 2000e3, 2048e3, 3000e3, 4000e3, 5000e3, 6000e3,
+            7000e3, 8000e3, 9000e3, 10000e3 };
     return rates;
 }
 
