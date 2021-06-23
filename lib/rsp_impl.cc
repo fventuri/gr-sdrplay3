@@ -12,12 +12,14 @@
 #include <gnuradio/io_signature.h>
 #include "rsp_impl.h"
 #include "sdrplay_api.h"
+#include <thread>
 
 namespace gr {
 namespace sdrplay3 {
 
 static constexpr double SDRPLAY_FREQ_MIN = 1e3;
 static constexpr double SDRPLAY_FREQ_MAX = 2000e6;
+static constexpr int UpdateTimeout = 500;  // wait 500ms for updates
 
 const std::map<std::string, struct rsp_impl::_output_type> rsp_impl::output_types = {
     { "fc32", { OutputType::fc32, sizeof(gr_complex) } },
@@ -671,6 +673,9 @@ void rsp_impl::stream_A_callback(short *xi, short *xq,
         sample_gaps_check(numSamples, params->firstSampleNum, next_sample_num,
                           rsp->d_logger, 0);
     }
+    rsp->sample_rate_changed |= params->fsChanged;
+    rsp->frequency_changed |= params->rfChanged;
+    rsp->gain_reduction_changed |= params->grChanged;
     rsp->stream_callback(xi, xq, params, numSamples, reset, 0);
 }
 
@@ -685,6 +690,9 @@ void rsp_impl::stream_B_callback(short *xi, short *xq,
         sample_gaps_check(numSamples, params->firstSampleNum, next_sample_num,
                           rsp->d_logger, 1);
     }
+    rsp->sample_rate_changed |= params->fsChanged;
+    rsp->frequency_changed |= params->rfChanged;
+    rsp->gain_reduction_changed |= params->grChanged;
     rsp->stream_callback(xi, xq, params, numSamples, reset, 1);
 }
 
@@ -848,11 +856,43 @@ void rsp_impl::update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_updat
 {
     if (run_status == RunStatus::idle || reason_for_update == sdrplay_api_Update_None)
         return;
+
+    // reset the changed variables for the cases where we need to wait
+    // (see below)
+    if (reason_for_update & (sdrplay_api_Update_Dev_Fs | sdrplay_api_Update_Ctrl_Decimation))
+        sample_rate_changed = 0;
+    if (reason_for_update & sdrplay_api_Update_Tuner_Frf)
+        frequency_changed = 0;
+    if (reason_for_update & sdrplay_api_Update_Tuner_Gr)
+        gain_reduction_changed = 0;
+
     sdrplay_api_ErrT err;
     err = sdrplay_api_Update(device.dev, tuner, reason_for_update,
                              sdrplay_api_Update_Ext1_None);
     if (err != sdrplay_api_Success) {
         GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_Update(%s) Error: %s") % reason_as_text(reason_for_update) % sdrplay_api_GetErrorString(err));
+    }
+
+    // for updates to the sample rate, center frequency, or gain reduction,
+    // wait for the update to be complete before returning
+    if (reason_for_update & (sdrplay_api_Update_Dev_Fs | sdrplay_api_Update_Ctrl_Decimation)) {
+        for (int i = 0; i < UpdateTimeout && sample_rate_changed == 0; ++i)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        if (sample_rate_changed == 0) {
+            GR_LOG_WARN(d_logger, "sample rate/decimation update timeout");
+        }
+    }
+    if (reason_for_update & sdrplay_api_Update_Tuner_Frf) {
+        for (int i = 0; i < UpdateTimeout && frequency_changed == 0; ++i)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        if (frequency_changed == 0)
+            GR_LOG_WARN(d_logger, "RF center frequency update timeout");
+    }
+    if (reason_for_update & sdrplay_api_Update_Tuner_Gr) {
+        for (int i = 0; i < UpdateTimeout && gain_reduction_changed == 0; ++i)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        if (gain_reduction_changed == 0)
+            GR_LOG_WARN(d_logger, "gsin reduction update timeout");
     }
 }
 

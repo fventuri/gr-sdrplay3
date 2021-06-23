@@ -149,6 +149,12 @@ private:
     bool sample_sequence_gaps_check;
     bool show_gain_changes;
 
+    // changes to sample rate, fequency, and gain reduction reported by
+    // RX callback
+    int sample_rate_changed;
+    int frequency_changed;
+    int gain_reduction_changed;
+
 protected:
     sdrplay_api_DeviceT device;
     sdrplay_api_DeviceParamsT *device_params;
