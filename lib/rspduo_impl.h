@@ -63,6 +63,9 @@ public:
     void set_am_notch_filter(bool enable) override;
     void set_biasT(bool enable) override;
 
+    // Streaming methods
+    virtual bool start() override;
+
     // callback functions
     void event_callback(sdrplay_api_EventT eventId,
                         sdrplay_api_TunerSelectT tuner,

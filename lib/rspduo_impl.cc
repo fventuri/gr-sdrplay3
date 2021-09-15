@@ -415,6 +415,28 @@ void rspduo_impl::set_biasT(bool enable)
 }
 
 
+// Streaming methods
+bool rspduo_impl::start()
+{
+    if (!(device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner &&
+          dual_mode_independent_rx)) {
+        return rsp_impl::start();
+    }
+
+    // handle the case for the RSPduo with indepedent receivers since for some
+    // reason sdrplay_api_Init() with set the second tuner center frequency to
+    // the same value of the first tuner
+    sdrplay_api_RxChannelParamsT *rxChannelB = device_params->rxChannelB;
+    double tuner2freq =rxChannelB->tunerParams.rfFreq.rfHz;
+    bool status = rsp_impl::start();
+    if (!status) {
+        return status;
+    }
+    set_center_freq(tuner2freq, 1);
+    return status;
+}
+
+
 // callback functions
 void rspduo_impl::event_callback(sdrplay_api_EventT eventId,
                                  sdrplay_api_TunerSelectT tuner,
