@@ -68,7 +68,7 @@ cpp_templates:
     this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
     this->${id}->set_show_gain_changes(${show_gain_changes});
   callbacks:
-  - set_samp_rate(${samp_rate});
+  - set_sample_rate(${sample_rate});
   - set_center_freq(${center_freq});
   - set_bandwidth(${bandwidth});
   - set_gain_mode(${AGC});

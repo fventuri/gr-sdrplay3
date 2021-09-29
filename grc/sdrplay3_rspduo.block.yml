@@ -123,7 +123,7 @@ cpp_templates:
     this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
     this->${id}->set_show_gain_changes(${show_gain_changes});
   callbacks:
-  - set_samp_rate(${samp_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
+  - set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
   - ${'set_center_freq(' + center_freq + ')' if rspduo_mode.nindeprx == '1' else ''}
   - ${'set_center_freq(' + center_freq0 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
   - ${'set_center_freq(' + center_freq1 + ', 1)' if rspduo_mode.nindeprx == '2' else ''}
