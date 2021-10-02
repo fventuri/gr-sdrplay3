@@ -27,15 +27,15 @@ templates:
     self.${id}.set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}")
     % if rspduo_mode.nindeprx == '1':
     self.${id}.set_gain_mode(${AGC})
-    self.${id}.set_gain(-${if_gRdB}, "IF")
-    self.${id}.set_gain(-${rf_gRdB}, "RF")
+    self.${id}.set_gain(-${if_gRdB}, 'IF')
+    self.${id}.set_gain(-${rf_gRdB}, 'RF')
     % elif rspduo_mode.nindeprx == '2':
     self.${id}.set_gain_mode(${AGC0})
     self.${id}.set_gain_mode(${AGC1})
-    self.${id}.set_gain(-${if_gRdB0}, "IF", 0)
-    self.${id}.set_gain(-${if_gRdB1}, "IF", 1)
-    self.${id}.set_gain(-${rf_gRdB0}, "RF", 0)
-    self.${id}.set_gain(-${rf_gRdB1}, "RF", 1)
+    self.${id}.set_gain(-${if_gRdB0}, 'IF', 0)
+    self.${id}.set_gain(-${if_gRdB1}, 'IF', 1)
+    self.${id}.set_gain(-${rf_gRdB0}, 'RF', 0)
+    self.${id}.set_gain(-${rf_gRdB1}, 'RF', 1)
     % endif
     self.${id}.set_freq_corr(${freq_corr})
     self.${id}.set_dc_offset_mode(${dc_offset_mode})
@@ -82,13 +82,10 @@ cpp_templates:
   declarations: 'gr::sdrplay3::rspduo::sptr ${id};'
   make: |
     this->${id} = gr::sdrplay3::rspduo::make(
-        "${rsp_selector}",
+        "${rsp_selector.strip('"\'')}",
         "${rspduo_mode}",
         "${antenna_both if rspduo_mode.nchan == '2' else antenna}",
-        stream_args(
-            output_type("${output_type}"),
-            channels_size(${rspduo_mode.nchan})
-        )
+        ::sdrplay3::stream_args_t("${output_type}", ${rspduo_mode.nchan})
     );
     this->${id}->set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner});
     % if rspduo_mode.nindeprx == '1':
@@ -100,55 +97,56 @@ cpp_templates:
     this->${id}->set_bandwidth(${bandwidth});
     this->${id}->set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}");
     % if rspduo_mode.nindeprx == '1':
-    this->${id}->set_gain_mode(${AGC})
-    this->${id}->set_gain(-${if_gRdB}, "IF")
-    this->${id}->set_gain(-${rf_gRdB}, "RF")
+    this->${id}->set_gain_mode(${AGC.lower()});
+    this->${id}->set_gain(-${if_gRdB}, "IF");
+    this->${id}->set_gain(-${rf_gRdB}, "RF");
     % elif rspduo_mode.nindeprx == '2':
-    this->${id}->set_gain_mode(${AGC0})
-    this->${id}->set_gain_mode(${AGC1})
-    this->${id}->set_gain(-${if_gRdB0}, "IF", 0)
-    this->${id}->set_gain(-${if_gRdB1}, "IF", 1)
-    this->${id}->set_gain(-${rf_gRdB0}, "RF", 0)
-    this->${id}->set_gain(-${rf_gRdB1}, "RF", 1)
+    this->${id}->set_gain_mode(${AGC0.lower()}, 0);
+    this->${id}->set_gain_mode(${AGC1.lower()}, 1);
+    this->${id}->set_gain(-${if_gRdB0}, "IF", 0);
+    this->${id}->set_gain(-${if_gRdB1}, "IF", 1);
+    this->${id}->set_gain(-${rf_gRdB0}, "RF", 0);
+    this->${id}->set_gain(-${rf_gRdB1}, "RF", 1);
     % endif
     this->${id}->set_freq_corr(${freq_corr});
-    this->${id}->set_dc_offset_mode(${dc_offset_mode});
-    this->${id}->set_iq_balance_mode(${iq_balance_mode});
+    this->${id}->set_dc_offset_mode(${dc_offset_mode.lower()});
+    this->${id}->set_iq_balance_mode(${iq_balance_mode.lower()});
     this->${id}->set_agc_setpoint(${agc_set_point});
-    this->${id}->set_rf_notch_filter(${rf_notch_filter});
-    this->${id}->set_dab_notch_filter(${dab_notch_filter});
-    this->${id}->set_am_notch_filter(${am_notch_filter});
-    this->${id}->set_biasT(${biasT});
-    this->${id}->set_debug_mode(${debug_mode});
-    this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
-    this->${id}->set_show_gain_changes(${show_gain_changes});
+    this->${id}->set_rf_notch_filter(${rf_notch_filter.lower()});
+    this->${id}->set_dab_notch_filter(${dab_notch_filter.lower()});
+    this->${id}->set_am_notch_filter(${am_notch_filter.lower()});
+    this->${id}->set_biasT(${biasT.lower()});
+    this->${id}->set_debug_mode(${debug_mode.lower()});
+    this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check.lower()});
+    this->${id}->set_show_gain_changes(${show_gain_changes.lower()});
+  link: ['gnuradio-sdrplay3 sdrplay_api.so.3']
   callbacks:
   - set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
-  - ${'set_center_freq(' + center_freq + ')' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_center_freq(' + center_freq0 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_center_freq(' + center_freq1 + ', 1)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_center_freq(' + center_freq + ');' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_center_freq(' + center_freq0 + ', 0);' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_center_freq(' + center_freq1 + ', 1);' if rspduo_mode.nindeprx == '2' else ''}
   - set_bandwidth(${bandwidth});
   - set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}");
-  - ${'set_gain_mode(' + AGC + ')' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_gain_mode(' + AGC0 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain_mode(' + AGC1 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(if_gRdB))) + ', "IF")' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_gain(' + str((-float(if_gRdB0))) + ', "IF", 0)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(if_gRdB1))) + ', "IF", 1)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(rf_gRdB))) + ', "RF")' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_gain(' + str((-float(rf_gRdB0))) + ', "RF", 0)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(rf_gRdB1))) + ', "RF", 1)' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain_mode(' + AGC.lower() + ');' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_gain_mode(' + AGC0.lower() + ', 0);' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain_mode(' + AGC1.lower() + ', 1);' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(if_gRdB))) + ', "IF");' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_gain(' + str((-float(if_gRdB0))) + ', "IF", 0);' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(if_gRdB1))) + ', "IF", 1);' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(rf_gRdB))) + ', "RF");' if rspduo_mode.nindeprx == '1' else ''}
+  - ${'set_gain(' + str((-float(rf_gRdB0))) + ', "RF", 0);' if rspduo_mode.nindeprx == '2' else ''}
+  - ${'set_gain(' + str((-float(rf_gRdB1))) + ', "RF", 1);' if rspduo_mode.nindeprx == '2' else ''}
   - set_freq_corr(${freq_corr});
-  - set_dc_offset_mode(${dc_offset_mode});
-  - set_iq_balance_mode(${iq_balance_mode});
+  - set_dc_offset_mode(${dc_offset_mode.lower()});
+  - set_iq_balance_mode(${iq_balance_mode.lower()});
   - set_agc_setpoint(${agc_set_point});
-  - set_rf_notch_filter(${rf_notch_filter});
-  - set_dab_notch_filter(${dab_notch_filter});
-  - set_am_notch_filter(${am_notch_filter});
-  - set_biasT(${biasT});
-  - set_debug_mode(${debug_mode});
-  - set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
-  - set_show_gain_changes(${show_gain_changes});
+  - set_rf_notch_filter(${rf_notch_filter.lower()});
+  - set_dab_notch_filter(${dab_notch_filter.lower()});
+  - set_am_notch_filter(${am_notch_filter.lower()});
+  - set_biasT(${biasT.lower()});
+  - set_debug_mode(${debug_mode.lower()});
+  - set_sample_sequence_gaps_check(${sample_sequence_gaps_check.lower()});
+  - set_show_gain_changes(${show_gain_changes.lower()});
 
 
 parameters:
@@ -156,7 +154,7 @@ parameters:
 - id: rsp_selector
   label: RSP Selector
   dtype: string
-  default: '""'
+  default: ''
 - id: rspduo_mode
   label: RSPduo mode
   dtype: enum

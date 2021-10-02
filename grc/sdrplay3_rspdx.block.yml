@@ -17,10 +17,10 @@ templates:
     self.${id}.set_sample_rate(${sample_rate})
     self.${id}.set_center_freq(${center_freq})
     self.${id}.set_bandwidth(${bandwidth})
-    self.${id}.set_antenna("${antenna}")
+    self.${id}.set_antenna('${antenna}')
     self.${id}.set_gain_mode(${AGC})
-    self.${id}.set_gain(-${if_gRdB}, "IF")
-    self.${id}.set_gain(-${rf_gRdB}, "RF")
+    self.${id}.set_gain(-${if_gRdB}, 'IF')
+    self.${id}.set_gain(-${rf_gRdB}, 'RF')
     self.${id}.set_freq_corr(${freq_corr})
     self.${id}.set_dc_offset_mode(${dc_offset_mode})
     self.${id}.set_iq_balance_mode(${iq_balance_mode})
@@ -36,10 +36,10 @@ templates:
   - set_sample_rate(${sample_rate})
   - set_center_freq(${center_freq})
   - set_bandwidth(${bandwidth})
-  - set_antenna("${antenna}")
+  - set_antenna('${antenna}')
   - set_gain_mode(${AGC})
-  - set_gain(-${if_gRdB}, "IF")
-  - set_gain(-${rf_gRdB}, "RF")
+  - set_gain(-${if_gRdB}, 'IF')
+  - set_gain(-${rf_gRdB}, 'RF')
   - set_freq_corr(${freq_corr})
   - set_dc_offset_mode(${dc_offset_mode})
   - set_iq_balance_mode(${iq_balance_mode})
@@ -58,49 +58,47 @@ cpp_templates:
   declarations: 'gr::sdrplay3::rspdx::sptr ${id};'
   make: |
     this->${id} = gr::sdrplay3::rspdx::make(
-        "${rsp_selector}",
-        stream_args(
-            output_type("${output_type}"),
-            channels_size(1)
-        )
+        "${rsp_selector.strip('"\'')}",
+        ::sdrplay3::stream_args_t("${output_type}", 1)
     );
     this->${id}->set_sample_rate(${sample_rate});
     this->${id}->set_center_freq(${center_freq});
     this->${id}->set_bandwidth(${bandwidth});
     this->${id}->set_antenna("${antenna}");
-    this->${id}->set_gain_mode(${AGC})
-    this->${id}->set_gain(-${if_gRdB}, "IF")
-    this->${id}->set_gain(-${rf_gRdB}, "RF")
+    this->${id}->set_gain_mode(${AGC.lower()});
+    this->${id}->set_gain(-${if_gRdB}, "IF");
+    this->${id}->set_gain(-${rf_gRdB}, "RF");
     this->${id}->set_freq_corr(${freq_corr});
-    this->${id}->set_dc_offset_mode(${dc_offset_mode});
-    this->${id}->set_iq_balance_mode(${iq_balance_mode});
+    this->${id}->set_dc_offset_mode(${dc_offset_mode.lower()});
+    this->${id}->set_iq_balance_mode(${iq_balance_mode.lower()});
     this->${id}->set_agc_setpoint(${agc_set_point});
-    this->${id}->set_hdr_mode(${hdr_mode});
-    this->${id}->set_rf_notch_filter(${rf_notch_filter});
-    this->${id}->set_dab_notch_filter(${dab_notch_filter});
-    this->${id}->set_biasT(${biasT});
-    this->${id}->set_debug_mode(${debug_mode});
-    this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
-    this->${id}->set_show_gain_changes(${show_gain_changes});
+    this->${id}->set_hdr_mode(${hdr_mode.lower()});
+    this->${id}->set_rf_notch_filter(${rf_notch_filter.lower()});
+    this->${id}->set_dab_notch_filter(${dab_notch_filter.lower()});
+    this->${id}->set_biasT(${biasT.lower()});
+    this->${id}->set_debug_mode(${debug_mode.lower()});
+    this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check.lower()});
+    this->${id}->set_show_gain_changes(${show_gain_changes.lower()});
+  link: ['gnuradio-sdrplay3 sdrplay_api.so.3']
   callbacks:
   - set_sample_rate(${sample_rate});
   - set_center_freq(${center_freq});
   - set_bandwidth(${bandwidth});
   - set_antenna("${antenna}");
-  - set_gain_mode(${AGC});
+  - set_gain_mode(${AGC.lower()});
   - set_gain(-${if_gRdB}, "IF");
   - set_gain(-${rf_gRdB}, "RF");
   - set_freq_corr(${freq_corr});
-  - set_dc_offset_mode(${dc_offset_mode});
-  - set_iq_balance_mode(${iq_balance_mode});
+  - set_dc_offset_mode(${dc_offset_mode.lower()});
+  - set_iq_balance_mode(${iq_balance_mode.lower()});
   - set_agc_setpoint(${agc_set_point});
-  - set_hdr_mode(${hdr_mode});
-  - set_rf_notch_filter(${rf_notch_filter});
-  - set_dab_notch_filter(${dab_notch_filter});
-  - set_biasT(${biasT});
-  - set_debug_mode(${debug_mode});
-  - set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
-  - set_show_gain_changes(${show_gain_changes});
+  - set_hdr_mode(${hdr_mode.lower()});
+  - set_rf_notch_filter(${rf_notch_filter.lower()});
+  - set_dab_notch_filter(${dab_notch_filter.lower()});
+  - set_biasT(${biasT.lower()});
+  - set_debug_mode(${debug_mode.lower()});
+  - set_sample_sequence_gaps_check(${sample_sequence_gaps_check.lower()});
+  - set_show_gain_changes(${show_gain_changes.lower()});
 
 
 parameters:
@@ -108,7 +106,7 @@ parameters:
 - id: rsp_selector
   label: RSP Selector
   dtype: string
-  default: '""'
+  default: ''
 
 - id: antenna
   label: Antenna

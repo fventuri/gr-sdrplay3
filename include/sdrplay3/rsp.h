@@ -9,6 +9,7 @@
 #define INCLUDED_SDRPLAY3_RSP_H
 
 #include <sdrplay3/api.h>
+#include <sdrplay3/sdrplay3_types.h>
 #include <gnuradio/sync_block.h>
 
 namespace gr {
