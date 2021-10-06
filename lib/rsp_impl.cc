@@ -505,6 +505,9 @@ bool rsp_impl::start()
 {
     //print_device_config();
 
+    std::unique_lock<std::mutex> lock0(ring_buffers[0].mtx);
+    std::unique_lock<std::mutex> lock1(ring_buffers[1].mtx);
+
     // set the ring buffers
     ring_buffers[0].xi = new short[RingBufferSize];
     ring_buffers[0].xq = new short[RingBufferSize];
@@ -527,6 +530,10 @@ bool rsp_impl::start()
         return false;
     }
     run_status = RunStatus::init;
+
+    ring_buffers[0].overflow.notify_one();
+    ring_buffers[1].overflow.notify_one();
+
     return true;
 }
 
