@@ -541,6 +541,13 @@ bool rsp_impl::stop()
         }
     }
     run_status = RunStatus::idle;
+
+    // notify the callback threads so they can terminate
+    ring_buffers[0].tail = ring_buffers[0].head;
+    ring_buffers[1].tail = ring_buffers[1].head;
+    ring_buffers[0].overflow.notify_one();
+    ring_buffers[1].overflow.notify_one();
+
     return true;
 }
 
@@ -710,6 +717,10 @@ void rsp_impl::stream_callback(short *xi, short *xq,
     ring_buffer.overflow.wait(lock, [&ring_buffer, ring_buffer_overflow]() {
             return ring_buffer.tail + ring_buffer_overflow >= ring_buffer.head;
     });
+
+    if (run_status != RunStatus::streaming) {
+        return;
+    }
 
     unsigned long new_head = ring_buffer.head + numSamples;
     size_t start = static_cast<size_t>(ring_buffer.head & RingBufferMask);
