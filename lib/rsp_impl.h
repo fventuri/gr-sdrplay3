@@ -153,7 +153,7 @@ protected:
     sdrplay_api_DeviceParamsT *device_params;
     sdrplay_api_RxChannelParamsT *rx_channel_params;
     double sample_rate;
-    enum RunStatus {idle=0, init=1, in_transition=2, streaming=3};
+    enum RunStatus {idle=0, init=1, timed_out=2, streaming=3};
     RunStatus run_status;
     int nchannels;
     enum OutputType {fc32=1, sc16=2};

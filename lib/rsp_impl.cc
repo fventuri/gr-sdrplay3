@@ -532,12 +532,14 @@ bool rsp_impl::start()
 
 bool rsp_impl::stop()
 {
+    bool ok = true;
+
     sdrplay_api_ErrT err;
     if (run_status >= RunStatus::init) {
         err = sdrplay_api_Uninit(device.dev);
         if (err != sdrplay_api_Success) {
             GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_Uninit() Error: %s") % sdrplay_api_GetErrorString(err));
-            return false;
+            ok = false;
         }
     }
     run_status = RunStatus::idle;
@@ -548,13 +550,15 @@ bool rsp_impl::stop()
     ring_buffers[0].overflow.notify_one();
     ring_buffers[1].overflow.notify_one();
 
-    return true;
+    return ok;
 }
 
 int rsp_impl::work(int noutput_items,
                    gr_vector_const_void_star& input_items,
                    gr_vector_void_star& output_items)
 {
+    static constexpr auto WORK_FUNCTION_TIMEOUT = std::chrono::milliseconds(60);
+
     if (run_status < RunStatus::init)
         return 0;
     run_status = RunStatus::streaming;
@@ -569,9 +573,16 @@ int rsp_impl::work(int noutput_items,
 
         std::unique_lock<std::mutex> lock(ring_buffer.mtx);
 
-        ring_buffer.empty.wait(lock, [&ring_buffer]() {
-                return ring_buffer.tail < ring_buffer.head;
-        });
+        auto has_data = ring_buffer.empty.wait_for(lock, WORK_FUNCTION_TIMEOUT,
+            [&ring_buffer]() {
+                    return ring_buffer.tail < ring_buffer.head;
+            });
+        if (!has_data) {
+            std::cerr << "no data after " << WORK_FUNCTION_TIMEOUT.count() << "ms - stopping" << std::endl;
+            run_status = RunStatus::timed_out;
+            stop();
+            return 0;
+        }
 
         int nsamples = ring_buffer.head - ring_buffer.tail;
         noutput_items = std::min(nsamples, noutput_items);
