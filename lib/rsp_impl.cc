@@ -206,7 +206,7 @@ void rsp_impl::update_sample_rate_and_decimation(double fsHz, int decimation,
         reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_IfType);
     }
 
-    // set the bandwidth to the largest value below the sample rate
+    // set the bandwidth to the largest value compatible with the sample rate
     sdrplay_api_Bw_MHzT bw_type = get_auto_bandwidth();
     if (bw_type != tuner_params->bwType) {
         tuner_params->bwType = bw_type;
@@ -247,17 +247,17 @@ double rsp_impl::set_bandwidth(const double bandwidth)
         return get_bandwidth();
     }
 
-    // add 1kHz to the bandwidth to give it a little margin
-    double bwplus1 = bandwidth + 1e3;
     sdrplay_api_Bw_MHzT bw_type;
-    if      (bwplus1 <  300e3) { bw_type = sdrplay_api_BW_0_200; }
-    else if (bwplus1 <  600e3) { bw_type = sdrplay_api_BW_0_300; }
-    else if (bwplus1 < 1536e3) { bw_type = sdrplay_api_BW_0_600; }
-    else if (bwplus1 < 5000e3) { bw_type = sdrplay_api_BW_1_536; }
-    else if (bwplus1 < 6000e3) { bw_type = sdrplay_api_BW_5_000; }
-    else if (bwplus1 < 7000e3) { bw_type = sdrplay_api_BW_6_000; }
-    else if (bwplus1 < 8000e3) { bw_type = sdrplay_api_BW_7_000; }
-    else                       { bw_type = sdrplay_api_BW_8_000; }
+    // bandwidth == 0 means 'AUTO', i.e. the largest bandwidth compatible with the sample rate
+    if      (bandwidth ==     0) { bw_type = get_auto_bandwidth(); }
+    else if (bandwidth <  300e3) { bw_type = sdrplay_api_BW_0_200; }
+    else if (bandwidth <  600e3) { bw_type = sdrplay_api_BW_0_300; }
+    else if (bandwidth < 1536e3) { bw_type = sdrplay_api_BW_0_600; }
+    else if (bandwidth < 5000e3) { bw_type = sdrplay_api_BW_1_536; }
+    else if (bandwidth < 6000e3) { bw_type = sdrplay_api_BW_5_000; }
+    else if (bandwidth < 7000e3) { bw_type = sdrplay_api_BW_6_000; }
+    else if (bandwidth < 8000e3) { bw_type = sdrplay_api_BW_7_000; }
+    else                         { bw_type = sdrplay_api_BW_8_000; }
 
     if (bw_type == rx_channel_params->tunerParams.bwType)
         return get_bandwidth();
@@ -287,14 +287,14 @@ const std::vector<double> rsp_impl::get_bandwidths() const
     return bandwidths;
 }
 
-// get the largest bandwidth below the sample rate
+// get the largest bandwidth compatible with the sample rate
 sdrplay_api_Bw_MHzT rsp_impl::get_auto_bandwidth() const
 {
     double largest_compatible_bw = 0;
     for (const double bandwidth : get_bandwidths()) {
         if (largest_compatible_bw == 0)
             largest_compatible_bw = bandwidth;
-        if (bandwidth > sample_rate + 1e3)
+        if (bandwidth > sample_rate)
             break;
         largest_compatible_bw = bandwidth;
     }

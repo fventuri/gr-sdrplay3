@@ -285,7 +285,7 @@ documentation: |-
     The antenna selection ('Antenna A', 'Antenna B', 'Antenna C')
 
     Bandwidth:
-    RX bandwidth (AUTO chooses the largest bandwidth below the sample rate)
+    RX bandwidth (AUTO chooses the largest bandwidth compatible with the sample rate)
 
     HDR Mode:
     Enables/disables HDR

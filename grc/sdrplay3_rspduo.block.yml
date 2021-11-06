@@ -419,7 +419,7 @@ documentation: |-
                            'Both Tuners')
 
     Bandwidth:
-    RX bandwidth (AUTO chooses the largest bandwidth below the sample rate)
+    RX bandwidth (AUTO chooses the largest bandwidth compatible with the sample rate)
 
     AGC:
     Enables/disables the AGC
