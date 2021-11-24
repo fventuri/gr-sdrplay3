@@ -33,15 +33,15 @@ rspdx_impl::~rspdx_impl() {}
 
 
 // Antenna methods
-struct _antenna {
-    sdrplay_api_RspDx_AntennaSelectT select;
-};
-
-static const std::map<std::string, struct _antenna> antennas = {
-    { "Antenna A", { sdrplay_api_RspDx_ANTENNA_A } },
-    { "Antenna B", { sdrplay_api_RspDx_ANTENNA_B } },
+#if 1
+static const std::map<std::string, sdrplay_api_RspDx_AntennaSelectT> antennas = {
+    { "Antenna A", sdrplay_api_RspDx_ANTENNA_A },
+    { "Antenna B", sdrplay_api_RspDx_ANTENNA_B },
     { "Antenna C", { sdrplay_api_RspDx_ANTENNA_C } }
 };
+#else
+static const std::map<std::string, sdrplay_api_RspDx_AntennaSelectT> antennas = {};
+#endif
 
 const std::string rspdx_impl::set_antenna(const std::string& antenna)
 {
@@ -50,7 +50,7 @@ const std::string rspdx_impl::set_antenna(const std::string& antenna)
         return get_antenna();
     }
 
-    sdrplay_api_RspDx_AntennaSelectT antennaSel = antennas.at(antenna).select;
+    sdrplay_api_RspDx_AntennaSelectT antennaSel = antennas.at(antenna);
     sdrplay_api_RspDx_AntennaSelectT& device_antennaSel = device_params->devParams->rspDxParams.antennaSel;
     if (antennaSel != device_antennaSel) {
         device_antennaSel = antennaSel;
@@ -64,7 +64,7 @@ const std::string rspdx_impl::get_antenna() const
 {
     sdrplay_api_RspDx_AntennaSelectT antennaSel = device_params->devParams->rspDxParams.antennaSel;
     for (const auto& antenna : antennas) {
-        if (antenna.second.select == antennaSel) {
+        if (antenna.second == antennaSel) {
             return antenna.first;
         }
     }
