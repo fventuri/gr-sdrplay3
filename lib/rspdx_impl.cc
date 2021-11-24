@@ -33,15 +33,11 @@ rspdx_impl::~rspdx_impl() {}
 
 
 // Antenna methods
-#if 1
 static const std::map<std::string, sdrplay_api_RspDx_AntennaSelectT> antennas = {
     { "Antenna A", sdrplay_api_RspDx_ANTENNA_A },
     { "Antenna B", sdrplay_api_RspDx_ANTENNA_B },
     { "Antenna C", { sdrplay_api_RspDx_ANTENNA_C } }
 };
-#else
-static const std::map<std::string, sdrplay_api_RspDx_AntennaSelectT> antennas = {};
-#endif
 
 const std::string rspdx_impl::set_antenna(const std::string& antenna)
 {
