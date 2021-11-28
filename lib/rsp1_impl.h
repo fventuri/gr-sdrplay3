@@ -9,7 +9,7 @@
 #define INCLUDED_SDRPLAY3_RSP1_IMPL_H
 
 #include "rsp_impl.h"
-#include <sdrplay3/rsp1.h>
+#include <gnuradio/sdrplay3/rsp1.h>
 
 namespace gr {
 namespace sdrplay3 {

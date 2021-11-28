@@ -13,8 +13,8 @@
 
 namespace py = pybind11;
 
-#include <sdrplay3/sdrplay3_types.h>
-#include <sdrplay3/rspduo.h>
+#include <gnuradio/sdrplay3/sdrplay3_types.h>
+#include <gnuradio/sdrplay3/rspduo.h>
 // pydoc.h is automatically generated in the build directory
 #include <rspduo_pydoc.h>
 

@@ -8,7 +8,7 @@
 #ifndef INCLUDED_SDRPLAY3_RSP_IMPL_H
 #define INCLUDED_SDRPLAY3_RSP_IMPL_H
 
-#include <sdrplay3/rsp.h>
+#include <gnuradio/sdrplay3/rsp.h>
 #include <sdrplay_api.h>
 #include <condition_variable>
 
