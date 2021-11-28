@@ -22,7 +22,7 @@ add_subdirectory(bindings)
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    DESTINATION ${GR_PYTHON_DIR}/sdrplay3
+    DESTINATION ${GR_PYTHON_DIR}/gnuradio/sdrplay3
 )
 
 ########################################################################
@@ -37,5 +37,5 @@ set(GR_TEST_TARGET_DEPS gnuradio-sdrplay3)
 #add_custom_target(
 #  copy_module_for_tests ALL
 #  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}
-#          ${CMAKE_BINARY_DIR}/test_modules/sdrplay3/
+#          ${CMAKE_BINARY_DIR}/test_modules/gnuradio/sdrplay3/
 #)

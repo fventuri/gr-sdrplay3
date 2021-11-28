@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2020 Franco Venturi.
+ * Copyright 2020,2021 Franco Venturi.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -8,7 +8,7 @@
 #ifndef INCLUDED_SDRPLAY3_RSP1_H
 #define INCLUDED_SDRPLAY3_RSP1_H
 
-#include <sdrplay3/rsp.h>
+#include <gnuradio/sdrplay3/rsp.h>
 
 namespace gr {
 namespace sdrplay3 {

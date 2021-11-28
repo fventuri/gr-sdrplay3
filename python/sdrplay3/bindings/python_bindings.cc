@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Free Software Foundation, Inc.
+ * Copyright 2020,2021 Free Software Foundation, Inc.
  *
  * This file is part of GNU Radio
  *
@@ -21,6 +21,13 @@ namespace py = pybind11;
 // Please do not delete
 /**************************************/
 // BINDING_FUNCTION_PROTOTYPES(
+    void bind_sdrplay3_types(py::module& m);
+    void bind_rsp(py::module& m);
+    void bind_rsp1(py::module& m);
+    void bind_rsp1a(py::module& m);
+    void bind_rsp2(py::module& m);
+    void bind_rspduo(py::module& m);
+    void bind_rspdx(py::module& m);
 // ) END BINDING_FUNCTION_PROTOTYPES
 
 
@@ -49,5 +56,12 @@ PYBIND11_MODULE(sdrplay3_python, m)
     // Please do not delete
     /**************************************/
     // BINDING_FUNCTION_CALLS(
+    bind_sdrplay3_types(m);
+    bind_rsp(m);
+    bind_rsp1(m);
+    bind_rsp1a(m);
+    bind_rsp2(m);
+    bind_rspduo(m);
+    bind_rspdx(m);
     // ) END BINDING_FUNCTION_CALLS
 }

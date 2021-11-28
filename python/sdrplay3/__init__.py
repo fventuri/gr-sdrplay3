@@ -20,6 +20,7 @@ import os
 
 # import pybind11 generated symbols into the sdrplay3 namespace
 try:
+    # this might fail if the module is python-only
     from .sdrplay3_python import *
 except ImportError:
     dirname, filename = os.path.split(os.path.abspath(__file__))

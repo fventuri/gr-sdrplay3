@@ -29,19 +29,26 @@ include(GrPybind)
 ########################################################################
 
 list(APPEND sdrplay3_python_files
+    sdrplay3_types_python.cc
+    rsp_python.cc
+    rsp1_python.cc
+    rsp1a_python.cc
+    rsp2_python.cc
+    rspduo_python.cc
+    rspdx_python.cc
     python_bindings.cc)
 
 GR_PYBIND_MAKE_OOT(sdrplay3
-   ../..
+   ../../..
    gr::sdrplay3
    "${sdrplay3_python_files}")
 
-# copy in bindings .so file for use in QA test module
-add_custom_target(
-  copy_bindings_for_tests ALL
-  COMMAND
-    ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/*.so"
-    ${CMAKE_BINARY_DIR}/test_modules/sdrplay3/
-  DEPENDS sdrplay3_python)
+## copy in bindings .so file for use in QA test module
+#add_custom_target(
+#  copy_bindings_for_tests ALL
+#  COMMAND
+#    ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/*.so"
+#    ${CMAKE_BINARY_DIR}/test_modules/gnuradio/sdrplay3/
+#  DEPENDS sdrplay3_python)
 
-install(TARGETS sdrplay3_python DESTINATION ${GR_PYTHON_DIR}/sdrplay3 COMPONENT pythonapi)
+install(TARGETS sdrplay3_python DESTINATION ${GR_PYTHON_DIR}/gnuradio/sdrplay3 COMPONENT pythonapi)

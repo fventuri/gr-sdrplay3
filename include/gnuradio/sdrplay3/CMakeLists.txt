@@ -18,5 +18,5 @@ install(FILES
     rspduo.h
     rspdx.h
     sdrplay3_types.h
-    DESTINATION include/sdrplay3
+    DESTINATION include/gnuradio/sdrplay3
 )

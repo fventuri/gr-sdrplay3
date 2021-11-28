@@ -5,7 +5,7 @@ flags: [python, cpp, throttle]
 
 
 templates:
-  imports: import sdrplay3
+  imports: from gnuradio import sdrplay3
   make: |
     sdrplay3.rsp1(
         ${rsp_selector},
