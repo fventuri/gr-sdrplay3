@@ -494,6 +494,14 @@ void rsp_impl::set_agc_setpoint(double set_point)
     update_if_streaming(sdrplay_api_Update_Ctrl_Agc);
 }
 
+void rsp_impl::set_bulk_transfer_mode(bool enable)
+{
+    sdrplay_api_TransferModeT mode = enable ? sdrplay_api_BULK : sdrplay_api_ISOCH;
+    if (!device_params->devParams || mode == device_params->devParams->mode)
+        return;
+    device_params->devParams->mode = mode;
+}
+
 
 // Streaming methods
 static void sample_copy_fc32(size_t start, size_t end, int noutput_items,

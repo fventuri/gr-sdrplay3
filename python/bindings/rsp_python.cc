@@ -125,6 +125,11 @@ void bind_rsp(py::module& m)
              py::arg("set_point"),
              D(rsp, set_agc_setpoint))
 
+        .def("set_bulk_transfer_mode",
+             &rsp::set_bulk_transfer_mode,
+             py::arg("enable"),
+             D(rsp, set_bulk_transfer_mode))
+
         .def("set_debug_mode",
              &rsp::set_debug_mode,
              py::arg("enable"),

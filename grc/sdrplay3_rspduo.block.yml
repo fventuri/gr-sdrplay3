@@ -45,6 +45,7 @@ templates:
     self.${id}.set_dab_notch_filter(${dab_notch_filter})
     self.${id}.set_am_notch_filter(${am_notch_filter})
     self.${id}.set_biasT(${biasT})
+    self.${id}.set_bulk_transfer_mode(${bulk_transfer_mode})
     self.${id}.set_debug_mode(${debug_mode})
     self.${id}.set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
     self.${id}.set_show_gain_changes(${show_gain_changes})
@@ -72,6 +73,7 @@ templates:
   - set_dab_notch_filter(${dab_notch_filter})
   - set_am_notch_filter(${am_notch_filter})
   - set_biasT(${biasT})
+  - set_bulk_transfer_mode(${bulk_transfer_mode})
   - set_debug_mode(${debug_mode})
   - set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
   - set_show_gain_changes(${show_gain_changes})
@@ -116,6 +118,7 @@ cpp_templates:
     this->${id}->set_dab_notch_filter(${dab_notch_filter.lower()});
     this->${id}->set_am_notch_filter(${am_notch_filter.lower()});
     this->${id}->set_biasT(${biasT.lower()});
+    this->${id}->set_bulk_transfer_mode(${bulk_transfer_mode.lower()});
     this->${id}->set_debug_mode(${debug_mode.lower()});
     this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check.lower()});
     this->${id}->set_show_gain_changes(${show_gain_changes.lower()});
@@ -144,6 +147,7 @@ cpp_templates:
   - set_dab_notch_filter(${dab_notch_filter.lower()});
   - set_am_notch_filter(${am_notch_filter.lower()});
   - set_biasT(${biasT.lower()});
+  - set_bulk_transfer_mode(${bulk_transfer_mode.lower()});
   - set_debug_mode(${debug_mode.lower()});
   - set_sample_sequence_gaps_check(${sample_sequence_gaps_check.lower()});
   - set_show_gain_changes(${show_gain_changes.lower()});
@@ -347,6 +351,15 @@ parameters:
   option_labels: [Disabled, Enabled]
   hide: part
 
+- id: bulk_transfer_mode
+  label: Bulk transfer mode
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
 - id: output_type
   label: Output Type
   category: Other Options
@@ -449,6 +462,8 @@ documentation: |-
         AM RF notch filter
 
         Bias-T
+
+        Bulk transfer mode
 
         Output Type:
         This parameter controls the data type of the stream in gnuradio.

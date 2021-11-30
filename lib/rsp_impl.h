@@ -57,6 +57,7 @@ public:
     void set_dc_offset_mode(bool enable) override;
     void set_iq_balance_mode(bool enable) override;
     void set_agc_setpoint(double set_point) override;
+    void set_bulk_transfer_mode(bool enable) override;
 
     // Streaming methods
     virtual bool start() override;

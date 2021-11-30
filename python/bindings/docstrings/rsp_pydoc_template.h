@@ -78,6 +78,9 @@ static const char *__doc_gr_sdrplay3_rsp_set_iq_balance_mode = R"doc()doc";
 static const char *__doc_gr_sdrplay3_rsp_set_agc_setpoint = R"doc()doc";
 
 
+static const char *__doc_gr_sdrplay3_rsp_set_bulk_transfer_mode = R"doc()doc";
+
+
 static const char *__doc_gr_sdrplay3_rsp_set_debug_mode = R"doc()doc";
 
 

@@ -24,6 +24,7 @@ templates:
     self.${id}.set_dc_offset_mode(${dc_offset_mode})
     self.${id}.set_iq_balance_mode(${iq_balance_mode})
     self.${id}.set_agc_setpoint(${agc_set_point})
+    self.${id}.set_bulk_transfer_mode(${bulk_transfer_mode})
     self.${id}.set_debug_mode(${debug_mode})
     self.${id}.set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
     self.${id}.set_show_gain_changes(${show_gain_changes})
@@ -38,6 +39,7 @@ templates:
   - set_dc_offset_mode(${dc_offset_mode})
   - set_iq_balance_mode(${iq_balance_mode})
   - set_agc_setpoint(${agc_set_point})
+  - set_bulk_transfer_mode(${bulk_transfer_mode})
   - set_debug_mode(${debug_mode})
   - set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
   - set_show_gain_changes(${show_gain_changes})
@@ -61,6 +63,7 @@ cpp_templates:
     this->${id}->set_dc_offset_mode(${dc_offset_mode.lower()});
     this->${id}->set_iq_balance_mode(${iq_balance_mode.lower()});
     this->${id}->set_agc_setpoint(${agc_set_point});
+    this->${id}->set_bulk_transfer_mode(${bulk_transfer_mode.lower()});
     this->${id}->set_debug_mode(${debug_mode.lower()});
     this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check.lower()});
     this->${id}->set_show_gain_changes(${show_gain_changes.lower()});
@@ -76,6 +79,7 @@ cpp_templates:
   - set_dc_offset_mode(${dc_offset_mode.lower()});
   - set_iq_balance_mode(${iq_balance_mode.lower()});
   - set_agc_setpoint(${agc_set_point});
+  - set_bulk_transfer_mode(${bulk_transfer_mode.lower()});
   - set_debug_mode(${debug_mode.lower()});
   - set_sample_sequence_gaps_check(${sample_sequence_gaps_check.lower()});
   - set_show_gain_changes(${show_gain_changes.lower()});
@@ -166,6 +170,15 @@ parameters:
   option_labels: [Disabled, Enabled]
   hide: part
 
+- id: bulk_transfer_mode
+  label: Bulk transfer mode
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
 - id: output_type
   label: Output Type
   category: Other Options
@@ -245,6 +258,8 @@ documentation: |-
         DC offset correction
 
         IQ imbalance correction
+
+        Bulk transfer mode
 
         Output Type:
         This parameter controls the data type of the stream in gnuradio.

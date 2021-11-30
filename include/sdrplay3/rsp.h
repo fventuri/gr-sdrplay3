@@ -171,6 +171,13 @@ public:
     virtual void set_agc_setpoint(double set_point) = 0;
 
     /*!
+     * Set bulk transfer mode
+     *
+     * \param enable enable (or disable) bulk transfer mode (default is ISOCH)
+     */
+    virtual void set_bulk_transfer_mode(bool enable) = 0;
+
+    /*!
      * Set debug mode for SDRplay API
      *
      * \param enable enable (or disable) debug mode for SDRplay API
