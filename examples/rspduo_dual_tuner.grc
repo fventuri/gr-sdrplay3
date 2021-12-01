@@ -139,6 +139,7 @@ blocks:
     antenna_both: Both Tuners
     bandwidth: '0'
     biasT: 'False'
+    bulk_transfer_mode: 'False'
     center_freq: '0'
     center_freq0: 100e6
     center_freq1: 146.520e6

@@ -135,6 +135,7 @@ blocks:
     antenna: Hi-Z
     bandwidth: '0'
     biasT: 'False'
+    bulk_transfer_mode: 'False'
     center_freq: 1010e3
     comment: ''
     dc_offset_mode: 'False'

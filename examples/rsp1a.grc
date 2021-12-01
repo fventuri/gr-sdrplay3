@@ -134,6 +134,7 @@ blocks:
     alias: ''
     bandwidth: '0'
     biasT: 'False'
+    bulk_transfer_mode: 'False'
     center_freq: 1010e3
     comment: ''
     dab_notch_filter: 'False'

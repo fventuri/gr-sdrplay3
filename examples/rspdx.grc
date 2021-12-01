@@ -135,6 +135,7 @@ blocks:
     antenna: Antenna A
     bandwidth: '0'
     biasT: 'False'
+    bulk_transfer_mode: 'False'
     center_freq: '0'
     comment: ''
     dab_notch_filter: 'False'

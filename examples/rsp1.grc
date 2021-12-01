@@ -133,6 +133,7 @@ blocks:
     agc_set_point: '-30'
     alias: ''
     bandwidth: '0'
+    bulk_transfer_mode: 'False'
     center_freq: 1010e3
     comment: ''
     dc_offset_mode: 'False'
