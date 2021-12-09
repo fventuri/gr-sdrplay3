@@ -138,8 +138,8 @@ private:
     struct {
         short* xi;
         short* xq;
-        unsigned long head;
-        unsigned long tail;
+        uint64_t head;
+        uint64_t tail;
         std::condition_variable empty;
         std::condition_variable overflow;
         std::mutex mtx;

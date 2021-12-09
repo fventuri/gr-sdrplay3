@@ -575,7 +575,7 @@ int rsp_impl::work(int noutput_items,
 
         int nsamples = ring_buffer.head - ring_buffer.tail;
         noutput_items = std::min(nsamples, noutput_items);
-        unsigned long new_tail = ring_buffer.tail + noutput_items;
+        uint64_t new_tail = ring_buffer.tail + noutput_items;
         size_t start = static_cast<size_t>(ring_buffer.tail & RingBufferMask);
         size_t end = static_cast<size_t>(new_tail & RingBufferMask);
         if (output_type == OutputType::fc32) {
@@ -596,6 +596,8 @@ int rsp_impl::work(int noutput_items,
 static void sample_copy_fc32(size_t start, size_t end, int noutput_items,
                              short *xi, short *xq, void *out)
 {
+    if (noutput_items == 0)
+        return;
     short *from = xi + start;
     gr_complex *to = static_cast<gr_complex *>(out);
     if (end > start || end == 0) {
@@ -629,6 +631,8 @@ static void sample_copy_fc32(size_t start, size_t end, int noutput_items,
 static void sample_copy_sc16(size_t start, size_t end, int noutput_items,
                              short *xi, short *xq, void *out)
 {
+    if (noutput_items == 0)
+        return;
     short *from = xi + start;
     short (*to)[2] = static_cast<short (*)[2]>(out);
     if (end > start || end == 0) {
@@ -722,7 +726,7 @@ void rsp_impl::stream_callback(short *xi, short *xq,
         return;
     }
 
-    unsigned long new_head = ring_buffer.head + numSamples;
+    uint64_t new_head = ring_buffer.head + numSamples;
     size_t start = static_cast<size_t>(ring_buffer.head & RingBufferMask);
     size_t end = static_cast<size_t>(new_head & RingBufferMask);
     if (end > start || end == 0) {
