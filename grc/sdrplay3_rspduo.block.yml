@@ -30,8 +30,8 @@ templates:
     self.${id}.set_gain(-${if_gRdB}, 'IF')
     self.${id}.set_gain(-${rf_gRdB}, 'RF')
     % elif rspduo_mode.nindeprx == '2':
-    self.${id}.set_gain_mode(${AGC0})
-    self.${id}.set_gain_mode(${AGC1})
+    self.${id}.set_gain_mode(${AGC0}, 0)
+    self.${id}.set_gain_mode(${AGC1}, 1)
     self.${id}.set_gain(-${if_gRdB0}, 'IF', 0)
     self.${id}.set_gain(-${if_gRdB1}, 'IF', 1)
     self.${id}.set_gain(-${rf_gRdB0}, 'RF', 0)
@@ -55,15 +55,42 @@ templates:
   - ${'set_center_freq(' + center_freq1 + ', 1)' if rspduo_mode.nindeprx == '2' else ''}
   - set_bandwidth(${bandwidth})
   - set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}")
-  - ${'set_gain_mode(' + AGC + ')' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_gain_mode(' + AGC0 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain_mode(' + AGC1 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(if_gRdB))) + ', "IF")' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_gain(' + str((-float(if_gRdB0))) + ', "IF", 0)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(if_gRdB1))) + ', "IF", 1)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(rf_gRdB))) + ', "RF")' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_gain(' + str((-float(rf_gRdB0))) + ', "RF", 0)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(rf_gRdB1))) + ', "RF", 1)' if rspduo_mode.nindeprx == '2' else ''}
+  - |
+    % if rspduo_mode.nindeprx == '1':
+    set_gain_mode(${AGC}) 
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain_mode(${AGC0}, 0)
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain_mode(${AGC1}, 1)
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '1':
+    set_gain(-${if_gRdB}, 'IF', 0)
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain(-${if_gRdB0}, 'IF', 0)
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain(-${if_gRdB1}, 'IF', 1)
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '1':
+    set_gain(-${rf_gRdB}, 'RF', 0)
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain(-${rf_gRdB0}, 'RF', 0)
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain(-${rf_gRdB1}, 'RF', 1)
+    % endif
   - set_freq_corr(${freq_corr})
   - set_dc_offset_mode(${dc_offset_mode})
   - set_iq_balance_mode(${iq_balance_mode})
@@ -127,15 +154,42 @@ cpp_templates:
   - ${'set_center_freq(' + center_freq1 + ', 1);' if rspduo_mode.nindeprx == '2' else ''}
   - set_bandwidth(${bandwidth});
   - set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}");
-  - ${'set_gain_mode(' + AGC.lower() + ');' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_gain_mode(' + AGC0.lower() + ', 0);' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain_mode(' + AGC1.lower() + ', 1);' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(if_gRdB))) + ', "IF");' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_gain(' + str((-float(if_gRdB0))) + ', "IF", 0);' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(if_gRdB1))) + ', "IF", 1);' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(rf_gRdB))) + ', "RF");' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_gain(' + str((-float(rf_gRdB0))) + ', "RF", 0);' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_gain(' + str((-float(rf_gRdB1))) + ', "RF", 1);' if rspduo_mode.nindeprx == '2' else ''}
+  - |
+    % if rspduo_mode.nindeprx == '1':
+    set_gain_mode(${AGC.lower()});
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain_mode(${AGC0.lower()}, 0);
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain_mode(${AGC1.lower()}, 1);
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '1':
+    set_gain(-${if_gRdB}, "IF");
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain(-${if_gRdB0}, "IF", 0);
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain(-${if_gRdB1}, "IF", 1);
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '1':
+    set_gain(-${rf_gRdB}, "RF");
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain(-${rf_gRdB0}, "RF", 0);
+    % endif
+  - |
+    % if rspduo_mode.nindeprx == '2':
+    set_gain(-${rf_gRdB1}, "RF", 1);
+    % endif
   - set_freq_corr(${freq_corr});
   - set_dc_offset_mode(${dc_offset_mode.lower()});
   - set_iq_balance_mode(${iq_balance_mode.lower()});
