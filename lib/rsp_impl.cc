@@ -907,7 +907,7 @@ void rsp_impl::update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_updat
         for (int i = 0; i < UpdateTimeout && gain_reduction_changed == 0; ++i)
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         if (gain_reduction_changed == 0)
-            GR_LOG_WARN(d_logger, "gsin reduction update timeout");
+            GR_LOG_WARN(d_logger, "gain reduction update timeout");
     }
 }
 
