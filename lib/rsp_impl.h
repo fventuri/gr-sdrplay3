@@ -9,7 +9,6 @@
 #define INCLUDED_SDRPLAY3_RSP_IMPL_H
 
 #include <sdrplay3/rsp.h>
-#include <sdrplay3/sdrplay3_types.h>
 #include <sdrplay_api.h>
 #include <condition_variable>
 
@@ -139,8 +138,8 @@ private:
     struct {
         short* xi;
         short* xq;
-        unsigned long head;
-        unsigned long tail;
+        uint64_t head;
+        uint64_t tail;
         std::condition_variable empty;
         std::condition_variable overflow;
         std::mutex mtx;

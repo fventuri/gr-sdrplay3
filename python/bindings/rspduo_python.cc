@@ -106,12 +106,18 @@ void bind_rspduo(py::module& m)
              D(rspduo, get_gain))
 
         .def("get_gain_range",
-             overload_cast_<const std::string&>()(&rspduo::get_gain_range, py::const_),
+             [](const rspduo& self, const std::string& name) {
+                 const double *range = self.get_gain_range(name);
+                 return py::make_tuple(range[0], range[1]);
+             },
              py::arg("name"),
              D(rspduo, get_gain_range))
 
         .def("get_gain_range",
-             overload_cast_<const std::string&, const int>()(&rspduo::get_gain_range, py::const_),
+             [](const rspduo& self, const std::string& name, const int tuner) {
+                 const double *range = self.get_gain_range(name, tuner);
+                 return py::make_tuple(range[0], range[1]);
+             },
              py::arg("name"),
              py::arg("tuner"),
              D(rspduo, get_gain_range))

@@ -50,7 +50,10 @@ void bind_rsp(py::module& m)
              D(rsp, get_center_freq))
 
         .def("get_freq_range",
-             &rsp::get_freq_range,
+             [](const rsp& self) {
+                 const double *range = self.get_freq_range();
+                 return py::make_tuple(range[0], range[1]);
+             },
              D(rsp, get_freq_range))
 
         .def("set_bandwidth",
@@ -82,7 +85,10 @@ void bind_rsp(py::module& m)
              D(rsp, get_gain))
 
         .def("get_gain_range",
-             &rsp::get_gain_range,
+             [](const rsp& self, const std::string& name) {
+                 const double *range = self.get_gain_range(name);
+                 return py::make_tuple(range[0], range[1]);
+             },
              py::arg("name"),
              D(rsp, get_gain_range))
 

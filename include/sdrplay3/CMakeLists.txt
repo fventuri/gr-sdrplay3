@@ -17,5 +17,6 @@ install(FILES
     rsp2.h
     rspduo.h
     rspdx.h
+    sdrplay3_types.h
     DESTINATION include/sdrplay3
 )

@@ -208,7 +208,7 @@ void rsp_impl::update_sample_rate_and_decimation(double fsHz, int decimation,
         reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_IfType);
     }
 
-    // set the bandwidth to the largest value below the sample rate
+    // set the bandwidth to the largest value compatible with the sample rate
     sdrplay_api_Bw_MHzT bw_type = get_auto_bandwidth();
     if (bw_type != tuner_params->bwType) {
         tuner_params->bwType = bw_type;
@@ -249,17 +249,17 @@ double rsp_impl::set_bandwidth(const double bandwidth)
         return get_bandwidth();
     }
 
-    // add 1kHz to the bandwidth to give it a little margin
-    double bwplus1 = bandwidth + 1e3;
     sdrplay_api_Bw_MHzT bw_type;
-    if      (bwplus1 <  300e3) { bw_type = sdrplay_api_BW_0_200; }
-    else if (bwplus1 <  600e3) { bw_type = sdrplay_api_BW_0_300; }
-    else if (bwplus1 < 1536e3) { bw_type = sdrplay_api_BW_0_600; }
-    else if (bwplus1 < 5000e3) { bw_type = sdrplay_api_BW_1_536; }
-    else if (bwplus1 < 6000e3) { bw_type = sdrplay_api_BW_5_000; }
-    else if (bwplus1 < 7000e3) { bw_type = sdrplay_api_BW_6_000; }
-    else if (bwplus1 < 8000e3) { bw_type = sdrplay_api_BW_7_000; }
-    else                       { bw_type = sdrplay_api_BW_8_000; }
+    // bandwidth == 0 means 'AUTO', i.e. the largest bandwidth compatible with the sample rate
+    if      (bandwidth ==     0) { bw_type = get_auto_bandwidth(); }
+    else if (bandwidth <  300e3) { bw_type = sdrplay_api_BW_0_200; }
+    else if (bandwidth <  600e3) { bw_type = sdrplay_api_BW_0_300; }
+    else if (bandwidth < 1536e3) { bw_type = sdrplay_api_BW_0_600; }
+    else if (bandwidth < 5000e3) { bw_type = sdrplay_api_BW_1_536; }
+    else if (bandwidth < 6000e3) { bw_type = sdrplay_api_BW_5_000; }
+    else if (bandwidth < 7000e3) { bw_type = sdrplay_api_BW_6_000; }
+    else if (bandwidth < 8000e3) { bw_type = sdrplay_api_BW_7_000; }
+    else                         { bw_type = sdrplay_api_BW_8_000; }
 
     if (bw_type == rx_channel_params->tunerParams.bwType)
         return get_bandwidth();
@@ -289,14 +289,14 @@ const std::vector<double> rsp_impl::get_bandwidths() const
     return bandwidths;
 }
 
-// get the largest bandwidth below the sample rate
+// get the largest bandwidth compatible with the sample rate
 sdrplay_api_Bw_MHzT rsp_impl::get_auto_bandwidth() const
 {
     double largest_compatible_bw = 0;
     for (const double bandwidth : get_bandwidths()) {
         if (largest_compatible_bw == 0)
             largest_compatible_bw = bandwidth;
-        if (bandwidth > sample_rate + 1e3)
+        if (bandwidth > sample_rate)
             break;
         largest_compatible_bw = bandwidth;
     }
@@ -543,6 +543,13 @@ bool rsp_impl::stop()
         }
     }
     run_status = RunStatus::idle;
+
+    // notify the callback threads so they can terminate
+    ring_buffers[0].tail = ring_buffers[0].head;
+    ring_buffers[1].tail = ring_buffers[1].head;
+    ring_buffers[0].overflow.notify_one();
+    ring_buffers[1].overflow.notify_one();
+
     return true;
 }
 
@@ -570,7 +577,7 @@ int rsp_impl::work(int noutput_items,
 
         int nsamples = ring_buffer.head - ring_buffer.tail;
         noutput_items = std::min(nsamples, noutput_items);
-        unsigned long new_tail = ring_buffer.tail + noutput_items;
+        uint64_t new_tail = ring_buffer.tail + noutput_items;
         size_t start = static_cast<size_t>(ring_buffer.tail & RingBufferMask);
         size_t end = static_cast<size_t>(new_tail & RingBufferMask);
         if (output_type == OutputType::fc32) {
@@ -591,6 +598,8 @@ int rsp_impl::work(int noutput_items,
 static void sample_copy_fc32(size_t start, size_t end, int noutput_items,
                              short *xi, short *xq, void *out)
 {
+    if (noutput_items == 0)
+        return;
     short *from = xi + start;
     gr_complex *to = static_cast<gr_complex *>(out);
     if (end > start || end == 0) {
@@ -624,6 +633,8 @@ static void sample_copy_fc32(size_t start, size_t end, int noutput_items,
 static void sample_copy_sc16(size_t start, size_t end, int noutput_items,
                              short *xi, short *xq, void *out)
 {
+    if (noutput_items == 0)
+        return;
     short *from = xi + start;
     short (*to)[2] = static_cast<short (*)[2]>(out);
     if (end > start || end == 0) {
@@ -719,7 +730,11 @@ void rsp_impl::stream_callback(short *xi, short *xq,
             return ring_buffer.tail + ring_buffer_overflow >= ring_buffer.head;
     });
 
-    unsigned long new_head = ring_buffer.head + numSamples;
+    if (run_status != RunStatus::streaming) {
+        return;
+    }
+
+    uint64_t new_head = ring_buffer.head + numSamples;
     size_t start = static_cast<size_t>(ring_buffer.head & RingBufferMask);
     size_t end = static_cast<size_t>(new_head & RingBufferMask);
     if (end > start || end == 0) {
