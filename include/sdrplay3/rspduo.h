@@ -71,6 +71,14 @@ public:
     virtual double set_center_freq(const double freq, const int tuner) = 0;
 
     /*!
+     * Tune to the desired center frequencies (independent RX case).
+     *
+     * \param freq_A the requested center frequency for tuner A
+     * \param freq_B the requested center frequency for tuner B
+     */
+    virtual void set_center_freq(const double freq_A, const double freq_B) = 0;
+
+    /*!
      * Get the center frequency.
      *
      * \return the frequency in Hz
@@ -125,6 +133,16 @@ public:
                             const int tuner) = 0;
 
     /*!
+     * Set both gains for this RSPduo.
+     *
+     * \param name gain name
+     * \param gain_A gain value in dB for tuner A
+     * \param gain_B gain value in dB for tuner B
+     */
+    virtual void set_gain(const double gain_A, const double gain_B,
+                          const std::string& name) = 0;
+
+    /*!
      * Get the gain for this RSPduo.
      *
      * \param name gain name
@@ -172,6 +190,14 @@ public:
      * \param tuner tuner number (0 or 1)
      */
     virtual bool set_gain_mode(bool automatic, const int tuner) = 0;
+
+    /*!
+     * Set both IF gain modes (automatic=true/false) for this RSPduo.
+     *
+     * \param automatic_A enable or disable AGC for tuner A
+     * \param automatic_B enable or disable AGC for tuner B
+     */
+    virtual void set_gain_mode(bool automatic_A, bool automatic_B) = 0;
 
     /*!
      * Get the IF gain mode (AGC=true/false) for this RSPduo.

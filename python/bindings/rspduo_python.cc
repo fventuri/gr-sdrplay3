@@ -59,6 +59,12 @@ void bind_rspduo(py::module& m)
              py::arg("tuner"),
              D(rspduo, set_center_freq))
 
+        .def("set_center_freq",
+             overload_cast_<double, double>()(&rspduo::set_center_freq),
+             py::arg("freq_A"),
+             py::arg("freq_B"),
+             D(rspduo, set_center_freq))
+
         .def("get_center_freq",
              overload_cast_<>()(&rspduo::get_center_freq, py::const_),
              D(rspduo, get_center_freq))
@@ -92,6 +98,13 @@ void bind_rspduo(py::module& m)
              py::arg("gain"),
              py::arg("name"),
              py::arg("tuner"),
+             D(rspduo, set_gain))
+
+        .def("set_gain",
+             overload_cast_<double, double, const std::string&>()(&rspduo::set_gain),
+             py::arg("gain_A"),
+             py::arg("gain_B"),
+             py::arg("name"),
              D(rspduo, set_gain))
 
         .def("get_gain",
@@ -131,6 +144,12 @@ void bind_rspduo(py::module& m)
              overload_cast_<bool, const int>()(&rspduo::set_gain_mode),
              py::arg("automatic"),
              py::arg("tuner"),
+             D(rspduo, set_gain_mode))
+
+        .def("set_gain_mode",
+             overload_cast_<bool, bool>()(&rspduo::set_gain_mode),
+             py::arg("automatic_A"),
+             py::arg("automatic_B"),
              D(rspduo, set_gain_mode))
 
         .def("get_gain_mode",
