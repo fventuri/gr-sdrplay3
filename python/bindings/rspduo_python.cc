@@ -146,7 +146,7 @@ void bind_rspduo(py::module& m)
              py::arg("tuner"),
              D(rspduo, set_gain_mode))
 
-        .def("set_gain_mode",
+        .def("set_gain_modes",
              overload_cast_<bool, bool>()(&rspduo::set_gain_mode),
              py::arg("automatic_A"),
              py::arg("automatic_B"),

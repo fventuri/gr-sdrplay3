@@ -29,7 +29,7 @@ templates:
     self.${id}.set_gain(-${if_gRdB}, 'IF')
     self.${id}.set_gain(-${rf_gRdB}, 'RF')
     % elif rspduo_mode.nindepgain == '2':
-    self.${id}.set_gain_mode(${AGC0}, ${AGC1})
+    self.${id}.set_gain_modes(${AGC0}, ${AGC1})
     self.${id}.set_gain(-${if_gRdB0}, -${if_gRdB1}, 'IF')
     self.${id}.set_gain(-${rf_gRdB0}, -${rf_gRdB1}, 'RF')
     % endif
@@ -62,7 +62,7 @@ templates:
     % endif
   - |
     % if rspduo_mode.nindepgain == '2':
-    set_gain_mode(${AGC0}, ${AGC1})
+    set_gain_modes(${AGC0}, ${AGC1})
     % endif
   - |
     % if rspduo_mode.nindepgain == '1':
