@@ -31,6 +31,7 @@ public:
     // we need to redefine the overloaded methods because of C++ name hiding
     double set_center_freq(const double freq) override { return rsp_impl::set_center_freq(freq); }
     double set_center_freq(const double freq, const int tuner) override;
+    void set_center_freq(const double freq_A, const double freq_B) override;
     double get_center_freq() const override { return rsp_impl::get_center_freq(); }
     double get_center_freq(const int tuner) const override;
 
@@ -44,6 +45,7 @@ public:
         return rsp_impl::set_gain(gain, name);
     }
     double set_gain(const double gain, const std::string& name, const int tuner) override;
+   void set_gain(const double gain_A, const double gain_B, const std::string& name) override;
     double get_gain(const std::string& name) const override {
         return rsp_impl::get_gain(name);
     }
@@ -54,6 +56,7 @@ public:
     const pair_of_doubles &get_gain_range(const std::string& name, const int tuner) const override;
     bool set_gain_mode(bool automatic) override { return rsp_impl::set_gain_mode(automatic); }
     bool set_gain_mode(bool automatic, const int tuner) override;
+    void set_gain_mode(bool automatic_A, bool automatic_B) override;
     bool get_gain_mode() const override { return rsp_impl::get_gain_mode(); };
     bool get_gain_mode(const int tuner) const override;
 
@@ -84,11 +87,14 @@ private:
         return rsp_impl::set_if_gain(gain);
     }
     double set_if_gain(const double gain, const int tuner);
+    void set_if_gain(const double gain_A, const double gain_B);
     double set_rf_gain(const double gain, const std::vector<int> rf_gRs) {
         return rsp_impl::set_rf_gain(gain, rf_gRs);
     }
     double set_rf_gain(const double gain, const std::vector<int> rf_gRs,
                        const int tuner);
+    void set_rf_gain(const double gain_A, const double gain_B,
+                     const std::vector<int> rf_gRs);
     double get_if_gain() const { return rsp_impl::get_if_gain(); }
     double get_if_gain(const int tuner) const;
     double get_rf_gain(const std::vector<int> rf_gRs) const {

@@ -17,25 +17,21 @@ templates:
         ),
     )
     self.${id}.set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
-    % if rspduo_mode.nindeprx == '1':
+    % if rspduo_mode.nindepfreq == '1':
     self.${id}.set_center_freq(${center_freq})
-    % elif rspduo_mode.nindeprx == '2':
-    self.${id}.set_center_freq(${center_freq0}, 0)
-    self.${id}.set_center_freq(${center_freq1}, 1)
+    % elif rspduo_mode.nindepfreq == '2':
+    self.${id}.set_center_freq(${center_freq0}, ${center_freq1})
     % endif
     self.${id}.set_bandwidth(${bandwidth})
     self.${id}.set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}")
-    % if rspduo_mode.nindeprx == '1':
+    % if rspduo_mode.nindepgain == '1':
     self.${id}.set_gain_mode(${AGC})
     self.${id}.set_gain(-${if_gRdB}, 'IF')
     self.${id}.set_gain(-${rf_gRdB}, 'RF')
-    % elif rspduo_mode.nindeprx == '2':
-    self.${id}.set_gain_mode(${AGC0}, 0)
-    self.${id}.set_gain_mode(${AGC1}, 1)
-    self.${id}.set_gain(-${if_gRdB0}, 'IF', 0)
-    self.${id}.set_gain(-${if_gRdB1}, 'IF', 1)
-    self.${id}.set_gain(-${rf_gRdB0}, 'RF', 0)
-    self.${id}.set_gain(-${rf_gRdB1}, 'RF', 1)
+    % elif rspduo_mode.nindepgain == '2':
+    self.${id}.set_gain_modes(${AGC0}, ${AGC1})
+    self.${id}.set_gain(-${if_gRdB0}, -${if_gRdB1}, 'IF')
+    self.${id}.set_gain(-${rf_gRdB0}, -${rf_gRdB1}, 'RF')
     % endif
     self.${id}.set_freq_corr(${freq_corr})
     self.${id}.set_dc_offset_mode(${dc_offset_mode})
@@ -50,46 +46,39 @@ templates:
     self.${id}.set_show_gain_changes(${show_gain_changes})
   callbacks:
   - set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
-  - ${'set_center_freq(' + center_freq + ')' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_center_freq(' + center_freq0 + ', 0)' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_center_freq(' + center_freq1 + ', 1)' if rspduo_mode.nindeprx == '2' else ''}
+  - |
+    % if rspduo_mode.nindepfreq == '1':
+    set_center_freq(${center_freq})
+    % endif
+  - |
+    % if rspduo_mode.nindepfreq == '2':
+    set_center_freq(${center_freq0}, ${center_freq1})
+    % endif
   - set_bandwidth(${bandwidth})
   - set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}")
   - |
-    % if rspduo_mode.nindeprx == '1':
+    % if rspduo_mode.nindepgain == '1':
     set_gain_mode(${AGC}) 
     % endif
   - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain_mode(${AGC0}, 0)
+    % if rspduo_mode.nindepgain == '2':
+    set_gain_modes(${AGC0}, ${AGC1})
     % endif
   - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain_mode(${AGC1}, 1)
-    % endif
-  - |
-    % if rspduo_mode.nindeprx == '1':
+    % if rspduo_mode.nindepgain == '1':
     set_gain(-${if_gRdB}, 'IF', 0)
     % endif
   - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain(-${if_gRdB0}, 'IF', 0)
+    % if rspduo_mode.nindepgain == '2':
+    set_gain(-${if_gRdB0}, -{if_gRdB1}, 'IF')
     % endif
   - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain(-${if_gRdB1}, 'IF', 1)
-    % endif
-  - |
-    % if rspduo_mode.nindeprx == '1':
+    % if rspduo_mode.nindepgain == '1':
     set_gain(-${rf_gRdB}, 'RF', 0)
     % endif
   - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain(-${rf_gRdB0}, 'RF', 0)
-    % endif
-  - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain(-${rf_gRdB1}, 'RF', 1)
+    % if rspduo_mode.nindepgain == '2':
+    set_gain(-${rf_gRdB0}, -${rf_gRdB1}, 'RF')
     % endif
   - set_freq_corr(${freq_corr})
   - set_dc_offset_mode(${dc_offset_mode})
@@ -115,25 +104,21 @@ cpp_templates:
         ::sdrplay3::stream_args_t("${output_type}", ${rspduo_mode.nchan})
     );
     this->${id}->set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner});
-    % if rspduo_mode.nindeprx == '1':
+    % if rspduo_mode.nindepfreq == '1':
     this->${id}->set_center_freq(${center_freq});
-    % elif rspduo_mode.nindeprx == '2':
-    this->${id}->set_center_freq(${center_freq0}, 0);
-    this->${id}->set_center_freq(${center_freq1}, 1);
+    % elif rspduo_mode.nindepfreq == '2':
+    this->${id}->set_center_freq(${center_freq0}, ${center_freq1});
     % endif
     this->${id}->set_bandwidth(${bandwidth});
     this->${id}->set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}");
-    % if rspduo_mode.nindeprx == '1':
+    % if rspduo_mode.nindepgain == '1':
     this->${id}->set_gain_mode(${AGC.lower()});
     this->${id}->set_gain(-${if_gRdB}, "IF");
     this->${id}->set_gain(-${rf_gRdB}, "RF");
-    % elif rspduo_mode.nindeprx == '2':
-    this->${id}->set_gain_mode(${AGC0.lower()}, 0);
-    this->${id}->set_gain_mode(${AGC1.lower()}, 1);
-    this->${id}->set_gain(-${if_gRdB0}, "IF", 0);
-    this->${id}->set_gain(-${if_gRdB1}, "IF", 1);
-    this->${id}->set_gain(-${rf_gRdB0}, "RF", 0);
-    this->${id}->set_gain(-${rf_gRdB1}, "RF", 1);
+    % elif rspduo_mode.nindepgain == '2':
+    this->${id}->set_gain_mode(${AGC0.lower()}, ${AGC1.lower()});
+    this->${id}->set_gain(-${if_gRdB0}, -${if_gRdB1}, "IF");
+    this->${id}->set_gain(-${rf_gRdB0}, -${rf_gRdB1}, "RF");
     % endif
     this->${id}->set_freq_corr(${freq_corr});
     this->${id}->set_dc_offset_mode(${dc_offset_mode.lower()});
@@ -149,46 +134,39 @@ cpp_templates:
   link: ['gnuradio-sdrplay3 sdrplay_api.so.3']
   callbacks:
   - set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
-  - ${'set_center_freq(' + center_freq + ');' if rspduo_mode.nindeprx == '1' else ''}
-  - ${'set_center_freq(' + center_freq0 + ', 0);' if rspduo_mode.nindeprx == '2' else ''}
-  - ${'set_center_freq(' + center_freq1 + ', 1);' if rspduo_mode.nindeprx == '2' else ''}
+  - |
+    % if rspduo_mode.nindepfreq == '1':
+    set_center_freq(${center_freq});
+    % endif
+  - |
+    % if rspduo_mode.nindepfreq == '2':
+    set_center_freq(${center_freq0}, ${center_freq1});
+    % endif
   - set_bandwidth(${bandwidth});
   - set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}");
   - |
-    % if rspduo_mode.nindeprx == '1':
+    % if rspduo_mode.nindepgain == '1':
     set_gain_mode(${AGC.lower()});
     % endif
   - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain_mode(${AGC0.lower()}, 0);
+    % if rspduo_mode.nindepgain == '2':
+    set_gain_mode(${AGC0.lower()}, ${AGC1.lower()});
     % endif
   - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain_mode(${AGC1.lower()}, 1);
-    % endif
-  - |
-    % if rspduo_mode.nindeprx == '1':
+    % if rspduo_mode.nindepgain == '1':
     set_gain(-${if_gRdB}, "IF");
     % endif
   - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain(-${if_gRdB0}, "IF", 0);
+    % if rspduo_mode.nindepgain == '2':
+    set_gain(-${if_gRdB0}, -${if_gRdB1}, "IF");
     % endif
   - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain(-${if_gRdB1}, "IF", 1);
-    % endif
-  - |
-    % if rspduo_mode.nindeprx == '1':
+    % if rspduo_mode.nindepgain == '1':
     set_gain(-${rf_gRdB}, "RF");
     % endif
   - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain(-${rf_gRdB0}, "RF", 0);
-    % endif
-  - |
-    % if rspduo_mode.nindeprx == '2':
-    set_gain(-${rf_gRdB1}, "RF", 1);
+    % if rspduo_mode.nindepgain == '2':
+    set_gain(-${rf_gRdB0}, -${rf_gRdB1}, "RF");
     % endif
   - set_freq_corr(${freq_corr});
   - set_dc_offset_mode(${dc_offset_mode.lower()});
@@ -215,7 +193,8 @@ parameters:
   options: [Single Tuner, Dual Tuner (diversity reception), Dual Tuner (independent RX), Master, Master (SR=8Mhz), Slave]
   option_attributes:
     nchan: [1, 2, 2, 1, 1, 1]
-    nindeprx: [1, 1, 2, 1, 1, 1]
+    nindepfreq: [1, 1, 2, 1, 1, 1]
+    nindepgain: [1, 2, 2, 1, 1, 1]
 
 - id: antenna
   label: Antenna
@@ -249,17 +228,17 @@ parameters:
   label: Center Freq (Hz)
   dtype: real
   default: 0
-  hide: ${'none' if rspduo_mode.nindeprx == 1 else 'all'}
+  hide: ${'none' if rspduo_mode.nindepfreq == 1 else 'all'}
 - id: center_freq0
   label: 'RX0: Center Freq (Hz)'
   dtype: real
   default: 0
-  hide: ${'none' if rspduo_mode.nindeprx == 2 else 'all'}
+  hide: ${'none' if rspduo_mode.nindepfreq == 2 else 'all'}
 - id: center_freq1
   label: 'RX1: Center Freq (Hz)'
   dtype: real
   default: 0
-  hide: ${'none' if rspduo_mode.nindeprx == 2 else 'all'}
+  hide: ${'none' if rspduo_mode.nindepfreq == 2 else 'all'}
 
 - id: bandwidth
   label: Bandwidth (Hz)
@@ -276,7 +255,7 @@ parameters:
   default: 'False'
   options: ['False', 'True']
   option_labels: [Disabled, Enabled]
-  hide: ${'part' if rspduo_mode.nindeprx == 1 else 'all'}
+  hide: ${'part' if rspduo_mode.nindepgain == 1 else 'all'}
 - id: AGC0
   label: 'RX0: AGC'
   category: Gain Options
@@ -284,7 +263,7 @@ parameters:
   default: 'False'
   options: ['False', 'True']
   option_labels: [Disabled, Enabled]
-  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+  hide: ${'part' if rspduo_mode.nindepgain == 2 else 'all'}
 - id: AGC1
   label: 'RX1: AGC'
   category: Gain Options
@@ -292,45 +271,45 @@ parameters:
   default: 'False'
   options: ['False', 'True']
   option_labels: [Disabled, Enabled]
-  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+  hide: ${'part' if rspduo_mode.nindepgain == 2 else 'all'}
 
 - id: if_gRdB
   label: IF Attenuation (dB)
   category: Gain Options
   dtype: real
   default: 40
-  hide: ${'part' if rspduo_mode.nindeprx == 1 else 'all'}
+  hide: ${'part' if rspduo_mode.nindepgain == 1 else 'all'}
 - id: if_gRdB0
   label: 'RX0: IF Attenuation (dB)'
   category: Gain Options
   dtype: real
   default: 40
-  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+  hide: ${'part' if rspduo_mode.nindepgain == 2 else 'all'}
 - id: if_gRdB1
   label: 'RX1: IF Attenuation (dB)'
   category: Gain Options
   dtype: real
   default: 40
-  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+  hide: ${'part' if rspduo_mode.nindepgain == 2 else 'all'}
 
 - id: rf_gRdB
   label: RF Attenuation (dB)
   category: Gain Options
   dtype: real
   default: 0
-  hide: ${'part' if rspduo_mode.nindeprx == 1 else 'all'}
+  hide: ${'part' if rspduo_mode.nindepgain == 1 else 'all'}
 - id: rf_gRdB0
   label: 'RX0: RF Attenuation (dB)'
   category: Gain Options
   dtype: real
   default: 0
-  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+  hide: ${'part' if rspduo_mode.nindepgain == 2 else 'all'}
 - id: rf_gRdB1
   label: 'RX1: RF Attenuation (dB)'
   category: Gain Options
   dtype: real
   default: 0
-  hide: ${'part' if rspduo_mode.nindeprx == 2 else 'all'}
+  hide: ${'part' if rspduo_mode.nindepgain == 2 else 'all'}
 
 - id: agc_set_point
   label: AGC set point (dBfs)

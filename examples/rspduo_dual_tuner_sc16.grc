@@ -23,6 +23,7 @@ options:
     sizing_mode: fixed
     thread_safe_setters: ''
     title: RSPduo Dual Tuner test
+    window_size: (1000,1000)
   states:
     bus_sink: false
     bus_source: false
@@ -68,27 +69,38 @@ blocks:
     AGC0: 'False'
     AGC1: 'False'
     affinity: ''
+    agc_set_point: '-30'
     alias: ''
+    am_notch_filter: 'False'
     antenna: Tuner 1 50 ohm
     antenna_both: Both Tuners
     bandwidth: '0'
+    biasT: 'False'
     center_freq: '0'
     center_freq0: 100e6
     center_freq1: 146.520e6
     comment: ''
+    dab_notch_filter: 'False'
+    dc_offset_mode: 'False'
+    debug_mode: 'False'
+    freq_corr: '0'
     if_gRdB: '40'
     if_gRdB0: '40'
     if_gRdB1: '40'
+    iq_balance_mode: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
     output_type: sc16
     rf_gRdB: '0'
     rf_gRdB0: '0'
     rf_gRdB1: '0'
-    rsp_selector: '**********'
+    rf_notch_filter: 'False'
+    rsp_selector: ''
     rspduo_mode: Dual Tuner (independent RX)
     sample_rate: 62.5e3
     sample_rate_non_single_tuner: 2000e3
+    sample_sequence_gaps_check: 'False'
+    show_gain_changes: 'False'
   states:
     bus_sink: false
     bus_source: false
