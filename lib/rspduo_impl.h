@@ -95,12 +95,23 @@ private:
                        const int tuner);
     void set_rf_gain(const double gain_A, const double gain_B,
                      const std::vector<int> rf_gRs);
+    int set_lna_state(const int LNAstate, const std::vector<int> rf_gRs) {
+        return rsp_impl::set_lna_state(LNAstate, rf_gRs);
+    }
+    int set_lna_state(const int LNAstate, const std::vector<int> rf_gRs,
+                      const int tuner);
+    void set_lna_state(const int LNAstate_A, const int LNAstate_B,
+                       const std::vector<int> rf_gRs);
     double get_if_gain() const { return rsp_impl::get_if_gain(); }
     double get_if_gain(const int tuner) const;
     double get_rf_gain(const std::vector<int> rf_gRs) const {
         return rsp_impl::get_rf_gain(rf_gRs);
     }
     double get_rf_gain(const std::vector<int> rf_gRs, const int tuner) const;
+    int get_lna_state() const {
+        return rsp_impl::get_lna_state();
+    }
+    int get_lna_state(const int tuner) const;
 
     void print_device_config() const override;
 
