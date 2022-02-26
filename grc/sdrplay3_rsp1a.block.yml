@@ -19,7 +19,7 @@ templates:
     self.${id}.set_bandwidth(${bandwidth})
     self.${id}.set_gain_mode(${AGC})
     self.${id}.set_gain(-${if_gRdB}, 'IF')
-    % if str(rf_gR)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR).upper():
     self.${id}.set_gain(int(${rf_gR}[3:]), 'LNAstate')
     % else:
     self.${id}.set_gain(-float(${rf_gR}), 'RF')
@@ -41,7 +41,7 @@ templates:
   - set_gain_mode(${AGC})
   - set_gain(-${if_gRdB}, 'IF')
   - |
-    % if str(rf_gR)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR).upper():
     set_gain(int(${rf_gR}[3:]), 'LNAstate')
     % else:
     set_gain(-float(${rf_gR}), 'RF')
@@ -71,7 +71,7 @@ cpp_templates:
     this->${id}->set_bandwidth(${bandwidth});
     this->${id}->set_gain_mode(${AGC});
     this->${id}->set_gain(-${if_gRdB}, "IF");
-    % if str(rf_gR)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR).upper():
     this->${id}->set_gain(strtol(${rf_gR}+3, nullptr, 10), "LNAstate");
     % else:
     this->${id}->set_gain(-strtod(${rf_gR}, nullptr), "RF");
@@ -98,7 +98,7 @@ cpp_templates:
   - set_gain_mode(${AGC});
   - set_gain(-${if_gRdB}, "IF");
   - |
-    % if str(rf_gR)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR).upper():
     set_gain(strtol(${rf_gR}+3, nullptr, 10), "LNAstate");
     % else:
     set_gain(-strtod(${rf_gR}, nullptr), "RF");

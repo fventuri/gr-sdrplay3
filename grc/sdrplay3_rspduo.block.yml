@@ -27,7 +27,7 @@ templates:
     % if rspduo_mode.nindepgain == '1':
     self.${id}.set_gain_mode(${AGC})
     self.${id}.set_gain(-${if_gRdB}, 'IF')
-    % if str(rf_gR)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR).upper():
     self.${id}.set_gain(int(${rf_gR}[3:]), 'LNAstate')
     % else:
     self.${id}.set_gain(-float(${rf_gR}), 'RF')
@@ -35,7 +35,7 @@ templates:
     % elif rspduo_mode.nindepgain == '2':
     self.${id}.set_gain_modes(${AGC0}, ${AGC1})
     self.${id}.set_gain(-${if_gRdB0}, -${if_gRdB1}, 'IF')
-    % if str(rf_gR0)[1:4] == 'LNA' and str(rf_gR1)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR0).upper() and 'LNA' in str(rf_gR1).upper():
     self.${id}.set_gain(int(${rf_gR0}[3:]), int(${rf_gR1}[3:]), 'LNAstate')
     % else:
     self.${id}.set_gain(-float(${rf_gR0}), -float(${rf_gR1}), 'RF')
@@ -82,7 +82,7 @@ templates:
     % endif
   - |
     % if rspduo_mode.nindepgain == '1':
-    % if str(rf_gR)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR).upper():
     set_gain(int(${rf_gR}[3:]), 'LNAstate')
     % else:
     set_gain(-float(${rf_gR}), 'RF')
@@ -90,7 +90,7 @@ templates:
     % endif
   - |
     % if rspduo_mode.nindepgain == '2':
-    % if str(rf_gR0)[1:4] == 'LNA' and str(rf_gR1)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR0).upper() and 'LNA' in str(rf_gR1).upper():
     set_gain(int(${rf_gR0}[3:]), int(${rf_gR1}[3:]), 'LNAstate')
     % else:
     set_gain(-float(${rf_gR0}), -float(${rf_gR1}), 'RF')
@@ -130,7 +130,7 @@ cpp_templates:
     % if rspduo_mode.nindepgain == '1':
     this->${id}->set_gain_mode(${AGC});
     this->${id}->set_gain(-${if_gRdB}, "IF");
-    % if str(rf_gR)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR).upper():
     this->${id}->set_gain(strtol(${rf_gR}+3, nullptr, 10), "LNAstate");
     % else:
     this->${id}->set_gain(-strtod(${rf_gR}, nullptr), "RF");
@@ -138,7 +138,7 @@ cpp_templates:
     % elif rspduo_mode.nindepgain == '2':
     this->${id}->set_gain_mode(${AGC0}, ${AGC1});
     this->${id}->set_gain(-${if_gRdB0}, -${if_gRdB1}, "IF");
-    % if str(rf_gR0)[1:4] == 'LNA' and str(rf_gR1)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR0).upper() and 'LNA' in str(rf_gR1).upper():
     this->${id}->set_gain(strtol(${rf_gR0}+3, nullptr, 10), strtol(${rf_gR1}+3, nullptr, 10), "LNAstate");
     % else:
     this->${id}->set_gain(-strtod(${rf_gR0}, nullptr), -strtod(${rf_gR1}, nullptr), "RF");
@@ -190,7 +190,7 @@ cpp_templates:
     % endif
   - |
     % if rspduo_mode.nindepgain == '1':
-    % if str(rf_gR)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR).upper():
     set_gain(strtol(${rf_gR}+3, nullptr, 10), "LNAstate");
     % else:
     set_gain(-strtod(${rf_gR}, nullptr), "RF");
@@ -198,7 +198,7 @@ cpp_templates:
     % endif
   - |
     % if rspduo_mode.nindepgain == '2':
-    % if str(rf_gR0)[1:4] == 'LNA' and str(rf_gR1)[1:4] == 'LNA':
+    % if 'LNA' in str(rf_gR0).upper() and 'LNA' in str(rf_gR1).upper():
     set_gain(strtol(${rf_gR0}+3, nullptr, 10), strtol(${rf_gR1}+3, nullptr, 10), "LNAstate");
     % else:
     set_gain(-strtod(${rf_gR0}, nullptr), -strtod(${rf_gR1}, nullptr), "RF");
