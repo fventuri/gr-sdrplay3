@@ -96,10 +96,13 @@ protected:
     double set_if_gain(const double gain);
     double set_rf_gain(const double gain, const std::vector<int> rf_gRs);
     static unsigned char get_closest_LNAstate(const double gain, const std::vector<int> rf_gRs);
+    int set_lna_state(const int LNAstate, const std::vector<int> rf_gRs);
     double get_if_gain() const;
     double get_rf_gain(const std::vector<int> rf_gRs) const;
+    int get_lna_state() const;
     const double (&get_if_gain_range() const)[2];
     const double (&get_rf_gain_range(const std::vector<int> rf_gRs) const)[2];
+    const int (&get_lna_state_range(const std::vector<int> rf_gRs) const)[2];
     virtual const std::vector<int> rf_gr_values() const = 0;
 
     // callback functions

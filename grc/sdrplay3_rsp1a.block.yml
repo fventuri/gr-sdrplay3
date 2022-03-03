@@ -19,7 +19,11 @@ templates:
     self.${id}.set_bandwidth(${bandwidth})
     self.${id}.set_gain_mode(${AGC})
     self.${id}.set_gain(-${if_gRdB}, 'IF')
-    self.${id}.set_gain(-${rf_gRdB}, 'RF')
+    % if 'LNA' in str(rf_gR).upper():
+    self.${id}.set_gain(int(${rf_gR}[3:]), 'LNAstate')
+    % else:
+    self.${id}.set_gain(-float(${rf_gR}), 'RF')
+    % endif
     self.${id}.set_freq_corr(${freq_corr})
     self.${id}.set_dc_offset_mode(${dc_offset_mode})
     self.${id}.set_iq_balance_mode(${iq_balance_mode})
@@ -36,7 +40,12 @@ templates:
   - set_bandwidth(${bandwidth})
   - set_gain_mode(${AGC})
   - set_gain(-${if_gRdB}, 'IF')
-  - set_gain(-${rf_gRdB}, 'RF')
+  - |
+    % if 'LNA' in str(rf_gR).upper():
+    set_gain(int(${rf_gR}[3:]), 'LNAstate')
+    % else:
+    set_gain(-float(${rf_gR}), 'RF')
+    % endif
   - set_freq_corr(${freq_corr})
   - set_dc_offset_mode(${dc_offset_mode})
   - set_iq_balance_mode(${iq_balance_mode})
@@ -60,37 +69,50 @@ cpp_templates:
     this->${id}->set_sample_rate(${sample_rate});
     this->${id}->set_center_freq(${center_freq});
     this->${id}->set_bandwidth(${bandwidth});
-    this->${id}->set_gain_mode(${AGC.lower()});
+    this->${id}->set_gain_mode(${AGC});
     this->${id}->set_gain(-${if_gRdB}, "IF");
-    this->${id}->set_gain(-${rf_gRdB}, "RF");
+    % if 'LNA' in str(rf_gR).upper():
+    this->${id}->set_gain(strtol(${rf_gR}+3, nullptr, 10), "LNAstate");
+    % else:
+    this->${id}->set_gain(-strtod(${rf_gR}, nullptr), "RF");
+    % endif
     this->${id}->set_freq_corr(${freq_corr});
-    this->${id}->set_dc_offset_mode(${dc_offset_mode.lower()});
-    this->${id}->set_iq_balance_mode(${iq_balance_mode.lower()});
+    this->${id}->set_dc_offset_mode(${dc_offset_mode});
+    this->${id}->set_iq_balance_mode(${iq_balance_mode});
     this->${id}->set_agc_setpoint(${agc_set_point});
-    this->${id}->set_rf_notch_filter(${rf_notch_filter.lower()});
-    this->${id}->set_dab_notch_filter(${dab_notch_filter.lower()});
-    this->${id}->set_biasT(${biasT.lower()});
-    this->${id}->set_debug_mode(${debug_mode.lower()});
-    this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check.lower()});
-    this->${id}->set_show_gain_changes(${show_gain_changes.lower()});
+    this->${id}->set_rf_notch_filter(${rf_notch_filter});
+    this->${id}->set_dab_notch_filter(${dab_notch_filter});
+    this->${id}->set_biasT(${biasT});
+    this->${id}->set_debug_mode(${debug_mode});
+    this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
+    this->${id}->set_show_gain_changes(${show_gain_changes});
   link: ['gnuradio-sdrplay3 sdrplay_api.so.3']
+  translations:
+    "'": '"'
+    'True': 'true'
+    'False': 'false'
   callbacks:
   - set_sample_rate(${sample_rate});
   - set_center_freq(${center_freq});
   - set_bandwidth(${bandwidth});
-  - set_gain_mode(${AGC.lower()});
+  - set_gain_mode(${AGC});
   - set_gain(-${if_gRdB}, "IF");
-  - set_gain(-${rf_gRdB}, "RF");
+  - |
+    % if 'LNA' in str(rf_gR).upper():
+    set_gain(strtol(${rf_gR}+3, nullptr, 10), "LNAstate");
+    % else:
+    set_gain(-strtod(${rf_gR}, nullptr), "RF");
+    % endif
   - set_freq_corr(${freq_corr});
-  - set_dc_offset_mode(${dc_offset_mode.lower()});
-  - set_iq_balance_mode(${iq_balance_mode.lower()});
+  - set_dc_offset_mode(${dc_offset_mode});
+  - set_iq_balance_mode(${iq_balance_mode});
   - set_agc_setpoint(${agc_set_point});
-  - set_rf_notch_filter(${rf_notch_filter.lower()});
-  - set_dab_notch_filter(${dab_notch_filter.lower()});
-  - set_biasT(${biasT.lower()});
-  - set_debug_mode(${debug_mode.lower()});
-  - set_sample_sequence_gaps_check(${sample_sequence_gaps_check.lower()});
-  - set_show_gain_changes(${show_gain_changes.lower()});
+  - set_rf_notch_filter(${rf_notch_filter});
+  - set_dab_notch_filter(${dab_notch_filter});
+  - set_biasT(${biasT});
+  - set_debug_mode(${debug_mode});
+  - set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
+  - set_show_gain_changes(${show_gain_changes});
 
 
 parameters:
@@ -138,10 +160,10 @@ parameters:
   default: 40
   hide: part
 
-- id: rf_gRdB
-  label: RF Attenuation (dB)
+- id: rf_gR
+  label: RF Attenuation (dB/LNA)
   category: Gain Options
-  dtype: real
+  dtype: string
   default: 0
   hide: part
 
@@ -273,6 +295,7 @@ documentation: |-
     RF Attenuation:
     RF attenuation in dB [0-X] where X depends on center freq and HDR mode
     (see LNAstate table in the Users Guide)
+    RF attenuation as LNA state: LNA<LNAstate>
 
     AGC set point (dBfs)
 

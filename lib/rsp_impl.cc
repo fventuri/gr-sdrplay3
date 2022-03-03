@@ -312,7 +312,7 @@ sdrplay_api_Bw_MHzT rsp_impl::get_auto_bandwidth() const
 // Gain methods
 const std::vector<std::string> rsp_impl::get_gain_names() const
 {
-    static const std::vector<std::string> gain_names = { "IF", "RF" };
+    static const std::vector<std::string> gain_names = { "IF", "RF", "LNAstate" };
     return gain_names;
 }
 
@@ -322,6 +322,8 @@ double rsp_impl::set_gain(const double gain, const std::string& name)
         return set_if_gain(gain);
     } else if (name == "RF") {
         return set_rf_gain(gain, rf_gr_values());
+    } else if (name == "LNAstate") {
+        return set_lna_state(gain, rf_gr_values());
     }
     GR_LOG_ERROR(d_logger, boost::format("invalid gain name: %s") % name);
     return 0;
@@ -333,6 +335,8 @@ double rsp_impl::get_gain(const std::string& name) const
         return get_if_gain();
     } else if (name == "RF") {
         return get_rf_gain(rf_gr_values());
+    } else if (name == "LNAstate") {
+        return get_lna_state();
     }
     GR_LOG_ERROR(d_logger, boost::format("invalid gain name: %s") % name);
     return 0;
@@ -344,6 +348,13 @@ const double (&rsp_impl::get_gain_range(const std::string& name) const)[2]
         return get_if_gain_range();
     } else if (name == "RF") {
         return get_rf_gain_range(rf_gr_values());
+    } else if (name == "LNAstate") {
+        auto LNAstate_range = get_lna_state_range(rf_gr_values());
+        static const double LNAstate_range_double[] = {
+            static_cast<double>(LNAstate_range[0]),
+            static_cast<double>(LNAstate_range[1])
+        };
+        return LNAstate_range_double;
     }
     GR_LOG_ERROR(d_logger, boost::format("invalid gain name: %s") % name);
     static const double null_gain_range[] = { 0, 0 };
@@ -388,6 +399,17 @@ unsigned char rsp_impl::get_closest_LNAstate(const double gain,
     return LNAstate;
 }
 
+int rsp_impl::set_lna_state(const int LNAstate, const std::vector<int> rf_gRs)
+{
+    if (LNAstate < 0 || LNAstate >= rf_gRs.size()) {
+        GR_LOG_ERROR(d_logger, boost::format("invalid LNA state: %d") % LNAstate);
+    } else {
+        rx_channel_params->tunerParams.gain.LNAstate = LNAstate;
+        update_if_streaming(sdrplay_api_Update_Tuner_Gr);
+    }
+    return rx_channel_params->tunerParams.gain.LNAstate;
+}
+
 double rsp_impl::get_if_gain() const
 {
     return -static_cast<double>(rx_channel_params->tunerParams.gain.gRdB);
@@ -397,6 +419,11 @@ double rsp_impl::get_rf_gain(const std::vector<int> rf_gRs) const
 {
     unsigned char LNAstate = rx_channel_params->tunerParams.gain.LNAstate;
     return static_cast<double>(-rf_gRs.at(static_cast<unsigned int>(LNAstate)));
+}
+
+int rsp_impl::get_lna_state() const
+{
+    return rx_channel_params->tunerParams.gain.LNAstate;
 }
 
 const double (&rsp_impl::get_if_gain_range() const)[2]
@@ -413,6 +440,13 @@ const double (&rsp_impl::get_rf_gain_range(const std::vector<int> rf_gRs) const)
                      static_cast<double>(-(*rf_gR_bounds.first))
     };
     return rf_gain_range;
+}
+
+const int (&rsp_impl::get_lna_state_range(const std::vector<int> rf_gRs) const)[2]
+{
+    static const int LNAstate_range[] = { 0,
+                                          static_cast<int>(rf_gRs.size()) - 1 };
+    return LNAstate_range;
 }
 
 bool rsp_impl::set_gain_mode(bool automatic)
