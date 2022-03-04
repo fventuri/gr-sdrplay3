@@ -49,11 +49,20 @@ public:
     virtual double set_sample_rate(const double rate) = 0;
 
     /*!
-     * Get the possible sample rates for this RSPduo.
+     * Get the sample rate range.
+     * (only valid in Single Tuner mode)
      *
-     * \return a range of rates in Sps
+     * \return the sample rate range in Sps
      */
-    virtual const std::vector<double> get_sample_rates() const = 0;
+    virtual const double (&get_sample_rate_range() const)[2] = 0;
+
+    /*!
+     * Get the possible sample rates for this RSPduo.
+     * (only valid in Dual Tuner, Master, or Slave mode)
+     *
+     * \return a vector of valid sample rates in Sps
+     */
+    virtual const std::vector<double> get_valid_sample_rates() const = 0;
 
     /*!
      * Tune to the desired center frequency.

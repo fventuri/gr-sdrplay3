@@ -41,11 +41,11 @@ public:
     virtual double get_sample_rate() const = 0;
 
     /*!
-     * Get the possible sample rates for this RSP.
+     * Get the sample rate range.
      *
-     * \return a vector of rates in Sps
+     * \return the sample rate range in Sps
      */
-    virtual const std::vector<double> get_sample_rates() const = 0;
+    virtual const double (&get_sample_rate_range() const)[2] = 0;
 
     /*!
      * Tune to the desired center frequency.

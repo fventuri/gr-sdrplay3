@@ -36,9 +36,9 @@ void bind_rsp(py::module& m)
              &rsp::get_sample_rate,
              D(rsp, get_sample_rate))
 
-        .def("get_sample_rates",
-             &rsp::get_sample_rates,
-             D(rsp, get_sample_rates))
+        .def("get_sample_rate_range",
+             &rsp::get_sample_rate_range,
+             D(rsp, get_sample_rate_range))
 
         .def("set_center_freq",
              &rsp::set_center_freq,
