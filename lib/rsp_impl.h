@@ -31,7 +31,7 @@ public:
     // Sample rate methods
     double set_sample_rate(const double rate) override;
     double get_sample_rate() const override;
-    const std::vector<double> get_sample_rates() const override;
+    const pair_of_doubles &get_sample_rate_range() const override;
 
     // Center frequency methods
     double set_center_freq(const double freq) override;

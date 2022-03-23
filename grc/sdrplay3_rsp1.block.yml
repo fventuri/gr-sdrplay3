@@ -112,11 +112,7 @@ parameters:
 
 - id: sample_rate
   label: Sample rate (Sps)
-  dtype: enum
-  options: [samp_rate, 62.5e3, 125e3, 250e3, 500e3, 1000e3, 2000e3, 2048e3,
-            3000e3, 4000e3, 5000e3, 6000e3, 7000e3, 8000e3, 9000e3, 10000e3]
-  option_labels: [samp_rate, 62.5k, 125k, 250k, 500k, 1M, 2M, 2.048M,
-                  3M, 4M, 5M, 6M, 7M, 8M, 9M, 10M]
+  dtype: real
   default: samp_rate
 
 - id: center_freq

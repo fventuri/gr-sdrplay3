@@ -23,6 +23,7 @@ options:
     sizing_mode: fixed
     thread_safe_setters: ''
     title: RSPduo Single Tuner test
+    window_size: (1000,1000)
   states:
     bus_sink: false
     bus_source: false
@@ -122,7 +123,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [416, 288.0]
+    coordinate: [408, 260.0]
     rotation: 0
     state: true
 - name: sdrplay3_rspduo_0
@@ -154,13 +155,13 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     output_type: fc32
-    rf_gRdB: '0'
-    rf_gRdB0: '0'
-    rf_gRdB1: '0'
+    rf_gR: '0'
+    rf_gR0: '0'
+    rf_gR1: '0'
     rf_notch_filter: 'False'
-    rsp_selector: '**********'
+    rsp_selector: ''
     rspduo_mode: Single Tuner
-    sample_rate: 2000e3
+    sample_rate: samp_rate
     sample_rate_non_single_tuner: 62.5e3
     sample_sequence_gaps_check: 'True'
     show_gain_changes: 'False'
@@ -177,3 +178,4 @@ connections:
 
 metadata:
   file_format: 1
+  grc_version: v3.11.0.0git-46-g614681ba

@@ -64,7 +64,7 @@ double rspduo_impl::set_sample_rate(const double rate)
     if (device.rspDuoMode == sdrplay_api_RspDuoMode_Single_Tuner) {
         return rsp_impl::set_sample_rate(rate);
     }
-    std::vector<double> valid_rates = get_sample_rates();
+    std::vector<double> valid_rates = get_valid_sample_rates();
     if (!std::binary_search(valid_rates.begin(), valid_rates.end(), rate)) {
         GR_LOG_WARN(d_logger, boost::format("invalid sample rate: %lgHz") % rate);
         return get_sample_rate();
@@ -81,10 +81,23 @@ double rspduo_impl::set_sample_rate(const double rate)
     return get_sample_rate();
 }
 
-const std::vector<double> rspduo_impl::get_sample_rates() const
+const double (&rspduo_impl::get_sample_rate_range() const)[2]
 {
-    if (device.rspDuoMode == sdrplay_api_RspDuoMode_Single_Tuner)
-        return rsp_impl::get_sample_rates();
+    if (device.rspDuoMode == sdrplay_api_RspDuoMode_Single_Tuner) {
+        return rsp_impl::get_sample_rate_range();
+    }
+    GR_LOG_WARN(d_logger, "In Dual Tuner, Master, or Slave mode please use get_valid_sample_rates() instead");
+    static const double null_sample_rate_range[] = { 0, 0 };
+    return null_sample_rate_range;
+}
+
+const std::vector<double> rspduo_impl::get_valid_sample_rates() const
+{
+    if (device.rspDuoMode == sdrplay_api_RspDuoMode_Single_Tuner) {
+        GR_LOG_WARN(d_logger, "In Single Tuner mode please use get_sample_rate_range() instead");
+        static const std::vector<double> empty_rates;
+        return empty_rates;
+    }
     static const std::vector<double> rates = { 62.5e3, 125e3, 250e3, 500e3,
             1000e3, 2000e3 };
     return rates;

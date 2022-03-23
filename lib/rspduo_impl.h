@@ -25,7 +25,8 @@ public:
 
     // Sample rate methods
     double set_sample_rate(const double rate) override;
-    const std::vector<double> get_sample_rates() const override;
+    const pair_of_doubles &get_sample_rate_range() const override;
+    const std::vector<double> get_valid_sample_rates() const override;
 
     // Center frequency methods
     // we need to redefine the overloaded methods because of C++ name hiding

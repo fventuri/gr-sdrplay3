@@ -24,7 +24,10 @@ static const char *__doc_gr_sdrplay3_rspduo_make = R"doc()doc";
 static const char *__doc_gr_sdrplay3_rspduo_set_sample_rate = R"doc()doc";
 
 
-static const char *__doc_gr_sdrplay3_rspduo_get_sample_rates = R"doc()doc";
+static const char *__doc_gr_sdrplay3_rspduo_get_sample_rate_range = R"doc()doc";
+
+
+static const char *__doc_gr_sdrplay3_rspduo_get_valid_sample_rates = R"doc()doc";
 
 
 static const char *__doc_gr_sdrplay3_rspduo_set_center_freq = R"doc()doc";

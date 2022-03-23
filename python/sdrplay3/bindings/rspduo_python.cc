@@ -44,9 +44,13 @@ void bind_rspduo(py::module& m)
              py::arg("rate"),
              D(rspduo, set_sample_rate))
 
-        .def("get_sample_rates",
-             &rspduo::get_sample_rates,
-             D(rspduo, get_sample_rates))
+        .def("get_sample_rate_range",
+             &rspduo::get_sample_rate_range,
+             D(rspduo, get_sample_rate_range))
+
+        .def("get_valid_sample_rates",
+             &rspduo::get_valid_sample_rates,
+             D(rspduo, get_valid_sample_rates))
 
         .def("set_center_freq",
              overload_cast_<double>()(&rspduo::set_center_freq),
