@@ -66,7 +66,7 @@ double rspduo_impl::set_sample_rate(const double rate)
     }
     std::vector<double> valid_rates = get_valid_sample_rates();
     if (!std::binary_search(valid_rates.begin(), valid_rates.end(), rate)) {
-        GR_LOG_WARN(d_logger, boost::format("invalid sample rate: %lgHz") % rate);
+        d_logger->warn("invalid sample rate: {:g}Hz", rate);
         return get_sample_rate();
     }
     if (rate == sample_rate)
@@ -86,7 +86,7 @@ const double (&rspduo_impl::get_sample_rate_range() const)[2]
     if (device.rspDuoMode == sdrplay_api_RspDuoMode_Single_Tuner) {
         return rsp_impl::get_sample_rate_range();
     }
-    GR_LOG_WARN(d_logger, "In Dual Tuner, Master, or Slave mode please use get_valid_sample_rates() instead");
+    d_logger->warn("In Dual Tuner, Master, or Slave mode please use get_valid_sample_rates() instead");
     static const double null_sample_rate_range[] = { 0, 0 };
     return null_sample_rate_range;
 }
@@ -94,7 +94,7 @@ const double (&rspduo_impl::get_sample_rate_range() const)[2]
 const std::vector<double> rspduo_impl::get_valid_sample_rates() const
 {
     if (device.rspDuoMode == sdrplay_api_RspDuoMode_Single_Tuner) {
-        GR_LOG_WARN(d_logger, "In Single Tuner mode please use get_sample_rate_range() instead");
+        d_logger->warn("In Single Tuner mode please use get_sample_rate_range() instead");
         static const std::vector<double> empty_rates;
         return empty_rates;
     }
@@ -116,7 +116,7 @@ double rspduo_impl::set_center_freq(const double freq, const int tuner)
 void rspduo_impl::set_center_freq(const double freq_A, const double freq_B)
 {
     if (!device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner) {
-        GR_LOG_WARN(d_logger, "invalid call to set_center_freq(freq_A, freq_B) - device is not in dual tuner mode");
+        d_logger->warn("invalid call to set_center_freq(freq_A, freq_B) - device is not in dual tuner mode");
         return;
     }
     sdrplay_api_TunerSelectT tuner = sdrplay_api_Tuner_Neither;
@@ -161,13 +161,13 @@ const std::string rspduo_impl::set_antenna(const std::string& antenna)
         device.rspDuoMode == sdrplay_api_RspDuoMode_Master) {
         if (!(antennas.at(antenna).tuner == sdrplay_api_Tuner_A ||
               antennas.at(antenna).tuner == sdrplay_api_Tuner_B)) {
-            GR_LOG_WARN(d_logger, boost::format("invalid antenna: %s") % antenna);
+            d_logger->warn("invalid antenna: {}", antenna);
             return get_antenna();
         }
     } else if (device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner ||
                device.rspDuoMode == sdrplay_api_RspDuoMode_Slave) {
         if (!(antennas.at(antenna).tuner == device.tuner)) {
-            GR_LOG_WARN(d_logger, boost::format("invalid antenna: %s") % antenna);
+            d_logger->warn("invalid antenna: {}", antenna);
             return get_antenna();
         }
     }
@@ -197,7 +197,7 @@ const std::string rspduo_impl::set_antenna(const std::string& antenna)
                                                     &device.tuner,
                                                     tuner1AmPortSel);
             if (err != sdrplay_api_Success) {
-                GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_SwapRspDuoActiveTuner() Error: %s") % sdrplay_api_GetErrorString(err));
+                d_logger->error("sdrplay_api_SwapRspDuoActiveTuner() Error: {}", sdrplay_api_GetErrorString(err));
             }
             rx_channel_params = device.tuner != sdrplay_api_Tuner_B ?
                                                 device_params->rxChannelA :
@@ -206,7 +206,7 @@ const std::string rspduo_impl::set_antenna(const std::string& antenna)
         } else if (device.rspDuoMode == sdrplay_api_RspDuoMode_Master) {
             // can't change tuner if a slave is attached
             if (rspduo_mode_change_type != sdrplay_api_SlaveDllDisappeared) {
-                GR_LOG_WARN(d_logger, "cannot change tuner in master mode while a slave is attached");
+                d_logger->warn("cannot change tuner in master mode while a slave is attached");
                 tuner1AmPortSel = rx_channel_params->rspDuoTunerParams.tuner1AmPortSel;
             } else {
                 // stop, change tuner, and restart
@@ -273,14 +273,14 @@ double rspduo_impl::set_gain(const double gain, const std::string& name, const i
     } else if (name == "LNAstate") {
         return set_lna_state(gain, rf_gr_values(), tuner);
     }
-    GR_LOG_ERROR(d_logger, boost::format("invalid gain name: %s") % name);
+    d_logger->error("invalid gain name: {}", name);
     return 0;
 }
 
 void rspduo_impl::set_gain(const double gain_A, const double gain_B, const std::string& name)
 {
     if (!device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner) {
-        GR_LOG_WARN(d_logger, "invalid call to set_gain(gain_A, gain_B) - device is not in dual tuner mode");
+        d_logger->warn("invalid call to set_gain(gain_A, gain_B) - device is not in dual tuner mode");
         return;
     }
     if (name == "IF") {
@@ -293,7 +293,7 @@ void rspduo_impl::set_gain(const double gain_A, const double gain_B, const std::
         set_lna_state(gain_A, gain_B, rf_gr_values());
         return;
     }
-    GR_LOG_ERROR(d_logger, boost::format("invalid gain name: %s") % name);
+    d_logger->error("invalid gain name: {}", name);
     return;
 }
 
@@ -306,7 +306,7 @@ double rspduo_impl::get_gain(const std::string& name, const int tuner) const
     } else if (name == "LNAstate") {
         return get_lna_state(tuner);
     }
-    GR_LOG_ERROR(d_logger, boost::format("invalid gain name: %s") % name);
+    d_logger->error("invalid gain name: {}", name);
     return 0;
 }
 
@@ -324,7 +324,7 @@ const double (&rspduo_impl::get_gain_range(const std::string& name, const int tu
         };
         return LNAstate_range_double;
     }
-    GR_LOG_ERROR(d_logger, boost::format("invalid gain name: %s") % name);
+    d_logger->error("invalid gain name: {}", name);
     static const double null_gain_range[] = { 0, 0 };
     return null_gain_range;
 }
@@ -443,7 +443,7 @@ int rspduo_impl::set_lna_state(const int LNAstate, const std::vector<int> rf_gRs
     sdrplay_api_RxChannelParamsT *indrx_chparams =
                                   get_independent_rx_channel_params(tuner);
     if (LNAstate < 0 || LNAstate >= rf_gRs.size()) {
-        GR_LOG_ERROR(d_logger, boost::format("invalid LNA state: %d") % LNAstate);
+        d_logger->error("invalid LNA state: {:d}", LNAstate);
     } else {
         if (LNAstate == indrx_chparams->tunerParams.gain.LNAstate)
             return indrx_chparams->tunerParams.gain.LNAstate;
@@ -458,11 +458,11 @@ void rspduo_impl::set_lna_state(const int LNAstate_A, const int LNAstate_B,
                                 const std::vector<int> rf_gRs)
 {
     if (LNAstate_A < 0 || LNAstate_A >= rf_gRs.size()) {
-        GR_LOG_ERROR(d_logger, boost::format("invalid LNA state: %d") % LNAstate_A);
+        d_logger->error("invalid LNA state: {:d}", LNAstate_A);
         return;
     }
     if (LNAstate_B < 0 || LNAstate_B >= rf_gRs.size()) {
-        GR_LOG_ERROR(d_logger, boost::format("invalid LNA state: %d") % LNAstate_B);
+        d_logger->error("invalid LNA state: {:d}", LNAstate_B);
         return;
     }
     sdrplay_api_TunerSelectT tuner = sdrplay_api_Tuner_Neither;
@@ -535,7 +535,7 @@ bool rspduo_impl::set_gain_mode(bool automatic, const int tuner)
 void rspduo_impl::set_gain_mode(bool automatic_A, bool automatic_B)
 {
     if (!device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner) {
-        GR_LOG_WARN(d_logger, "invalid call to set_gain_mode(automatic_A, automatic_B) - device is not in dual tuner mode");
+        d_logger->warn("invalid call to set_gain_mode(automatic_A, automatic_B) - device is not in dual tuner mode");
         return;
     }
     sdrplay_api_AgcControlT enable_A = automatic_A ? sdrplay_api_AGC_CTRL_EN : sdrplay_api_AGC_DISABLE;
@@ -616,7 +616,7 @@ void rspduo_impl::event_callback(sdrplay_api_EventT eventId,
     if (eventId == sdrplay_api_RspDuoModeChange) {
         // save last RSPduo mode change
         rspduo_mode_change_type = params->rspDuoModeParams.modeChangeType;
-        GR_LOG_INFO(d_logger, boost::format("RSPduo mode change - modeChangeType=%u") % rspduo_mode_change_type);
+        d_logger->info("RSPduo mode change - modeChangeType={:d}", rspduo_mode_change_type);
     } else {
         rsp_impl::event_callback(eventId, tuner, params);
     }
@@ -632,7 +632,7 @@ bool rspduo_impl::rspduo_select(const std::string& rspduo_mode,
     if (valid_mode) {
         device.rspDuoMode = rspduo_modes.at(rspduo_mode).rspduo_mode;
     } else {
-        GR_LOG_ERROR(d_logger, boost::format("invalid RSPduo mode selection: %s") % rspduo_mode);
+        d_logger->error("invalid RSPduo mode selection: {}", rspduo_mode);
         return valid_mode;
     }
 
@@ -646,7 +646,7 @@ bool rspduo_impl::rspduo_select(const std::string& rspduo_mode,
     if (valid_tuner) {
         device.tuner = antennas.at(antenna).tuner;
     } else {
-        GR_LOG_ERROR(d_logger, boost::format("invalid RSPduo antenna selection: %s") % antenna);
+        d_logger->error("invalid RSPduo antenna selection: {}", antenna);
         return valid_tuner;
     }
 
@@ -657,7 +657,7 @@ sdrplay_api_RxChannelParamsT *rspduo_impl::get_independent_rx_channel_params(int
 {
     if (!(device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner &&
           dual_mode_independent_rx)) {
-        GR_LOG_WARN(d_logger, "invalid call to get_independent_rx_channel_params() - device is not in independent RX mode");
+        d_logger->warn("invalid call to get_independent_rx_channel_params() - device is not in independent RX mode");
         return nullptr;
     }
     return tuner != 1 ?  device_params->rxChannelA : device_params->rxChannelB;
@@ -667,7 +667,7 @@ sdrplay_api_TunerSelectT rspduo_impl::get_independent_rx_tuner(const int tuner) 
 {
     if (!(device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner &&
           dual_mode_independent_rx)) {
-        GR_LOG_WARN(d_logger, "invalid call to get_independent_rx_tuner() - device is not in independent RX mode");
+        d_logger->warn("invalid call to get_independent_rx_tuner() - device is not in independent RX mode");
         return sdrplay_api_Tuner_Neither;
     }
     return tuner != 1 ?  sdrplay_api_Tuner_A : sdrplay_api_Tuner_B;
@@ -680,7 +680,7 @@ void rspduo_impl::print_device_config() const
     sdrplay_api_DeviceParamsT *params;
     sdrplay_api_ErrT err = sdrplay_api_GetDeviceParams(device.dev, &params);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_GetDeviceParams() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_GetDeviceParams() Error: {}", sdrplay_api_GetErrorString(err));
         return;
     }
     std::cerr << "# RSPduo specific config:" << std::endl;

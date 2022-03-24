@@ -48,7 +48,7 @@ rsp_impl::rsp_impl(const unsigned char hwVer,
     sdrplay_api_ErrT err;
     err = sdrplay_api_LockDeviceApi();
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_LockDeviceApi() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_LockDeviceApi() Error: {}", sdrplay_api_GetErrorString(err));
     }
 
     bool device_valid = rsp_select(hwVer, selector);
@@ -58,13 +58,13 @@ rsp_impl::rsp_impl(const unsigned char hwVer,
     if (device_valid) {
         err = sdrplay_api_SelectDevice(&device);
         if (err != sdrplay_api_Success) {
-            GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_SelectDevice() Error: %s") % sdrplay_api_GetErrorString(err));
+            d_logger->error("sdrplay_api_SelectDevice() Error: {}", sdrplay_api_GetErrorString(err));
         }
     }
 
     err = sdrplay_api_UnlockDeviceApi();
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_UnlockDeviceApi() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_UnlockDeviceApi() Error: {}", sdrplay_api_GetErrorString(err));
     }
 
     if (!device_valid) {
@@ -73,7 +73,7 @@ rsp_impl::rsp_impl(const unsigned char hwVer,
 
     err = sdrplay_api_GetDeviceParams(device.dev, &device_params);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_GetDeviceParams() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_GetDeviceParams() Error: {}", sdrplay_api_GetErrorString(err));
     }
     if (device_params) {
         rx_channel_params = device.tuner != sdrplay_api_Tuner_B ?
@@ -106,7 +106,7 @@ rsp_impl::~rsp_impl()
     sdrplay_api_ErrT err;
     err = sdrplay_api_LockDeviceApi();
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_LockDeviceApi() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_LockDeviceApi() Error: {}", sdrplay_api_GetErrorString(err));
     }
 
     // unset the ring buffers
@@ -115,16 +115,16 @@ rsp_impl::~rsp_impl()
     ring_buffers[1].xi = nullptr;
     ring_buffers[1].xq = nullptr;
 
-    GR_LOG_INFO(d_logger, boost::format("total samples: [%lu,%lu]") % ring_buffers[0].head % ring_buffers[1].head);
+    d_logger->info("total samples: [{:d},{:d}]", ring_buffers[0].head, ring_buffers[1].head);
 
     err = sdrplay_api_ReleaseDevice(&device);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_ReleaseDevice() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_ReleaseDevice() Error: {}", sdrplay_api_GetErrorString(err));
     }
 
     err = sdrplay_api_UnlockDeviceApi();
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_UnlockDeviceApi() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_UnlockDeviceApi() Error: {}", sdrplay_api_GetErrorString(err));
     }
 }
 
@@ -141,7 +141,7 @@ double rsp_impl::set_sample_rate(const double rate)
 {
     auto sample_rate_range = get_sample_rate_range();
     if (rate < sample_rate_range[0] || rate > sample_rate_range[1]) {
-        GR_LOG_WARN(d_logger, boost::format("invalid sample rate: %lgHz") % rate);
+        d_logger->warn("invalid sample rate: {:g}Hz", rate);
         return get_sample_rate();
     }
     if (rate == sample_rate)
@@ -166,7 +166,7 @@ double rsp_impl::set_sample_rate(const double rate)
             }
         }
         if (decimation > 32) {
-            GR_LOG_WARN(d_logger, boost::format("invalid sample rate: %lgHz") % rate);
+            d_logger->warn("invalid sample rate: {:g}Hz", rate);
             return get_sample_rate();
         }
         sample_rate = rate;
@@ -245,7 +245,7 @@ const double (&rsp_impl::get_freq_range() const)[2]
 double rsp_impl::set_bandwidth(const double bandwidth)
 {
     if (bandwidth > sample_rate)
-        GR_LOG_WARN(d_logger, boost::format("bandwidth: %lg is greater than sample rate: %lg") % bandwidth % sample_rate);
+        d_logger->warn("bandwidth: {:g} is greater than sample rate: {:g}", bandwidth, sample_rate);
 
     sdrplay_api_Bw_MHzT bw_type;
     // bandwidth == 0 means 'AUTO', i.e. the largest bandwidth compatible with the sample rate
@@ -325,7 +325,7 @@ double rsp_impl::set_gain(const double gain, const std::string& name)
     } else if (name == "LNAstate") {
         return set_lna_state(gain, rf_gr_values());
     }
-    GR_LOG_ERROR(d_logger, boost::format("invalid gain name: %s") % name);
+    d_logger->error("invalid gain name: {}", name);
     return 0;
 }
 
@@ -338,7 +338,7 @@ double rsp_impl::get_gain(const std::string& name) const
     } else if (name == "LNAstate") {
         return get_lna_state();
     }
-    GR_LOG_ERROR(d_logger, boost::format("invalid gain name: %s") % name);
+    d_logger->error("invalid gain name: {}", name);
     return 0;
 }
 
@@ -356,7 +356,7 @@ const double (&rsp_impl::get_gain_range(const std::string& name) const)[2]
         };
         return LNAstate_range_double;
     }
-    GR_LOG_ERROR(d_logger, boost::format("invalid gain name: %s") % name);
+    d_logger->error("invalid gain name: {}", name);
     static const double null_gain_range[] = { 0, 0 };
     return null_gain_range;
 }
@@ -402,7 +402,7 @@ unsigned char rsp_impl::get_closest_LNAstate(const double gain,
 int rsp_impl::set_lna_state(const int LNAstate, const std::vector<int> rf_gRs)
 {
     if (LNAstate < 0 || LNAstate >= rf_gRs.size()) {
-        GR_LOG_ERROR(d_logger, boost::format("invalid LNA state: %d") % LNAstate);
+        d_logger->error("invalid LNA state: {:d}", LNAstate);
     } else {
         rx_channel_params->tunerParams.gain.LNAstate = LNAstate;
         update_if_streaming(sdrplay_api_Update_Tuner_Gr);
@@ -557,7 +557,7 @@ bool rsp_impl::start()
     sdrplay_api_ErrT err;
     err = sdrplay_api_Init(device.dev, &callbackFns, this);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_Init() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_Init() Error: {}", sdrplay_api_GetErrorString(err));
         return false;
     }
     run_status = RunStatus::init;
@@ -570,7 +570,7 @@ bool rsp_impl::stop()
     if (run_status >= RunStatus::init) {
         err = sdrplay_api_Uninit(device.dev);
         if (err != sdrplay_api_Success) {
-            GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_Uninit() Error: %s") % sdrplay_api_GetErrorString(err));
+            d_logger->error("sdrplay_api_Uninit() Error: {}", sdrplay_api_GetErrorString(err));
             return false;
         }
     }
@@ -793,7 +793,7 @@ void rsp_impl::event_callback(sdrplay_api_EventT eventId,
     case sdrplay_api_GainChange:
         if (show_gain_changes) {
             sdrplay_api_GainCbParamT *gainParams = &params->gainParams;
-            GR_LOG_INFO(d_logger, boost::format("gain change - gRdB=%u lnaGRdB=%u currGain=%lg") % gainParams->gRdB % gainParams->lnaGRdB % gainParams->currGain);
+            d_logger->info("gain change - gRdB={:d} lnaGRdB={:d} currGain={:g}", gainParams->gRdB, gainParams->lnaGRdB, gainParams->currGain);
         }
         break;
     case sdrplay_api_PowerOverloadChange:
@@ -801,10 +801,10 @@ void rsp_impl::event_callback(sdrplay_api_EventT eventId,
         if (run_status == RunStatus::streaming) {
             switch (params->powerOverloadParams.powerOverloadChangeType) {
             case sdrplay_api_Overload_Detected:
-                GR_LOG_WARN(d_logger, "overload detected - please reduce gain");
+                d_logger->warn("overload detected - please reduce gain");
                 break;
             case sdrplay_api_Overload_Corrected:
-                GR_LOG_WARN(d_logger, "overload corrected");
+                d_logger->warn("overload corrected");
                 break;
             }
             sdrplay_api_Update(device.dev, device.tuner,
@@ -813,7 +813,7 @@ void rsp_impl::event_callback(sdrplay_api_EventT eventId,
         }
         break;
     case sdrplay_api_DeviceRemoved:
-        GR_LOG_ERROR(d_logger, "device removed");
+        d_logger->error("device removed");
         break;
     case sdrplay_api_RspDuoModeChange:
         break;
@@ -827,7 +827,7 @@ void rsp_impl::set_debug_mode(bool enable)
     sdrplay_api_ErrT err;
     err = sdrplay_api_DebugEnable(device.dev, enable ? sdrplay_api_DbgLvl_Verbose : sdrplay_api_DbgLvl_Disable);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_DebugEnable() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_DebugEnable() Error: {}", sdrplay_api_GetErrorString(err));
     }
 }
 
@@ -850,7 +850,7 @@ bool rsp_impl::rsp_select(const unsigned char hwVer, const std::string& selector
     sdrplay_api_ErrT err;
     err = sdrplay_api_GetDevices(devices, &ndevices, ndevices);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_GetDevices() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_GetDevices() Error: {}", sdrplay_api_GetErrorString(err));
     }
     // device index or serial number?
     bool device_found = false;
@@ -880,7 +880,7 @@ bool rsp_impl::rsp_select(const unsigned char hwVer, const std::string& selector
         }
     }
     if (!device_found) {
-        GR_LOG_ERROR(d_logger, boost::format("SDRplay device not found: %s") % selector);
+        d_logger->error("SDRplay device not found: {}", selector);
     }
 
     return device_found;
@@ -901,7 +901,7 @@ void rsp_impl::update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_updat
     err = sdrplay_api_Update(device.dev, tuner, reason_for_update,
                              sdrplay_api_Update_Ext1_None);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_Update(%s) Error: %s") % reason_as_text(reason_for_update) % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_Update({}) Error: {}", reason_as_text(reason_for_update), sdrplay_api_GetErrorString(err));
     }
 }
 
@@ -961,7 +961,7 @@ void rsp_impl::print_device_config() const
     sdrplay_api_DeviceParamsT *params;
     sdrplay_api_ErrT err = sdrplay_api_GetDeviceParams(device.dev, &params);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_GetDeviceParams() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_GetDeviceParams() Error: {}", sdrplay_api_GetErrorString(err));
         return;
     }
     std::cerr << std::endl;
@@ -1013,11 +1013,10 @@ void sample_gaps_check(unsigned int num_samples, unsigned int first_sample_num,
         } else {
             sample_num_gap = UINT_MAX - (first_sample_num - next_sample_num) + 1;
         }
-        GR_LOG_WARN(logger, boost::format(
-                    "sample num gap in stream %d: %u [%u:%u] -> %u+%u") %
-                    stream_index % sample_num_gap % next_sample_num %
-                    first_sample_num % (sample_num_gap / num_samples) %
-                    (sample_num_gap % num_samples));
+        logger->warn("sample num gap in stream {:d}: {:d} [{:d}:{:d}] -> {:d}+{:d}",
+                     stream_index, sample_num_gap, next_sample_num,
+                     first_sample_num, sample_num_gap / num_samples,
+                     sample_num_gap % num_samples);
     }
     next_sample_num = first_sample_num + num_samples;
 }

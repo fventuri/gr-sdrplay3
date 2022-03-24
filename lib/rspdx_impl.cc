@@ -42,7 +42,7 @@ static const std::map<std::string, sdrplay_api_RspDx_AntennaSelectT> antennas = 
 const std::string rspdx_impl::set_antenna(const std::string& antenna)
 {
     if (antennas.count(antenna) == 0) {
-        GR_LOG_WARN(d_logger, boost::format("invalid antenna: %s") % antenna);
+        d_logger->warn("invalid antenna: {}", antenna);
         return get_antenna();
     }
 
@@ -167,7 +167,7 @@ void rspdx_impl::update_ext1_if_streaming(sdrplay_api_ReasonForUpdateExtension1T
     err = sdrplay_api_Update(device.dev, device.tuner, sdrplay_api_Update_None,
                              reason_for_update);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_Update(%s) Error: %s") % reason_ext1_as_text(reason_for_update) % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_Update({}) Error: {}", reason_ext1_as_text(reason_for_update), sdrplay_api_GetErrorString(err));
     }
 }
 
@@ -203,7 +203,7 @@ void rspdx_impl::print_device_config() const
     sdrplay_api_DeviceParamsT *params;
     sdrplay_api_ErrT err = sdrplay_api_GetDeviceParams(device.dev, &params);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_GetDeviceParams() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_GetDeviceParams() Error: {}", sdrplay_api_GetErrorString(err));
         return;
     }
     std::cerr << "# RSPdx specific config:" << std::endl;

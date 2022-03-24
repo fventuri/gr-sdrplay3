@@ -31,8 +31,8 @@ sdrplay_api::sdrplay_api()
     // Open API
     err = sdrplay_api_Open();
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_Open() Error: %s") % sdrplay_api_GetErrorString(err));
-        GR_LOG_ERROR(d_logger, "Please check the sdrplay_api service to make sure it is up. If it is up, please restart it.");
+        d_logger->error("sdrplay_api_Open() Error: {}", sdrplay_api_GetErrorString(err));
+        d_logger->error("Please check the sdrplay_api service to make sure it is up. If it is up, please restart it.");
         throw std::runtime_error("sdrplay_api_Open() failed");
     }
     signal(SIGINT, signal_handler);
@@ -43,12 +43,12 @@ sdrplay_api::sdrplay_api()
     // --TIMEOUT--
     err = sdrplay_api_ApiVersion(&ver);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_ApiVersion() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_ApiVersion() Error: {}", sdrplay_api_GetErrorString(err));
         sdrplay_api_Close();
         throw std::runtime_error("ApiVersion() failed");
     }
     if (ver != SDRPLAY_API_VERSION) {
-        GR_LOG_WARN(d_logger, boost::format("sdrplay_api version: '%.3f' does not equal build version: '%.3f'") % ver % SDRPLAY_API_VERSION);
+        d_logger->warn("sdrplay_api version: '{:.3f}' does not equal build version: '{:.3f}'", ver, SDRPLAY_API_VERSION);
     }
 }
 
@@ -58,7 +58,7 @@ sdrplay_api::~sdrplay_api()
     // Close API
     err = sdrplay_api_Close();
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_Close() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_Close() Error: {}", sdrplay_api_GetErrorString(err));
     }
 }
 

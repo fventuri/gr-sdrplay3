@@ -47,7 +47,7 @@ static const std::map<std::string, struct _antenna> antennas = {
 const std::string rsp2_impl::set_antenna(const std::string& antenna)
 {
     if (antennas.count(antenna) == 0) {
-        GR_LOG_WARN(d_logger, boost::format("invalid antenna: %s") % antenna);
+        d_logger->warn("invalid antenna: {}", antenna);
         return get_antenna();
     }
 
@@ -152,7 +152,7 @@ void rsp2_impl::print_device_config() const
     sdrplay_api_DeviceParamsT *params;
     sdrplay_api_ErrT err = sdrplay_api_GetDeviceParams(device.dev, &params);
     if (err != sdrplay_api_Success) {
-        GR_LOG_ERROR(d_logger, boost::format("sdrplay_api_GetDeviceParams() Error: %s") % sdrplay_api_GetErrorString(err));
+        d_logger->error("sdrplay_api_GetDeviceParams() Error: {}", sdrplay_api_GetErrorString(err));
         return;
     }
     std::cerr << "# RSP2 specific config:" << std::endl;
