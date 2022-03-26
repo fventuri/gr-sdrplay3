@@ -443,7 +443,7 @@ int rspduo_impl::set_lna_state(const int LNAstate, const std::vector<int> rf_gRs
     sdrplay_api_RxChannelParamsT *indrx_chparams =
                                   get_independent_rx_channel_params(tuner);
     if (LNAstate < 0 || LNAstate >= rf_gRs.size()) {
-        d_logger->error("invalid LNA state: {:d}", LNAstate);
+        d_logger->error("invalid LNA state: {}", LNAstate);
     } else {
         if (LNAstate == indrx_chparams->tunerParams.gain.LNAstate)
             return indrx_chparams->tunerParams.gain.LNAstate;
@@ -458,11 +458,11 @@ void rspduo_impl::set_lna_state(const int LNAstate_A, const int LNAstate_B,
                                 const std::vector<int> rf_gRs)
 {
     if (LNAstate_A < 0 || LNAstate_A >= rf_gRs.size()) {
-        d_logger->error("invalid LNA state: {:d}", LNAstate_A);
+        d_logger->error("invalid LNA state: {}", LNAstate_A);
         return;
     }
     if (LNAstate_B < 0 || LNAstate_B >= rf_gRs.size()) {
-        d_logger->error("invalid LNA state: {:d}", LNAstate_B);
+        d_logger->error("invalid LNA state: {}", LNAstate_B);
         return;
     }
     sdrplay_api_TunerSelectT tuner = sdrplay_api_Tuner_Neither;
@@ -616,7 +616,7 @@ void rspduo_impl::event_callback(sdrplay_api_EventT eventId,
     if (eventId == sdrplay_api_RspDuoModeChange) {
         // save last RSPduo mode change
         rspduo_mode_change_type = params->rspDuoModeParams.modeChangeType;
-        d_logger->info("RSPduo mode change - modeChangeType={:d}", rspduo_mode_change_type);
+        d_logger->info("RSPduo mode change - modeChangeType={}", rspduo_mode_change_type);
     } else {
         rsp_impl::event_callback(eventId, tuner, params);
     }

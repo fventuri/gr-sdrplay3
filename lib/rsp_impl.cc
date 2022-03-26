@@ -115,7 +115,7 @@ rsp_impl::~rsp_impl()
     ring_buffers[1].xi = nullptr;
     ring_buffers[1].xq = nullptr;
 
-    d_logger->info("total samples: [{:d},{:d}]", ring_buffers[0].head, ring_buffers[1].head);
+    d_logger->info("total samples: [{},{}]", ring_buffers[0].head, ring_buffers[1].head);
 
     err = sdrplay_api_ReleaseDevice(&device);
     if (err != sdrplay_api_Success) {
@@ -402,7 +402,7 @@ unsigned char rsp_impl::get_closest_LNAstate(const double gain,
 int rsp_impl::set_lna_state(const int LNAstate, const std::vector<int> rf_gRs)
 {
     if (LNAstate < 0 || LNAstate >= rf_gRs.size()) {
-        d_logger->error("invalid LNA state: {:d}", LNAstate);
+        d_logger->error("invalid LNA state: {}", LNAstate);
     } else {
         rx_channel_params->tunerParams.gain.LNAstate = LNAstate;
         update_if_streaming(sdrplay_api_Update_Tuner_Gr);
@@ -793,7 +793,7 @@ void rsp_impl::event_callback(sdrplay_api_EventT eventId,
     case sdrplay_api_GainChange:
         if (show_gain_changes) {
             sdrplay_api_GainCbParamT *gainParams = &params->gainParams;
-            d_logger->info("gain change - gRdB={:d} lnaGRdB={:d} currGain={:g}", gainParams->gRdB, gainParams->lnaGRdB, gainParams->currGain);
+            d_logger->info("gain change - gRdB={} lnaGRdB={} currGain={:.2f}", gainParams->gRdB, gainParams->lnaGRdB, gainParams->currGain);
         }
         break;
     case sdrplay_api_PowerOverloadChange:
@@ -1013,7 +1013,7 @@ void sample_gaps_check(unsigned int num_samples, unsigned int first_sample_num,
         } else {
             sample_num_gap = UINT_MAX - (first_sample_num - next_sample_num) + 1;
         }
-        logger->warn("sample num gap in stream {:d}: {:d} [{:d}:{:d}] -> {:d}+{:d}",
+        logger->warn("sample num gap in stream {}: {} [{}:{}] -> {}+{}",
                      stream_index, sample_num_gap, next_sample_num,
                      first_sample_num, sample_num_gap / num_samples,
                      sample_num_gap % num_samples);

@@ -48,7 +48,7 @@ sdrplay_api::sdrplay_api()
         throw std::runtime_error("ApiVersion() failed");
     }
     if (ver != SDRPLAY_API_VERSION) {
-        d_logger->warn("sdrplay_api version: '{:.3f}' does not equal build version: '{:.3f}'", ver, SDRPLAY_API_VERSION);
+        d_logger->warn("sdrplay_api version: {:.2f} does not equal build version: {:.2f}", ver, SDRPLAY_API_VERSION);
     }
 }
 
