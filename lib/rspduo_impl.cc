@@ -115,7 +115,7 @@ double rspduo_impl::set_center_freq(const double freq, const int tuner)
 
 void rspduo_impl::set_center_freq(const double freq_A, const double freq_B)
 {
-    if (!device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner) {
+    if (!(device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner)) {
         d_logger->warn("invalid call to set_center_freq(freq_A, freq_B) - device is not in dual tuner mode");
         return;
     }
@@ -279,7 +279,7 @@ double rspduo_impl::set_gain(const double gain, const std::string& name, const i
 
 void rspduo_impl::set_gain(const double gain_A, const double gain_B, const std::string& name)
 {
-    if (!device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner) {
+    if (!(device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner)) {
         d_logger->warn("invalid call to set_gain(gain_A, gain_B) - device is not in dual tuner mode");
         return;
     }
@@ -534,7 +534,7 @@ bool rspduo_impl::set_gain_mode(bool automatic, const int tuner)
 
 void rspduo_impl::set_gain_mode(bool automatic_A, bool automatic_B)
 {
-    if (!device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner) {
+    if (!(device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner)) {
         d_logger->warn("invalid call to set_gain_mode(automatic_A, automatic_B) - device is not in dual tuner mode");
         return;
     }

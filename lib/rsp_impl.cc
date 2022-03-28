@@ -130,8 +130,8 @@ rsp_impl::~rsp_impl()
 
 io_signature::sptr rsp_impl::args_to_io_sig(const struct stream_args_t& args) const
 {
-    const size_t nchan = std::max<size_t>(args.channels_size, 1);
-    const size_t size = output_types.at(args.output_type).size;
+    const int nchan = std::max<int>(static_cast<int>(args.channels_size), 1);
+    const int size = static_cast<int>(output_types.at(args.output_type).size);
     return io_signature::make(nchan, nchan, size);
 }
 
@@ -593,7 +593,7 @@ int rsp_impl::work(int noutput_items,
         return 0;
     run_status = RunStatus::streaming;
 
-    int nstreams = output_items.size();
+    int nstreams = static_cast<int>(output_items.size());
     // start from the highest stream and go down to stream 0 since the streams
     // are produced in ascending order and we want to make sure we have at
     // least the same number of samples to return
@@ -858,7 +858,7 @@ bool rsp_impl::rsp_select(const unsigned char hwVer, const std::string& selector
         unsigned int device_index = 0;
         try {
             device_index = std::stoi(selector);
-        } catch (std::invalid_argument& e) {
+        } catch (std::invalid_argument&) {
             // if the sector is empty or it is just '' or "", choose device 0
             // otherwise make it return a device-not-found error
             if (!(selector == "" || selector == "''" || selector == "\"\"")) {
@@ -943,7 +943,7 @@ static const std::string reason_as_text(sdrplay_api_ReasonForUpdateT reason_for_
     };
     try {
         return reasons.at(reason_for_update);
-    } catch (std::out_of_range& e) {
+    } catch (std::out_of_range&) {
         std::string reason;
         // multiple reasons - append them to reason string
         for (auto r : reasons) {

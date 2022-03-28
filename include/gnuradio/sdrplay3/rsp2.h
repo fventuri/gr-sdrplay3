@@ -22,7 +22,7 @@ namespace sdrplay3 {
  *
  */
 
-class SDRPLAY3_API rsp2 : virtual public rsp
+class SDRPLAY3_API rsp2 : public virtual rsp
 {
 public:
     // gr::sdrplay3::rsp2::sptr
