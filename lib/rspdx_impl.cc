@@ -183,7 +183,7 @@ static const std::string reason_ext1_as_text(sdrplay_api_ReasonForUpdateExtensio
     };
     try {
         return reasons.at(reason_for_update);
-    } catch (std::out_of_range& e) {
+    } catch (std::out_of_range&) {
         std::string reason;
         // multiple reasons - append them to reason string
         for (auto r : reasons) {

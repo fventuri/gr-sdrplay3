@@ -15,7 +15,7 @@
 namespace gr {
 namespace sdrplay3 {
 
-class rsp_impl : virtual public rsp
+class rsp_impl : public virtual rsp
 {
 public:
     // needed to make both gcc/g++ and clang/clang++ compile without errors

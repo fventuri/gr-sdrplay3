@@ -14,7 +14,15 @@
 namespace gr {
 namespace sdrplay3 {
 
-class rspduo_impl : public rspduo, public rsp_impl
+// The class structure here follows the dual hierarchy approach shown here:
+// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-kind
+// However the lattice DAG of this class structure triggers Visual C++ warning
+// C4250 (https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4250?view=msvc-170)
+// Because of that we disable Visual C++ warning C4250 just for the
+// derived class declarations
+#pragma warning( push )
+#pragma warning( disable : 4250 )
+class rspduo_impl : public virtual rspduo, public rsp_impl
 {
 public:
     rspduo_impl(const std::string& selector,
@@ -120,6 +128,7 @@ private:
     bool dual_mode_independent_rx;
     sdrplay_api_RspDuoModeCbEventIdT rspduo_mode_change_type;
 };
+#pragma warning( pop )
 
 } // namespace sdrplay3
 } // namespace gr
