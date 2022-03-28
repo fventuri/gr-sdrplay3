@@ -14,7 +14,15 @@
 namespace gr {
 namespace sdrplay3 {
 
-class rsp2_impl : public rsp2, public rsp_impl
+// The class structure here follows the dual hierarchy approach shown here:
+// https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-kind
+// However the lattice DAG of this class structure triggers Visual C++ warning
+// C4250 (https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4250?view=msvc-170)
+// Because of that we disable Visual C++ warning C4250 just for the
+// derived class declarations
+#pragma warning( push )
+#pragma warning( disable : 4250 )
+class rsp2_impl : public virtual rsp2, public rsp_impl
 {
 public:
     rsp2_impl(const std::string& selector,
@@ -37,6 +45,7 @@ private:
 
     void print_device_config() const override;
 };
+#pragma warning( pop )
 
 } // namespace sdrplay3
 } // namespace gr
