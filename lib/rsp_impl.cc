@@ -874,7 +874,7 @@ void rsp_impl::update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_updat
 
     // reset the changed variables for the cases where we need to wait
     // (see below)
-    if (reason_for_update & (sdrplay_api_Update_Dev_Fs | sdrplay_api_Update_Ctrl_Decimation))
+    if (reason_for_update & sdrplay_api_Update_Dev_Fs)
         sample_rate_changed = 0;
     if (reason_for_update & sdrplay_api_Update_Tuner_Frf)
         frequency_changed = 0;
@@ -890,11 +890,11 @@ void rsp_impl::update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_updat
 
     // for updates to the sample rate, center frequency, or gain reduction,
     // wait for the update to be complete before returning
-    if (reason_for_update & (sdrplay_api_Update_Dev_Fs | sdrplay_api_Update_Ctrl_Decimation)) {
+    if (reason_for_update & sdrplay_api_Update_Dev_Fs) {
         for (int i = 0; i < UpdateTimeout && sample_rate_changed == 0; ++i)
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         if (sample_rate_changed == 0) {
-            GR_LOG_WARN(d_logger, "sample rate/decimation update timeout");
+            GR_LOG_WARN(d_logger, "sample rate update timeout");
         }
     }
     if (reason_for_update & sdrplay_api_Update_Tuner_Frf) {
