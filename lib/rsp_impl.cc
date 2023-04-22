@@ -171,7 +171,9 @@ double rsp_impl::set_sample_rate(const double rate)
         }
         sample_rate = rate;
         if_type = sdrplay_api_IF_Zero;
+#ifdef USE_LOWIF
     }
+#endif /* USE_LOWIF */
     update_sample_rate_and_decimation(fsHz, decimation, if_type);
     return get_sample_rate();
 }
@@ -452,20 +454,12 @@ const int (&rsp_impl::get_lna_state_range(const std::vector<int> rf_gRs) const)[
 bool rsp_impl::set_gain_mode(bool automatic)
 {
     sdrplay_api_AgcT *agc = &rx_channel_params->ctrlParams.agc;
-    agc->setPoint_dBfs = 0;
-    agc->attack_ms = 0;
-    agc->decay_ms = 0;
-    agc->decay_delay_ms = 0;
-    agc->decay_threshold_dB = 0;
-    agc->syncUpdate = 0;
-    if (automatic && agc->enable != sdrplay_api_AGC_CTRL_EN) {
+    if (automatic && agc->enable == sdrplay_api_AGC_DISABLE) {
         // enable AGC
-        agc->enable = sdrplay_api_AGC_CTRL_EN;
-        agc->setPoint_dBfs = -30; /*TODO: magic number */
+        agc->enable = sdrplay_api_AGC_50HZ;
     } else if (!automatic && agc->enable != sdrplay_api_AGC_DISABLE) {
         // disable AGC
         agc->enable = sdrplay_api_AGC_DISABLE;
-        agc->setPoint_dBfs = -30; /*TODO: magic number */
     } else {
         return get_gain_mode();
     }
