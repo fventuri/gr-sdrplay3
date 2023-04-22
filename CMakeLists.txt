@@ -13,6 +13,9 @@ cmake_minimum_required(VERSION 3.9)
 project(gr-sdrplay3 CXX C)
 enable_testing()
 
+# default USE_LOWIF=ON to be consistent with the current behavior
+option (USE_LOWIF "Use Low IF when samprate=2Msps (turn off for Zero IF)" ON)
+
 # Install to PyBOMBS target prefix if defined
 if(DEFINED ENV{PYBOMBS_PREFIX})
     set(CMAKE_INSTALL_PREFIX $ENV{PYBOMBS_PREFIX})
@@ -87,6 +90,13 @@ endif()
 if(MSVC)
     add_definitions(-DBOOST_ALL_NO_LIB)
     add_definitions(-DNOMINMAX)
+endif()
+
+########################################################################
+# Options
+########################################################################
+if(USE_LOWIF)
+    add_definitions(-DUSE_LOWIF)
 endif()
 
 ########################################################################

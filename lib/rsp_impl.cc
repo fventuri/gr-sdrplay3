@@ -13,8 +13,6 @@
 #include "rsp_impl.h"
 #include "sdrplay_api.h"
 
-#define USE_LOWIF    // to be consistent with the current behavior
-
 namespace gr {
 namespace sdrplay3 {
 
