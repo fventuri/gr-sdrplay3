@@ -616,7 +616,8 @@ void rspduo_impl::event_callback(sdrplay_api_EventT eventId,
     if (eventId == sdrplay_api_RspDuoModeChange) {
         // save last RSPduo mode change
         rspduo_mode_change_type = params->rspDuoModeParams.modeChangeType;
-        d_logger->info("RSPduo mode change - modeChangeType={}", rspduo_mode_change_type);
+        // not sure why fmt{} now wants me to cast this enum to int - fv
+        d_logger->info("RSPduo mode change - modeChangeType={}", static_cast<int>(rspduo_mode_change_type));
     } else {
         rsp_impl::event_callback(eventId, tuner, params);
     }
