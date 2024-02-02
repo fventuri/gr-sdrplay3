@@ -41,6 +41,10 @@ rsp_impl::rsp_impl(const unsigned char hwVer,
                    std::function<bool()> specific_select) :
     output_type(output_types.at(stream_args.output_type).output_type)
 {
+    d_logger->info("INFO test message");
+    d_logger->warn("WARN test message");
+    d_logger->error("ERROR test message");
+
     sdrplay_api::get_instance();
 
     sdrplay_api_ErrT err;
