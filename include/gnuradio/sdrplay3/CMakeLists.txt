@@ -14,6 +14,7 @@ install(FILES
     rsp.h
     rsp1.h
     rsp1a.h
+    rsp1b.h
     rsp2.h
     rspduo.h
     rspdx.h

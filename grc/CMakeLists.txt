@@ -9,6 +9,7 @@
 install(FILES
     sdrplay3_rsp1.block.yml
     sdrplay3_rsp1a.block.yml
+    sdrplay3_rsp1b.block.yml
     sdrplay3_rsp2.block.yml
     sdrplay3_rspduo.block.yml
     sdrplay3_rspdx.block.yml

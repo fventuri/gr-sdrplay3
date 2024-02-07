@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2020 Franco Venturi.
+ * Copyright 2020-2024 Franco Venturi.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -101,12 +101,6 @@ rsp_impl::~rsp_impl()
     if (run_status >= RunStatus::init)
         stop();
 
-    sdrplay_api_ErrT err;
-    err = sdrplay_api_LockDeviceApi();
-    if (err != sdrplay_api_Success) {
-        d_logger->error("sdrplay_api_LockDeviceApi() Error: {}", sdrplay_api_GetErrorString(err));
-    }
-
     // unset the ring buffers
     ring_buffers[0].xi = nullptr;
     ring_buffers[0].xq = nullptr;
@@ -115,14 +109,10 @@ rsp_impl::~rsp_impl()
 
     d_logger->info("total samples: [{},{}]", ring_buffers[0].head, ring_buffers[1].head);
 
+    sdrplay_api_ErrT err;
     err = sdrplay_api_ReleaseDevice(&device);
     if (err != sdrplay_api_Success) {
         d_logger->error("sdrplay_api_ReleaseDevice() Error: {}", sdrplay_api_GetErrorString(err));
-    }
-
-    err = sdrplay_api_UnlockDeviceApi();
-    if (err != sdrplay_api_Success) {
-        d_logger->error("sdrplay_api_UnlockDeviceApi() Error: {}", sdrplay_api_GetErrorString(err));
     }
 }
 
@@ -857,14 +847,18 @@ bool rsp_impl::rsp_select(const unsigned char hwVer, const std::string& selector
                 device_index = ndevices;
             }
         }
-        if (device_index < ndevices && hwVer == devices[device_index].hwVer) {
+        if (device_index < ndevices && 
+                devices[device_index].valid &&
+                hwVer == devices[device_index].hwVer) {
             device = devices[device_index];
             device_found = true;
         }
     } else {
         // look for the serial number
         for (unsigned int device_index = 0; device_index < ndevices; ++device_index) {
-            if (hwVer == devices[device_index].hwVer && selector == devices[device_index].SerNo) {
+            if (devices[device_index].valid &&
+                    hwVer == devices[device_index].hwVer &&
+                    selector == devices[device_index].SerNo) {
                 device = devices[device_index];
                 device_found = true;
                 break;

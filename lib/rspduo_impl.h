@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2020 Franco Venturi.
+ * Copyright 2020-2024 Franco Venturi.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -22,13 +22,15 @@ namespace sdrplay3 {
 // derived class declarations
 #pragma warning( push )
 #pragma warning( disable : 4250 )
-class rspduo_impl : public virtual rspduo, public rsp_impl
+class rspduo_impl : virtual public rspduo, public rsp_impl
 {
 public:
     rspduo_impl(const std::string& selector,
                 const std::string& rspduo_mode,
                 const std::string& antenna,
-                const struct stream_args_t& stream_args);
+                const struct stream_args_t& stream_args,
+                const std::string& name = "rspduo",
+                const unsigned char hwVer = SDRPLAY_RSPduo_ID);
     ~rspduo_impl();
 
     // Sample rate methods

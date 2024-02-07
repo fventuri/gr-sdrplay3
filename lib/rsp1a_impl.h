@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2020 Franco Venturi.
+ * Copyright 2020-2024 Franco Venturi.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -22,11 +22,13 @@ namespace sdrplay3 {
 // derived class declarations
 #pragma warning( push )
 #pragma warning( disable : 4250 )
-class rsp1a_impl : public virtual rsp1a, public rsp_impl
+class rsp1a_impl : virtual public rsp1a, public rsp_impl
 {
 public:
     rsp1a_impl(const std::string& selector,
-               const struct stream_args_t& stream_args);
+               const struct stream_args_t& stream_args,
+               const std::string& name = "rsp1a",
+               const unsigned char hwVer = SDRPLAY_RSP1A_ID);
     ~rsp1a_impl();
 
     // Miscellaneous stuff

@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2020,2021 Franco Venturi.
+ * Copyright 2020-2024 Franco Venturi.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -22,7 +22,7 @@ namespace sdrplay3 {
  *
  */
 
-class SDRPLAY3_API rspduo : public virtual rsp
+class SDRPLAY3_API rspduo : virtual public rsp
 {
 public:
     // gr::sdrplay3::rspduo::sptr

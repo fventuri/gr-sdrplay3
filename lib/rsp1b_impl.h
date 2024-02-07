@@ -1,15 +1,15 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2020-2024 Franco Venturi.
+ * Copyright 2024 Franco Venturi.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#ifndef INCLUDED_SDRPLAY3_RSP1_IMPL_H
-#define INCLUDED_SDRPLAY3_RSP1_IMPL_H
+#ifndef INCLUDED_SDRPLAY3_RSP1B_IMPL_H
+#define INCLUDED_SDRPLAY3_RSP1B_IMPL_H
 
-#include "rsp_impl.h"
-#include <gnuradio/sdrplay3/rsp1.h>
+#include "rsp1a_impl.h"
+#include <gnuradio/sdrplay3/rsp1b.h>
 
 namespace gr {
 namespace sdrplay3 {
@@ -22,23 +22,23 @@ namespace sdrplay3 {
 // derived class declarations
 #pragma warning( push )
 #pragma warning( disable : 4250 )
-class rsp1_impl : virtual public rsp1, public rsp_impl
+class rsp1b_impl : virtual public rsp1b, public rsp1a_impl
 {
 public:
-    rsp1_impl(const std::string& selector,
-              const struct stream_args_t& stream_args,
-              const std::string& name = "rsp1",
-              const unsigned char hwVer = SDRPLAY_RSP1_ID);
-    ~rsp1_impl();
+    rsp1b_impl(const std::string& selector,
+               const struct stream_args_t& stream_args,
+               const std::string& name = "rsp1b",
+               const unsigned char hwVer = SDRPLAY_RSP1B_ID);
+    ~rsp1b_impl();
 
 private:
 
     static const std::vector<int> rf_gr_values(const double freq);
-    const std::vector<int> rf_gr_values() const;
+    const std::vector<int> rf_gr_values() const override;
 };
 #pragma warning( pop )
 
 } // namespace sdrplay3
 } // namespace gr
 
-#endif /* INCLUDED_SDRPLAY3_RSP1_IMPL_H */
+#endif /* INCLUDED_SDRPLAY3_RSP1B_IMPL_H */

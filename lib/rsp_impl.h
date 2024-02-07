@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2020 Franco Venturi.
+ * Copyright 2020-2024 Franco Venturi.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -15,7 +15,7 @@
 namespace gr {
 namespace sdrplay3 {
 
-class rsp_impl : public virtual rsp
+class rsp_impl : virtual public rsp
 {
 public:
     // needed to make both gcc/g++ and clang/clang++ compile without errors

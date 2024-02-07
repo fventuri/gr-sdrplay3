@@ -25,6 +25,7 @@ namespace py = pybind11;
     void bind_rsp(py::module& m);
     void bind_rsp1(py::module& m);
     void bind_rsp1a(py::module& m);
+    void bind_rsp1b(py::module& m);
     void bind_rsp2(py::module& m);
     void bind_rspduo(py::module& m);
     void bind_rspdx(py::module& m);
@@ -60,6 +61,7 @@ PYBIND11_MODULE(sdrplay3_python, m)
     bind_rsp(m);
     bind_rsp1(m);
     bind_rsp1a(m);
+    bind_rsp1b(m);
     bind_rsp2(m);
     bind_rspduo(m);
     bind_rspdx(m);

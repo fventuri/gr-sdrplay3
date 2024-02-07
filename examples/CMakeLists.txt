@@ -6,6 +6,7 @@
 install(FILES
     FM-Receiver-SDRplay.grc
     rsp1a.grc
+    rsp1b.grc
     rsp2.grc
     rspduo_dual_tuner_diversity_reception-LNA.grc
     rspduo_slave.grc

@@ -5,6 +5,7 @@
 This OOT GNU Radio module supports the following SDRplay RSP devices:
   - RSP1
   - RSP1A
+  - RSP1B
   - RSP2
   - RSPduo (all modes of operation)
   - RSPdx

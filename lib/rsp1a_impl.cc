@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2020 Franco Venturi.
+ * Copyright 2020-2024 Franco Venturi.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -22,9 +22,11 @@ rsp1a::sptr rsp1a::make(const std::string& selector,
 }
 
 rsp1a_impl::rsp1a_impl(const std::string& selector,
-                       const struct stream_args_t& stream_args)
-      : rsp("rsp1a", args_to_io_sig(stream_args)),
-        rsp_impl(SDRPLAY_RSP1A_ID, selector, stream_args)
+                       const struct stream_args_t& stream_args,
+                       const std::string& name,
+                       const unsigned char hwVer)
+      : rsp(name, args_to_io_sig(stream_args)),
+        rsp_impl(hwVer, selector, stream_args)
 {
     nchannels = 1;
 }

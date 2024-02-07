@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2020 Franco Venturi.
+ * Copyright 2020-2024 Franco Venturi.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -42,9 +42,11 @@ static const std::map<std::string, struct _rspduo_mode> rspduo_modes = {
 rspduo_impl::rspduo_impl(const std::string& selector,
                          const std::string& rspduo_mode,
                          const std::string& antenna,
-                         const struct stream_args_t& stream_args)
-      : rsp("rspduo", args_to_io_sig(stream_args)),
-        rsp_impl(SDRPLAY_RSPduo_ID, selector, stream_args,
+                         const struct stream_args_t& stream_args,
+                         const std::string& name,
+                         const unsigned char hwVer)
+      : rsp(name, args_to_io_sig(stream_args)),
+        rsp_impl(hwVer, selector, stream_args,
                  [&]() { return rspduo_select(rspduo_mode, antenna); })
 {
     nchannels = device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner ? 2 : 1;

@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2020 Franco Venturi.
+ * Copyright 2020-2024 Franco Venturi.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -22,9 +22,11 @@ rspdx::sptr rspdx::make(const std::string& selector,
 }
 
 rspdx_impl::rspdx_impl(const std::string& selector,
-                       const struct stream_args_t& stream_args)
-      : rsp("rspdx", args_to_io_sig(stream_args)),
-        rsp_impl(SDRPLAY_RSPdx_ID, selector, stream_args)
+                       const struct stream_args_t& stream_args,
+                       const std::string& name,
+                       const unsigned char hwVer)
+      : rsp(name, args_to_io_sig(stream_args)),
+        rsp_impl(hwVer, selector, stream_args)
 {
     nchannels = 1;
 }
@@ -86,8 +88,11 @@ const std::vector<int> rspdx_impl::rf_gr_values(const double freq, const bool hd
     } else if (freq <= 12e6) {
         static const std::vector<int> rf_gr = { 0, 3, 6, 9, 12, 15, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60 };
         return rf_gr;
-    } else if (freq <= 60e6) {
+    } else if (freq <= 50e6) {
         static const std::vector<int> rf_gr = { 0, 3, 6, 9, 12, 15, 18, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60 };
+        return rf_gr;
+    } else if (freq <= 60e6) {
+        static const std::vector<int> rf_gr = { 0, 3, 6, 9, 12, 20, 23, 26, 29, 32, 35, 38, 44, 47, 50, 53, 56, 59, 62, 65, 68, 71, 74, 77, 80 };
         return rf_gr;
     } else if (freq <= 250e6) {
         static const std::vector<int> rf_gr = { 0, 3, 6, 9, 12, 15, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84 };

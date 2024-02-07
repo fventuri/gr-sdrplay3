@@ -33,6 +33,7 @@ list(APPEND sdrplay3_python_files
     rsp_python.cc
     rsp1_python.cc
     rsp1a_python.cc
+    rsp1b_python.cc
     rsp2_python.cc
     rspduo_python.cc
     rspdx_python.cc
