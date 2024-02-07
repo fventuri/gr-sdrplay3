@@ -21,7 +21,7 @@ For those running previous versions of GNU Radio the recommended OOT module for 
 
 This module requires SDRplay API V3.X.
 
-The latest API/HW driver can be downloaded from SDRplay here: https://www.sdrplay.com/linuxdl2.php
+The latest API can be downloaded from SDRplay here: https://www.sdrplay.com/api
 
 The SDRplay API/HW driver should be installed before this module is built.
 
