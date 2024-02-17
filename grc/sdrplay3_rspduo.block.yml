@@ -284,7 +284,7 @@ parameters:
   label: AGC
   category: Gain Options
   dtype: bool
-  default: 'False'
+  default: 'True'
   options: ['False', 'True']
   option_labels: [Disabled, Enabled]
   hide: ${'part' if rspduo_mode.nindepgain == 1 else 'all'}
@@ -292,7 +292,7 @@ parameters:
   label: 'RX0: AGC'
   category: Gain Options
   dtype: bool
-  default: 'False'
+  default: 'True'
   options: ['False', 'True']
   option_labels: [Disabled, Enabled]
   hide: ${'part' if rspduo_mode.nindepgain == 2 else 'all'}
@@ -300,7 +300,7 @@ parameters:
   label: 'RX1: AGC'
   category: Gain Options
   dtype: bool
-  default: 'False'
+  default: 'True'
   options: ['False', 'True']
   option_labels: [Disabled, Enabled]
   hide: ${'part' if rspduo_mode.nindepgain == 2 else 'all'}
@@ -347,7 +347,7 @@ parameters:
   label: AGC set point (dBfs)
   category: Gain Options
   dtype: real
-  default: -30
+  default: -60
   hide: part
 
 # Other options
@@ -362,7 +362,7 @@ parameters:
   label: DC offset correction
   category: Other Options
   dtype: bool
-  default: 'False'
+  default: 'True'
   options: ['False', 'True']
   option_labels: [Disabled, Enabled]
   hide: part
@@ -371,7 +371,7 @@ parameters:
   label: IQ imbalance correction
   category: Other Options
   dtype: bool
-  default: 'False'
+  default: 'True'
   options: ['False', 'True']
   option_labels: [Disabled, Enabled]
   hide: part
