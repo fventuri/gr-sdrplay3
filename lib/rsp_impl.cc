@@ -445,6 +445,7 @@ bool rsp_impl::set_gain_mode(bool automatic)
     if (automatic && agc->enable == sdrplay_api_AGC_DISABLE) {
         // enable AGC
         agc->enable = sdrplay_api_AGC_50HZ;
+        agc->setPoint_dBfs = -60;  // not sure if it is actually needed - fv
     } else if (!automatic && agc->enable != sdrplay_api_AGC_DISABLE) {
         // disable AGC
         agc->enable = sdrplay_api_AGC_DISABLE;

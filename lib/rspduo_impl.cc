@@ -517,14 +517,13 @@ bool rspduo_impl::set_gain_mode(bool automatic, const int tuner)
     agc->decay_delay_ms = 0;
     agc->decay_threshold_dB = 0;
     agc->syncUpdate = 0;
-    if (automatic && agc->enable != sdrplay_api_AGC_CTRL_EN) {
+    if (automatic && agc->enable == sdrplay_api_AGC_DISABLE) {
         // enable AGC
-        agc->enable = sdrplay_api_AGC_CTRL_EN;
-        agc->setPoint_dBfs = -30; /*TODO: magic number */
+        agc->enable = sdrplay_api_AGC_50HZ;
+        agc->setPoint_dBfs = -60;  // not sure if it is actually needed - fv
     } else if (!automatic && agc->enable != sdrplay_api_AGC_DISABLE) {
         // disable AGC
         agc->enable = sdrplay_api_AGC_DISABLE;
-        agc->setPoint_dBfs = -30; /*TODO: magic number */
     } else {
         return get_gain_mode(tuner);
     }
@@ -540,24 +539,24 @@ void rspduo_impl::set_gain_mode(bool automatic_A, bool automatic_B)
         d_logger->warn("invalid call to set_gain_mode(automatic_A, automatic_B) - device is not in dual tuner mode");
         return;
     }
-    sdrplay_api_AgcControlT enable_A = automatic_A ? sdrplay_api_AGC_CTRL_EN : sdrplay_api_AGC_DISABLE;
-    sdrplay_api_AgcControlT enable_B = automatic_B ? sdrplay_api_AGC_CTRL_EN : sdrplay_api_AGC_DISABLE;
+    sdrplay_api_AgcControlT enable_A = automatic_A ? sdrplay_api_AGC_50HZ : sdrplay_api_AGC_DISABLE;
+    sdrplay_api_AgcControlT enable_B = automatic_B ? sdrplay_api_AGC_50HZ : sdrplay_api_AGC_DISABLE;
     sdrplay_api_AgcT *agc_A = &device_params->rxChannelA->ctrlParams.agc;
     sdrplay_api_AgcT *agc_B = &device_params->rxChannelB->ctrlParams.agc;
     sdrplay_api_TunerSelectT tuner = sdrplay_api_Tuner_Neither;
     if (agc_A->enable != enable_A) {
         tuner = sdrplay_api_Tuner_A;
         agc_A->enable = enable_A;
-        agc_A->setPoint_dBfs = -30; /*TODO: magic number */
+        agc_A->setPoint_dBfs = -60;  // not sure if it is actually needed - fv
         if (agc_B->enable != enable_B) {
             tuner = sdrplay_api_Tuner_Both;
             agc_B->enable = enable_B;
-            agc_B->setPoint_dBfs = -30; /*TODO: magic number */
+            agc_B->setPoint_dBfs = -60;  // not sure if it is actually needed - fv
         }
     } else if (agc_B->enable != enable_B) {
         tuner = sdrplay_api_Tuner_B;
         agc_B->enable = enable_B;
-        agc_B->setPoint_dBfs = -30; /*TODO: magic number */
+        agc_B->setPoint_dBfs = -60;  // not sure if it is actually needed - fv
     }
     if (tuner != sdrplay_api_Tuner_Neither)
         update_if_streaming(sdrplay_api_Update_Ctrl_Agc, tuner);
