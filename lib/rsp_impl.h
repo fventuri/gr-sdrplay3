@@ -105,6 +105,8 @@ protected:
     const int (&get_lna_state_range(const std::vector<int> rf_gRs) const)[2];
     virtual const std::vector<int> rf_gr_values() const = 0;
 
+    bool start_api_init();
+
     // callback functions
     virtual void event_callback(sdrplay_api_EventT eventId,
                                 sdrplay_api_TunerSelectT tuner,

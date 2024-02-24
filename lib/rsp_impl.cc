@@ -521,27 +521,8 @@ bool rsp_impl::start()
 {
     //print_device_config();
 
-    // set the ring buffers
-    ring_buffers[0].xi = new short[RingBufferSize];
-    ring_buffers[0].xq = new short[RingBufferSize];
-    ring_buffers[0].head = 0;
-    ring_buffers[0].tail = 0;
-    ring_buffers[1].xi = nchannels > 1 ? new short[RingBufferSize] : nullptr;
-    ring_buffers[1].xq = nchannels > 1 ? new short[RingBufferSize] : nullptr;
-    ring_buffers[1].head = 0;
-    ring_buffers[1].tail = 0;
-
-    sdrplay_api_CallbackFnsT callbackFns = {
-        stream_A_callback,
-        stream_B_callback,
-        event_callback,
-    };
-    sdrplay_api_ErrT err;
-    err = sdrplay_api_Init(device.dev, &callbackFns, this);
-    if (err != sdrplay_api_Success) {
-        d_logger->error("sdrplay_api_Init() Error: {}", sdrplay_api_GetErrorString(err));
+    if (!start_api_init())
         return false;
-    }
     run_status = RunStatus::init;
     return true;
 }
@@ -607,6 +588,32 @@ int rsp_impl::work(int noutput_items,
     }
 
     return noutput_items;
+}
+
+bool rsp_impl::start_api_init()
+{
+    // set the ring buffers
+    ring_buffers[0].xi = new short[RingBufferSize];
+    ring_buffers[0].xq = new short[RingBufferSize];
+    ring_buffers[0].head = 0;
+    ring_buffers[0].tail = 0;
+    ring_buffers[1].xi = nchannels > 1 ? new short[RingBufferSize] : nullptr;
+    ring_buffers[1].xq = nchannels > 1 ? new short[RingBufferSize] : nullptr;
+    ring_buffers[1].head = 0;
+    ring_buffers[1].tail = 0;
+
+    sdrplay_api_CallbackFnsT callbackFns = {
+        stream_A_callback,
+        stream_B_callback,
+        event_callback,
+    };
+    sdrplay_api_ErrT err;
+    err = sdrplay_api_Init(device.dev, &callbackFns, this);
+    if (err != sdrplay_api_Success) {
+        d_logger->error("sdrplay_api_Init() Error: {}", sdrplay_api_GetErrorString(err));
+        return false;
+    }
+    return true;
 }
 
 static void sample_copy_fc32(size_t start, size_t end, int noutput_items,
