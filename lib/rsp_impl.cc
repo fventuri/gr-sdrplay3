@@ -237,18 +237,7 @@ double rsp_impl::set_bandwidth(const double bandwidth)
     if (bandwidth > sample_rate)
         d_logger->warn("bandwidth: {:g} is greater than sample rate: {:g}", bandwidth, sample_rate);
 
-    sdrplay_api_Bw_MHzT bw_type;
-    // bandwidth == 0 means 'AUTO', i.e. the largest bandwidth compatible with the sample rate
-    if      (bandwidth ==     0) { bw_type = get_auto_bandwidth(); }
-    else if (bandwidth <  300e3) { bw_type = sdrplay_api_BW_0_200; }
-    else if (bandwidth <  600e3) { bw_type = sdrplay_api_BW_0_300; }
-    else if (bandwidth < 1536e3) { bw_type = sdrplay_api_BW_0_600; }
-    else if (bandwidth < 5000e3) { bw_type = sdrplay_api_BW_1_536; }
-    else if (bandwidth < 6000e3) { bw_type = sdrplay_api_BW_5_000; }
-    else if (bandwidth < 7000e3) { bw_type = sdrplay_api_BW_6_000; }
-    else if (bandwidth < 8000e3) { bw_type = sdrplay_api_BW_7_000; }
-    else                         { bw_type = sdrplay_api_BW_8_000; }
-
+    sdrplay_api_Bw_MHzT bw_type = bandwidth_to_bwType(bandwidth);
     if (bw_type == rx_channel_params->tunerParams.bwType)
         return get_bandwidth();
     rx_channel_params->tunerParams.bwType = bw_type;
@@ -258,7 +247,32 @@ double rsp_impl::set_bandwidth(const double bandwidth)
 
 double rsp_impl::get_bandwidth() const
 {
-    sdrplay_api_Bw_MHzT bw_type = rx_channel_params->tunerParams.bwType;
+    return bwType_to_bandwidth(rx_channel_params->tunerParams.bwType);
+}
+
+const std::vector<double> rsp_impl::get_bandwidths() const
+{
+    static const std::vector<double> bandwidths = { 200e3, 300e3, 600e3,
+            1536e3, 5000e3, 6000e3, 7000e3, 8000e3 };
+    return bandwidths;
+}
+
+sdrplay_api_Bw_MHzT rsp_impl::bandwidth_to_bwType(double bandwidth) const
+{
+    // bandwidth == 0 means 'AUTO', i.e. the largest bandwidth compatible with the sample rate
+    if      (bandwidth ==     0) { return get_auto_bandwidth(); }
+    else if (bandwidth <  300e3) { return sdrplay_api_BW_0_200; }
+    else if (bandwidth <  600e3) { return sdrplay_api_BW_0_300; }
+    else if (bandwidth < 1536e3) { return sdrplay_api_BW_0_600; }
+    else if (bandwidth < 5000e3) { return sdrplay_api_BW_1_536; }
+    else if (bandwidth < 6000e3) { return sdrplay_api_BW_5_000; }
+    else if (bandwidth < 7000e3) { return sdrplay_api_BW_6_000; }
+    else if (bandwidth < 8000e3) { return sdrplay_api_BW_7_000; }
+    else                         { return sdrplay_api_BW_8_000; }
+}
+
+double rsp_impl::bwType_to_bandwidth(sdrplay_api_Bw_MHzT bw_type) const
+{
     if      (bw_type == sdrplay_api_BW_0_200) { return  200e3; }
     else if (bw_type == sdrplay_api_BW_0_300) { return  300e3; }
     else if (bw_type == sdrplay_api_BW_0_600) { return  600e3; }
@@ -268,13 +282,6 @@ double rsp_impl::get_bandwidth() const
     else if (bw_type == sdrplay_api_BW_7_000) { return 7000e3; }
     else if (bw_type == sdrplay_api_BW_8_000) { return 8000e3; }
     else                                      { return      0; }
-}
-
-const std::vector<double> rsp_impl::get_bandwidths() const
-{
-    static const std::vector<double> bandwidths = { 200e3, 300e3, 600e3,
-            1536e3, 5000e3, 6000e3, 7000e3, 8000e3 };
-    return bandwidths;
 }
 
 // get the largest bandwidth compatible with the sample rate

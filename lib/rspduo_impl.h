@@ -46,6 +46,13 @@ public:
     double get_center_freq() const override { return rsp_impl::get_center_freq(); }
     double get_center_freq(const int tuner) const override;
 
+    // Bandwidth methods
+    double set_bandwidth(const double bandwidth) override;
+    double set_bandwidth(const double bandwidth, const int tuner) override;
+    void set_bandwidth(const double bandwidth_A, const double bandwidth_B) override;
+    double get_bandwidth() const override { return rsp_impl::get_bandwidth(); }
+    double get_bandwidth(const int tuner) const override;
+
     // Antenna methods
     const std::string set_antenna(const std::string& antenna) override;
     const std::string get_antenna() const override;

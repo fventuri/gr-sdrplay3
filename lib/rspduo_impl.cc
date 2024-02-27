@@ -109,7 +109,10 @@ const std::vector<double> rspduo_impl::get_valid_sample_rates() const
 // Center frequency methods
 double rspduo_impl::set_center_freq(const double freq, const int tuner)
 {
-    get_independent_rx_channel_params(tuner)->tunerParams.rfFreq.rfHz = freq;
+    sdrplay_api_RxChannelParamsT *rx_channel_params = get_independent_rx_channel_params(tuner);
+    if (freq == rx_channel_params->tunerParams.rfFreq.rfHz)
+        return get_center_freq(tuner);
+    rx_channel_params->tunerParams.rfFreq.rfHz = freq;
     update_if_streaming(sdrplay_api_Update_Tuner_Frf,
                         get_independent_rx_tuner(tuner));
     return get_center_freq(tuner);
@@ -141,6 +144,66 @@ void rspduo_impl::set_center_freq(const double freq_A, const double freq_B)
 double rspduo_impl::get_center_freq(const int tuner) const
 {
     return get_independent_rx_channel_params(tuner)->tunerParams.rfFreq.rfHz;
+}
+
+
+// Bandwidth methods
+double rspduo_impl::set_bandwidth(const double bandwidth)
+{
+    if (device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner) {
+        set_bandwidth(bandwidth, bandwidth);
+        return get_bandwidth();
+    }
+    return rsp_impl::set_bandwidth(bandwidth);
+}
+
+double rspduo_impl::set_bandwidth(const double bandwidth, const int tuner)
+{
+    if (bandwidth > sample_rate)
+        d_logger->warn("bandwidth: {:g} is greater than sample rate: {:g}", bandwidth, sample_rate);
+
+    sdrplay_api_Bw_MHzT bw_type = bandwidth_to_bwType(bandwidth);
+    sdrplay_api_RxChannelParamsT *rx_channel_params = get_independent_rx_channel_params(tuner);
+    if (bw_type == rx_channel_params->tunerParams.bwType)
+        return get_bandwidth(tuner);
+    rx_channel_params->tunerParams.bwType = bw_type;
+    update_if_streaming(sdrplay_api_Update_Tuner_BwType,
+                        get_independent_rx_tuner(tuner));
+    return get_bandwidth(tuner);
+}
+
+void rspduo_impl::set_bandwidth(const double bandwidth_A, const double bandwidth_B)
+{
+    if (!(device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner)) {
+        d_logger->warn("invalid call to set_bandwidth(bandwidth_A, bandwidth_B) - device is not in dual tuner mode");
+        return;
+    }
+
+    if (bandwidth_A > sample_rate || bandwidth_B > sample_rate)
+        d_logger->warn("bandwidth: {:g}/{:g} is greater than sample rate: {:g}", bandwidth_A, bandwidth_B, sample_rate);
+
+    sdrplay_api_Bw_MHzT bw_type_A = bandwidth_to_bwType(bandwidth_A);
+    sdrplay_api_Bw_MHzT bw_type_B = bandwidth_to_bwType(bandwidth_B);
+    sdrplay_api_TunerSelectT tuner = sdrplay_api_Tuner_Neither;
+    if (device_params->rxChannelA->tunerParams.bwType != bw_type_A) {
+        tuner = sdrplay_api_Tuner_A;
+        device_params->rxChannelA->tunerParams.bwType = bw_type_A;
+        if (device_params->rxChannelB->tunerParams.bwType != bw_type_B) {
+            tuner = sdrplay_api_Tuner_Both;
+            device_params->rxChannelB->tunerParams.bwType = bw_type_B;
+        }
+    } else if (device_params->rxChannelB->tunerParams.bwType != bw_type_B) {
+        tuner = sdrplay_api_Tuner_B;
+        device_params->rxChannelB->tunerParams.bwType = bw_type_B;
+    }
+    if (tuner != sdrplay_api_Tuner_Neither)
+        update_if_streaming(sdrplay_api_Update_Tuner_BwType, tuner);
+    return;
+}
+
+double rspduo_impl::get_bandwidth(const int tuner) const
+{
+    return bwType_to_bandwidth(get_independent_rx_channel_params(tuner)->tunerParams.bwType);
 }
 
 

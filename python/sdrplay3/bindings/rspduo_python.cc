@@ -78,6 +78,32 @@ void bind_rspduo(py::module& m)
              py::arg("tuner"),
              D(rspduo, get_center_freq))
 
+        .def("set_bandwidth",
+             overload_cast_<double>()(&rspduo::set_bandwidth),
+             py::arg("bandwidth"),
+             D(rspduo, set_bandwidth))
+
+        .def("set_bandwidth",
+             overload_cast_<double, int>()(&rspduo::set_bandwidth),
+             py::arg("bandwidth"),
+             py::arg("tuner"),
+             D(rspduo, set_bandwidth))
+
+        .def("set_bandwidth",
+             overload_cast_<double, double>()(&rspduo::set_bandwidth),
+             py::arg("bandwidth_A"),
+             py::arg("bandwidth_B"),
+             D(rspduo, set_bandwidth))
+
+        .def("get_bandwidth",
+             overload_cast_<>()(&rspduo::get_bandwidth, py::const_),
+             D(rspduo, get_bandwidth))
+
+        .def("get_bandwidth",
+             overload_cast_<int>()(&rspduo::get_bandwidth, py::const_),
+             py::arg("tuner"),
+             D(rspduo, get_bandwidth))
+
         .def("set_antenna",
              &rspduo::set_antenna,
              py::arg("antenna"),

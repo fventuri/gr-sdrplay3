@@ -103,6 +103,46 @@ public:
     virtual double get_center_freq(int tuner) const = 0;
 
     /*!
+     * Set the bandwidth for this RSP.
+     *
+     * \param bandwidth new bandwidth in Hz
+     */
+    virtual double set_bandwidth(const double bandwidth) = 0;
+
+    /*!
+     * Set the bandwidth for a given tuner (independent RX case).
+     *
+     * \param bandwidth new bandwidth in Hz
+     * \param tuner tuner number (0 or 1)
+     */
+    virtual double set_bandwidth(const double bandwidth, const int tuner) = 0;
+
+    /*!
+     * Set the bandwidths for each tuner (independent RX case).
+     *
+     * \param bandwidth_A new bandwidth in Hz for tuner A
+     * \param bandwidth_B new bandwidth in Hz for tuner B
+     */
+    virtual void set_bandwidth(const double bandwidth_A, const double bandwidth_B) = 0;
+
+    /*!
+     * Get the bandwidth for this RSP.
+     * This is the actual bandwidth and may differ from the bandwidth set.
+     *
+     * \return the actual bandwidth in Hz
+     */
+    virtual double get_bandwidth() const = 0;
+
+    /*!
+     * Get the bandwidth for a given tuner (independent RX case).
+     * This is the actual bandwidth and may differ from the bandwidth set.
+     *
+     * \param tuner tuner number (0 or 1)
+     * \return the actual bandwidth in Hz
+     */
+    virtual double get_bandwidth(int tuner) const = 0;
+
+    /*!
      * Set the antenna for this RSPduo.
      *
      * \param antenna a new antenna

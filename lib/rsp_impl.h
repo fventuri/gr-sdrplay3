@@ -89,6 +89,10 @@ protected:
 
     void update_sample_rate_and_decimation(double fsHz, int decimation,
                                            sdrplay_api_If_kHzT if_type);
+
+    sdrplay_api_Bw_MHzT bandwidth_to_bwType(double bandwidth) const;
+    double bwType_to_bandwidth(sdrplay_api_Bw_MHzT bw_type) const;
+
     void update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_update);
     void update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_update,
                              sdrplay_api_TunerSelectT tuner);
