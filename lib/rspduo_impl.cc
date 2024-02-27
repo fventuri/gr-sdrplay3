@@ -613,39 +613,29 @@ void rspduo_impl::set_biasT(bool enable)
 // Streaming methods
 bool rspduo_impl::start()
 {
-    //print_device_config();
+    if (!(device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner &&
+          dual_mode_independent_rx)) {
+        return rsp_impl::start();
+    }
 
     // since sdrplay_api_Init() resets channelB settings to channelA values,
     // we need to save all the settings for channelB before sdrplay_api_Init()
-    // and reapply all the ones that are different afterwards
+    // and reapply all those that the user can change (like center frequency)
     // only needed in dual tuner mode
-    sdrplay_api_RxChannelParamsT rxChannelB;
-    if (device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner)
-        rxChannelB = *device_params->rxChannelB;
+    sdrplay_api_RxChannelParamsT rxChannelB = *device_params->rxChannelB;
 
     if (!rsp_impl::start_api_init())
         return false;
 
-    // restore channelB settings that were reset by sdrplsy_api_Init()
-    // only needed in dual tuner mode
+    // restore channelB settings that the user can change in independent RX
+    // mode (which is an option available for dual tuner mode)
     if (device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner) {
         sdrplay_api_ReasonForUpdateT reason = sdrplay_api_Update_None;
 
         // 1. tuner params
         const sdrplay_api_TunerParamsT& tuner_before = rxChannelB.tunerParams;
         sdrplay_api_TunerParamsT& tuner = device_params->rxChannelB->tunerParams;
-        if (tuner.bwType != tuner_before.bwType) {
-            tuner.bwType = tuner_before.bwType;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_BwType);
-        }
-        if (tuner.ifType != tuner_before.ifType) {
-            tuner.ifType = tuner_before.ifType;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_IfType);
-        }
-        if (tuner.loMode != tuner_before.loMode) {
-            tuner.loMode = tuner_before.loMode;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_LoMode);
-        }
+        // 1A. gains
         if (tuner.gain.gRdB != tuner_before.gain.gRdB) {
             tuner.gain.gRdB = tuner_before.gain.gRdB;
             reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_Gr);
@@ -654,105 +644,31 @@ bool rspduo_impl::start()
             tuner.gain.LNAstate = tuner_before.gain.LNAstate;
             reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_Gr);
         }
-        if (tuner.gain.minGr != tuner_before.gain.minGr) {
-            tuner.gain.minGr = tuner_before.gain.minGr;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_Gr);
-        }
+
+        // 1B. frequency
         if (tuner.rfFreq.rfHz != tuner_before.rfFreq.rfHz) {
             tuner.rfFreq.rfHz = tuner_before.rfFreq.rfHz;
             reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_Frf);
-        }
-        if (tuner.dcOffsetTuner.dcCal != tuner_before.dcOffsetTuner.dcCal) {
-            tuner.dcOffsetTuner.dcCal = tuner_before.dcOffsetTuner.dcCal;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_DcOffset);
-        }
-        if (tuner.dcOffsetTuner.speedUp != tuner_before.dcOffsetTuner.speedUp) {
-            tuner.dcOffsetTuner.speedUp = tuner_before.dcOffsetTuner.speedUp;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_DcOffset);
-        }
-        if (tuner.dcOffsetTuner.trackTime != tuner_before.dcOffsetTuner.trackTime) {
-            tuner.dcOffsetTuner.trackTime = tuner_before.dcOffsetTuner.trackTime;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_DcOffset);
-        }
-        if (tuner.dcOffsetTuner.refreshRateTime != tuner_before.dcOffsetTuner.refreshRateTime) {
-            tuner.dcOffsetTuner.refreshRateTime = tuner_before.dcOffsetTuner.refreshRateTime;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_DcOffset);
         }
 
         // 2. control params
         const sdrplay_api_ControlParamsT& ctrl_before = rxChannelB.ctrlParams;
         sdrplay_api_ControlParamsT& ctrl = device_params->rxChannelB->ctrlParams;
-        if (ctrl.dcOffset.DCenable != ctrl_before.dcOffset.DCenable) {
-            ctrl.dcOffset.DCenable = ctrl_before.dcOffset.DCenable;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_DCoffsetIQimbalance);
-        }
-        if (ctrl.dcOffset.IQenable != ctrl_before.dcOffset.IQenable) {
-            ctrl.dcOffset.IQenable = ctrl_before.dcOffset.IQenable;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_DCoffsetIQimbalance);
-        }
-        if (ctrl.decimation.enable != ctrl_before.decimation.enable) {
-            ctrl.decimation.enable = ctrl_before.decimation.enable;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_Decimation);
-        }
-        if (ctrl.decimation.decimationFactor != ctrl_before.decimation.decimationFactor) {
-            ctrl.decimation.decimationFactor = ctrl_before.decimation.decimationFactor;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_Decimation);
-        }
-        if (ctrl.decimation.wideBandSignal != ctrl_before.decimation.wideBandSignal) {
-            ctrl.decimation.wideBandSignal = ctrl_before.decimation.wideBandSignal;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_Decimation);
-        }
+
+        // 2A. AGC
         if (ctrl.agc.enable != ctrl_before.agc.enable) {
             ctrl.agc.enable = ctrl_before.agc.enable;
             reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_Agc);
-        }
-        if (ctrl.agc.setPoint_dBfs != ctrl_before.agc.setPoint_dBfs) {
-            ctrl.agc.setPoint_dBfs = ctrl_before.agc.setPoint_dBfs;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_Agc);
-        }
-        if (ctrl.agc.attack_ms != ctrl_before.agc.attack_ms) {
-            ctrl.agc.attack_ms = ctrl_before.agc.attack_ms;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_Agc);
-        }
-        if (ctrl.agc.decay_ms != ctrl_before.agc.decay_ms) {
-            ctrl.agc.decay_ms = ctrl_before.agc.decay_ms;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_Agc);
-        }
-        if (ctrl.agc.decay_delay_ms != ctrl_before.agc.decay_delay_ms) {
-            ctrl.agc.decay_delay_ms = ctrl_before.agc.decay_delay_ms;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_Agc);
-        }
-        if (ctrl.agc.decay_threshold_dB != ctrl_before.agc.decay_threshold_dB) {
-            ctrl.agc.decay_threshold_dB = ctrl_before.agc.decay_threshold_dB;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_Agc);
-        }
-        if (ctrl.adsbMode != ctrl_before.adsbMode) {
-            ctrl.adsbMode = ctrl_before.adsbMode;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Ctrl_AdsbMode);
         }
 
         // 3. RSPduo tuner params
         const sdrplay_api_RspDuoTunerParamsT& rspDuoTuner_before = rxChannelB.rspDuoTunerParams;
         sdrplay_api_RspDuoTunerParamsT& rspDuoTuner = device_params->rxChannelB->rspDuoTunerParams;
-        if (rspDuoTuner.biasTEnable != rspDuoTuner_before.biasTEnable) {
-            rspDuoTuner.biasTEnable = rspDuoTuner_before.biasTEnable;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_RspDuo_BiasTControl);
-        }
+
+        // 3A. AM port select
         if (rspDuoTuner.tuner1AmPortSel != rspDuoTuner_before.tuner1AmPortSel) {
             rspDuoTuner.tuner1AmPortSel = rspDuoTuner_before.tuner1AmPortSel;
             reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_RspDuo_AmPortSelect);
-        }
-        if (rspDuoTuner.tuner1AmNotchEnable != rspDuoTuner_before.tuner1AmNotchEnable) {
-            rspDuoTuner.tuner1AmNotchEnable = rspDuoTuner_before.tuner1AmNotchEnable;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_RspDuo_Tuner1AmNotchControl);
-        }
-        if (rspDuoTuner.rfNotchEnable != rspDuoTuner_before.rfNotchEnable) {
-            rspDuoTuner.rfNotchEnable = rspDuoTuner_before.rfNotchEnable;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_RspDuo_RfNotchControl);
-        }
-        if (rspDuoTuner.rfDabNotchEnable != rspDuoTuner_before.rfDabNotchEnable) {
-            rspDuoTuner.rfDabNotchEnable = rspDuoTuner_before.rfDabNotchEnable;
-            reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_RspDuo_RfDabNotchControl);
         }
 
         if (reason != sdrplay_api_Update_None) {
@@ -765,7 +681,8 @@ bool rspduo_impl::start()
         }
     }
 
-    //print_device_config();
+    // fv
+    print_device_config();
     run_status = RunStatus::init;
     return true;
 }
