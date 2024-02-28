@@ -681,8 +681,7 @@ bool rspduo_impl::start()
         }
     }
 
-    // fv
-    print_device_config();
+    //print_device_config();
     run_status = RunStatus::init;
     return true;
 }
