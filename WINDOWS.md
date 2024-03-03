@@ -85,7 +85,9 @@ In this step we'll use either the conda package built in the previous step or th
     mamba install --offline "gnuradio-sdrplay3-3.11.0.2.post2+ga4071c6-py311hf0272db_0.tar.bz2"
 ```
 - VERY IMPORTANT - copy the SDRplay API DLL to a folder in the radioconda search path
+```
     copy /B "%ProgramFiles%\SDRplay\API\x64\sdrplay_api.dll" "%CONDA_PREFIX%\Library\bin"
+```
 
 
 ## step 5 - use GNU Radio Companion to run some examples
@@ -98,11 +100,11 @@ In this step we'll use either the conda package built in the previous step or th
 ## Troubleshooting
 
 If the GNU Radio Companion test fails with the error message "ImportError: DLL load failed while importing sdrplay3_python: The specified module could not be found." or "ModuleNotFoundError: No module named 'gnuradio.sdrplay3.sdrplay3_python'", it probably means that radioconda/conda can't find the DLL 'sdrplay_api.dll' in one of the folders where it searches for that DLL:
-- %CONDA_PREFIX%\Lib\site-packages\gnuradio\sdrplay3
-- %CONDA_PREFIX%
-- %CONDA_PREFIX%\Library\mingw-w64\bin
-- %CONDA_PREFIX%\Library\bin
-- %CONDA_PREFIX%\Scripts
-- C:\Windows\System32
+- `%CONDA_PREFIX%\Lib\site-packages\gnuradio\sdrplay3`
+- `%CONDA_PREFIX%`
+- `%CONDA_PREFIX%\Library\mingw-w64\bin`
+- `%CONDA_PREFIX%\Library\bin`
+- `%CONDA_PREFIX%\Scripts`
+- `C:\Windows\System32`
 
 In this case you may want to make sure that you did run the last command in step 4 (the one with the note 'VERY IMPORTANT')
