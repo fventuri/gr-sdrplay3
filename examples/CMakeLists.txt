@@ -11,5 +11,5 @@ install(FILES
     rspduo_dual_tuner_diversity_reception-LNA.grc
     rspduo_slave.grc
     rspdx-LNA.grc
-    DESTINATION share/gnuradio/examples/gr-sdrplay3
+    DESTINATION share/gr-sdrplay3/examples
 )

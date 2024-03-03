@@ -13,8 +13,6 @@ A base class is created.
 Classes based upon this are used to make more user-friendly interfaces
 to the doxygen xml docs than the generated classes provide.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import pdb
@@ -85,8 +83,8 @@ class Base(object):
         for cls in self.mem_classes:
             if cls.can_parse(mem):
                 return cls
-        raise Exception(("Did not find a class for object '%s'." \
-                                 % (mem.get_name())))
+        raise Exception(("Did not find a class for object '%s'."
+                         % (mem.get_name())))
 
     def convert_mem(self, mem):
         try:
