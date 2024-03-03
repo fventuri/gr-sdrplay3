@@ -52,9 +52,9 @@ This line is uninformative and is only to test line breaks in the comments.
 u'Outputs the vital aadvark statistics.'
 
 """
-from __future__ import unicode_literals
 
 from .doxyindex import DoxyIndex, DoxyFunction, DoxyParam, DoxyClass, DoxyFile, DoxyNamespace, DoxyGroup, DoxyFriend, DoxyOther
+
 
 def _test():
     import os
@@ -67,6 +67,6 @@ def _test():
     import doctest
     return doctest.testmod()
 
+
 if __name__ == "__main__":
     _test()
-

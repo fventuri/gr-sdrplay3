@@ -1,4 +1,4 @@
-This is the s3drplay3-write-a-block package meant as a guide to building
+This is the sdrplay3-write-a-block package meant as a guide to building
 out-of-tree packages. To use the sdrplay3 blocks, the Python namespaces
 is in 'sdrplay3', which is imported as:
 
