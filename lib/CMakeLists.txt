@@ -54,6 +54,16 @@ if(APPLE)
     set_target_properties(gnuradio-sdrplay3 PROPERTIES
         INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib"
     )
+	# libsdrplay_api.so install path required by macOS 14 (Sonoma)
+	execute_process(COMMAND readlink -f ${LIBSDRPLAY_LIBRARIES}
+        	OUTPUT_STRIP_TRAILING_WHITESPACE
+        	OUTPUT_VARIABLE LIBSDRPLAY_INSTNAME)
+    execute_process(COMMAND basename "${LIBSDRPLAY_INSTNAME}"
+        	OUTPUT_STRIP_TRAILING_WHITESPACE
+        	OUTPUT_VARIABLE LIBSDRPLAY_DEPNAME)
+    add_custom_command(TARGET gnuradio-sdrplay3
+    	POST_BUILD COMMAND
+    	${CMAKE_INSTALL_NAME_TOOL} -change ${LIBSDRPLAY_DEPNAME} ${LIBSDRPLAY_INSTNAME} $<TARGET_FILE_NAME:gnuradio-sdrplay3>)
 endif(APPLE)
 
 ########################################################################
