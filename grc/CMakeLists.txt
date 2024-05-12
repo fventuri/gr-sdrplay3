@@ -13,5 +13,6 @@ install(FILES
     sdrplay3_rsp2.block.yml
     sdrplay3_rspduo.block.yml
     sdrplay3_rspdx.block.yml
+    sdrplay3_rspdxr2.block.yml
     DESTINATION share/gnuradio/grc/blocks
 )

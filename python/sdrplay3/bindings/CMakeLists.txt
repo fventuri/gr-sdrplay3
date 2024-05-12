@@ -37,6 +37,7 @@ list(APPEND sdrplay3_python_files
     rsp2_python.cc
     rspduo_python.cc
     rspdx_python.cc
+    rspdxr2_python.cc
     python_bindings.cc)
 
 GR_PYBIND_MAKE_OOT(sdrplay3

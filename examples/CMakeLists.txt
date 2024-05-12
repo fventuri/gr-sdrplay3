@@ -10,6 +10,9 @@ install(FILES
     rsp2.grc
     rspduo_dual_tuner_diversity_reception-LNA.grc
     rspduo_slave.grc
+    rspdx.grc
     rspdx-LNA.grc
+    rspdx-r2.grc
+    rspdx-r2-LNA.grc
     DESTINATION share/gr-sdrplay3/examples
 )

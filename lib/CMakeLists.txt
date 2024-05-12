@@ -19,6 +19,7 @@ list(APPEND sdrplay3_sources
     rsp2_impl.cc
     rspduo_impl.cc
     rspdx_impl.cc
+    rspdxr2_impl.cc
     sdrplay_api.cc
 )
 
