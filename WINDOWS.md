@@ -64,7 +64,6 @@ This step requires Microsoft Visual Studio 2019; I used VS2109 Community Edition
     mamba activate build
     git clone https://github.com/fventuri/gr-sdrplay3/
     cd gr-sdrplay3
-    git checkout conda     # <-- this step is only needed until this branch is merged into the main branch
     conda build .conda\recipe
 ```
 - the last step will take several minutes (10-12 on my computer)

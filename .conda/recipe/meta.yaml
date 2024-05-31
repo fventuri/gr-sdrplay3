@@ -74,7 +74,7 @@ test:
     - if not exist %PREFIX%\\Library\\lib\\{{ name }}.lib exit 1  # [win]
 
     ## verify that (some) GRC blocks get installed
-    {% set blocks = ["sdrplay3_rsp1", "sdrplay3_rsp1a", "sdrplay3_rsp1b", "sdrplay3_rsp2", "sdrplay3_rspduo", "sdrplay3_rspdx", "sdrplay_rspdxr2"] %}
+    {% set blocks = ["sdrplay3_rsp1", "sdrplay3_rsp1a", "sdrplay3_rsp1b", "sdrplay3_rsp2", "sdrplay3_rspduo", "sdrplay3_rspdx", "sdrplay3_rspdxr2"] %}
     {% for block in blocks %}
     - test -f $PREFIX/share/gnuradio/grc/blocks/{{ block }}.block.yml  # [not win]
     - if not exist %PREFIX%\\Library\\share\\gnuradio\\grc\\blocks\\{{ block }}.block.yml exit 1  # [win]
@@ -102,6 +102,7 @@ about:
       - RSP2
       - RSPduo (all modes of operation)
       - RSPdx
+      - RSPdx-R2
 
     Example gnuradio-companion flowgraphs are installed with the package and
     can be found in:
