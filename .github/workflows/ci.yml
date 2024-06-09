@@ -37,9 +37,9 @@ jobs:
           make
       - name: Check things
         run: |
-          ottol -L build/python/sdrplay3/bindings/sdrplay3_python.cpython-312-darwin.so
+          otool -L build/python/sdrplay3/bindings/sdrplay3_python.cpython-312-darwin.so
           echo '--------------------------------------'
-          ottol -l build/python/sdrplay3/bindings/sdrplay3_python.cpython-312-darwin.so
+          otool -l build/python/sdrplay3/bindings/sdrplay3_python.cpython-312-darwin.so
           echo '--------------------------------------'
           otool -L build/lib/libgnuradio-sdrplay3.g*.dylib
           echo '--------------------------------------'
