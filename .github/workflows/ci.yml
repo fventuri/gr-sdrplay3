@@ -39,8 +39,8 @@ jobs:
         run: |
           otool -L build/python/sdrplay3/bindings/sdrplay3_python.cpython-312-darwin.so
           echo '--------------------------------------'
-          otool -l build/python/sdrplay3/bindings/sdrplay3_python.cpython-312-darwin.so
+          otool -l build/python/sdrplay3/bindings/sdrplay3_python.cpython-312-darwin.so | grep -B1 -A4 LC_RPATH
           echo '--------------------------------------'
           otool -L build/lib/libgnuradio-sdrplay3.g*.dylib
           echo '--------------------------------------'
-          otool -l build/lib/libgnuradio-sdrplay3.g*.dylib
+          otool -l build/lib/libgnuradio-sdrplay3.g*.dylib | grep -B1 -A4 LC_RPATH
