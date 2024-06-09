@@ -53,4 +53,11 @@ GR_PYBIND_MAKE_OOT(sdrplay3
 #    ${CMAKE_BINARY_DIR}/test_modules/gnuradio/sdrplay3/
 #  DEPENDS sdrplay3_python)
 
+if(APPLE)
+    add_custom_command(
+        TARGET sdrplay3_python POST_BUILD
+        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change libsdrplay_api.so.3 @rpath/libsdrplay_api.so.3 "$<TARGET_FILE:sdrplay3_python>"
+    )
+endif(APPLE)
+
 install(TARGETS sdrplay3_python DESTINATION ${GR_PYTHON_DIR}/gnuradio/sdrplay3 COMPONENT pythonapi)

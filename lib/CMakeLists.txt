@@ -55,9 +55,9 @@ if(APPLE)
     set_target_properties(gnuradio-sdrplay3 PROPERTIES
         INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib"
     )
-    add_custom_command(TARGET gnuradio-sdrplay3
-        POST_BUILD COMMAND
-        ${CMAKE_INSTALL_NAME_TOOL} -change libsdrplay_api.so.3 @rpath/libsdrplay_api.so.3 $<TARGET_FILE:gnuradio-sdrplay3>
+    add_custom_command(
+        TARGET gnuradio-sdrplay3 POST_BUILD
+        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change libsdrplay_api.so.3 @rpath/libsdrplay_api.so.3 "$<TARGET_FILE:gnuradio-sdrplay3>"
     )
 endif(APPLE)
 
