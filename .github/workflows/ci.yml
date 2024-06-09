@@ -50,7 +50,5 @@ jobs:
           sudo make install
       - name: Check things after install
         run: |
-          type python
-          python -c 'import sys; print(sys.path)'
-          type python3
-          python -c 'from gnuradio import sdrplay3'
+          python3 -c 'import sys; print(sys.path)'
+          python3 -c 'from gnuradio import sdrplay3'
