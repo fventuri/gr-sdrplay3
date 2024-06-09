@@ -35,7 +35,7 @@ jobs:
           cd build
           cmake ..
           make
-      - name: Check things
+      - name: Check things before install
         run: |
           otool -L build/python/sdrplay3/bindings/sdrplay3_python.cpython-312-darwin.so
           echo '--------------------------------------'
@@ -44,3 +44,10 @@ jobs:
           otool -L build/lib/libgnuradio-sdrplay3.g*.dylib
           echo '--------------------------------------'
           otool -l build/lib/libgnuradio-sdrplay3.g*.dylib | grep -B1 -A4 LC_RPATH
+      - name: Install
+        run: |
+          cd build
+          sudo make install
+      - name: Check things after install
+        run: |
+          python -c 'from gnuradio import sdrplay3'
