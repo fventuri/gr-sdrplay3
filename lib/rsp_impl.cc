@@ -806,6 +806,9 @@ void rsp_impl::event_callback(sdrplay_api_EventT eventId,
         break;
     case sdrplay_api_RspDuoModeChange:
         break;
+    case sdrplay_api_DeviceFailure:
+        d_logger->error("device failure");
+        break;
     }
 }
 
