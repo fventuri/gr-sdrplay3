@@ -3,6 +3,7 @@ name: CI
 on: push
 
 env:
+  MACPORTS_DOWNLOADS: 'https://github.com/macports/macports-base/releases/download/v2.9.3'
   SDRPLAY_SOFTWARE_DOWNLOADS: 'https://www.sdrplay.com/software'
 
 jobs:
@@ -13,7 +14,12 @@ jobs:
       - name: Check MacOS version
         run: sw_vers
       - name: Install GNU Radio
-        run: sudo port install gnuradio
+        env:
+          MACPORTS_SONOMA_PKG: MacPorts-2.9.3-14-Sonoma.pkg
+        run: |
+          curl -s -S -O "$MACPORTS_DOWNLOADS/$MACPORTS_SONOMA_PKG"
+          sudo installer -pkg "$MACPORTS_SONOMA_PKG" -target /
+          sudo port install gnuradio
       - name: Install SDRplay API 3.X
         env:
           SDRPLAY_API_FILE_MACOS: SDRplayAPI-macos-installer-universal-3.15.0.pkg
