@@ -13,7 +13,7 @@ jobs:
       - name: Check MacOS version
         run: sw_vers
       - name: Install GNU Radio
-        sudo port install gnuradio
+        run: sudo port install gnuradio
       - name: Install SDRplay API 3.X
         env:
           SDRPLAY_API_FILE_MACOS: SDRplayAPI-macos-installer-universal-3.15.0.pkg
