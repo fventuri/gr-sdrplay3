@@ -37,4 +37,10 @@ jobs:
           make
       - name: Check things
         run: |
-          find build
+          ls -l build/python/sdrplay3/bindings/sdrplay3_python.cpython-312-darwin.so
+          echo '--------------------------------------'
+          file build/python/sdrplay3/bindings/sdrplay3_python.cpython-312-darwin.so
+          echo '--------------------------------------'
+          ls -l build/lib/libgnuradio-sdrplay3*
+          echo '--------------------------------------'
+          file build/lib/libgnuradio-sdrplay3*
