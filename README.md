@@ -21,7 +21,7 @@ This module uses some features of GNU Radio (like pybind11 for Pythin bindings) 
 
 - The code in the 'main' branch requires the latest version of the SDRplay API (v3.15 at the time of writing). If you have to run this module with an older version of the SDRplay API, please use the code in the 'sdrplay-api-3.07' branch (which will not have further updates).
 
-- detailed instructions on how to run this OOT module 'gr-sdrplay3' on Windows with the radioconda GNU Radio installation are in [this document](Windows.md).
+- detailed instructions on how to run this OOT module 'gr-sdrplay3' on Windows with the radioconda GNU Radio installation are in [this document](WINDOWS.md).
 
 
 ## Dependencies
@@ -39,6 +39,7 @@ The SDRplay API should be installed before this module is built.
 cd gr-sdrplay3
 mkdir build && cd build && cmake .. && make
 sudo make install
+sudo ldconfig
 ```
 
 
