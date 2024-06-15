@@ -85,7 +85,7 @@ blocks:
     rf_gRdB: '0'
     rf_gRdB0: '0'
     rf_gRdB1: '0'
-    rsp_selector: '**********'
+    rsp_selector: ''
     rspduo_mode: Single Tuner
     sample_rate: 2000e3
     sample_rate_non_single_tuner: 62.5e3

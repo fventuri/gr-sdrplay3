@@ -178,7 +178,7 @@ blocks:
     rf_gRdB0: '0'
     rf_gRdB1: '0'
     rf_notch_filter: 'False'
-    rsp_selector: '**********'
+    rsp_selector: ''
     rspduo_mode: Single Tuner
     sample_rate: samp_rate
     sample_rate_non_single_tuner: 62.5e3

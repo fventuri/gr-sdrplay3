@@ -158,7 +158,7 @@ blocks:
     rf_gRdB0: '0'
     rf_gRdB1: '0'
     rf_notch_filter: 'False'
-    rsp_selector: '**********'
+    rsp_selector: ''
     rspduo_mode: Slave
     sample_rate: 2000e3
     sample_rate_non_single_tuner: 2000e3
