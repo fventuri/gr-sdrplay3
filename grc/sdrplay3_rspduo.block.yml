@@ -6,6 +6,7 @@ flags: [python, cpp, throttle]
 
 templates:
   imports: from gnuradio import sdrplay3
+  var_value: LNA3 = 10003
   make: |
     sdrplay3.rspduo(
         ${rsp_selector},
@@ -26,19 +27,19 @@ templates:
     self.${id}.set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}")
     % if rspduo_mode.nindepgain == '1':
     self.${id}.set_gain_mode(${AGC})
-    self.${id}.set_gain(-${if_gRdB}, 'IF')
-    % if 'LNA' in str(rf_gR).upper():
-    self.${id}.set_gain(int(${rf_gR}[3:]), 'LNAstate')
-    % else:
-    self.${id}.set_gain(-float(${rf_gR}), 'RF')
+    self.${id}.set_gain(-(${if_gRdB}), 'IF')
+    % if rf_gR_mode == 'dB':
+    self.${id}.set_gain(-(${rf_gRdB}), 'RF')
+    % elif rf_gR_mode == 'LNA':
+    self.${id}.set_gain(${rf_gRLNA}, 'LNAstate')
     % endif
     % elif rspduo_mode.nindepgain == '2':
     self.${id}.set_gain_modes(${AGC0}, ${AGC1})
-    self.${id}.set_gain(-${if_gRdB0}, -${if_gRdB1}, 'IF')
-    % if 'LNA' in str(rf_gR0).upper() and 'LNA' in str(rf_gR1).upper():
-    self.${id}.set_gain(int(${rf_gR0}[3:]), int(${rf_gR1}[3:]), 'LNAstate')
-    % else:
-    self.${id}.set_gain(-float(${rf_gR0}), -float(${rf_gR1}), 'RF')
+    self.${id}.set_gain(-(${if_gRdB0}), -(${if_gRdB1}), 'IF')
+    % if rf_gR_mode == 'dB':
+    self.${id}.set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), 'RF')
+    % elif rf_gR_mode == 'LNA':
+    self.${id}.set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, 'LNAstate')
     % endif
     % endif
     self.${id}.set_freq_corr(${freq_corr})
@@ -74,26 +75,26 @@ templates:
     % endif
   - |
     % if rspduo_mode.nindepgain == '1':
-    set_gain(-${if_gRdB}, 'IF', 0)
+    set_gain(-(${if_gRdB}), 'IF')
     % endif
   - |
     % if rspduo_mode.nindepgain == '2':
-    set_gain(-${if_gRdB0}, -{if_gRdB1}, 'IF')
+    set_gain(-(${if_gRdB0}), -(${if_gRdB1}), 'IF')
     % endif
   - |
     % if rspduo_mode.nindepgain == '1':
-    % if 'LNA' in str(rf_gR).upper():
-    set_gain(int(${rf_gR}[3:]), 'LNAstate')
-    % else:
-    set_gain(-float(${rf_gR}), 'RF')
+    % if rf_gR_mode == 'dB':
+    set_gain(-(${rf_gRdB}), 'RF')
+    % elif rf_gR_mode == 'LNA':
+    set_gain(${rf_gRLNA}, 'LNAstate')
     % endif
     % endif
   - |
     % if rspduo_mode.nindepgain == '2':
-    % if 'LNA' in str(rf_gR0).upper() and 'LNA' in str(rf_gR1).upper():
-    set_gain(int(${rf_gR0}[3:]), int(${rf_gR1}[3:]), 'LNAstate')
-    % else:
-    set_gain(-float(${rf_gR0}), -float(${rf_gR1}), 'RF')
+    % if rf_gR_mode == 'dB':
+    set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), 'RF')
+    % elif rf_gR_mode == 'LNA':
+    set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, 'LNAstate')
     % endif
     % endif
   - set_freq_corr(${freq_corr})
@@ -129,19 +130,19 @@ cpp_templates:
     this->${id}->set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}");
     % if rspduo_mode.nindepgain == '1':
     this->${id}->set_gain_mode(${AGC});
-    this->${id}->set_gain(-${if_gRdB}, "IF");
-    % if 'LNA' in str(rf_gR).upper():
-    this->${id}->set_gain(strtol(${rf_gR}+3, nullptr, 10), "LNAstate");
-    % else:
-    this->${id}->set_gain(-strtod(${rf_gR}, nullptr), "RF");
+    this->${id}->set_gain(-(${if_gRdB}), "IF");
+    % if rf_gR_mode == 'dB':
+    this->${id}->set_gain(-(${rf_gRdB}), "RF");
+    % elif rf_gR_mode == 'LNA':
+    this->${id}->set_gain(${rf_gRLNA}, "LNAstate");
     % endif
     % elif rspduo_mode.nindepgain == '2':
     this->${id}->set_gain_mode(${AGC0}, ${AGC1});
-    this->${id}->set_gain(-${if_gRdB0}, -${if_gRdB1}, "IF");
-    % if 'LNA' in str(rf_gR0).upper() and 'LNA' in str(rf_gR1).upper():
-    this->${id}->set_gain(strtol(${rf_gR0}+3, nullptr, 10), strtol(${rf_gR1}+3, nullptr, 10), "LNAstate");
-    % else:
-    this->${id}->set_gain(-strtod(${rf_gR0}, nullptr), -strtod(${rf_gR1}, nullptr), "RF");
+    this->${id}->set_gain(-(${if_gRdB0}), -(${if_gRdB1}), "IF");
+    % if rf_gR_mode == 'dB':
+    this->${id}->set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), "RF");
+    % elif rf_gR_mode == 'LNA':
+    this->${id}->set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, "LNAstate");
     % endif
     % endif
     this->${id}->set_freq_corr(${freq_corr});
@@ -182,26 +183,26 @@ cpp_templates:
     % endif
   - |
     % if rspduo_mode.nindepgain == '1':
-    set_gain(-${if_gRdB}, "IF");
+    set_gain(-(${if_gRdB}), "IF");
     % endif
   - |
     % if rspduo_mode.nindepgain == '2':
-    set_gain(-${if_gRdB0}, -${if_gRdB1}, "IF");
+    set_gain(-(${if_gRdB0}), -(${if_gRdB1}), "IF");
     % endif
   - |
     % if rspduo_mode.nindepgain == '1':
-    % if 'LNA' in str(rf_gR).upper():
-    set_gain(strtol(${rf_gR}+3, nullptr, 10), "LNAstate");
-    % else:
-    set_gain(-strtod(${rf_gR}, nullptr), "RF");
+    % if rf_gR_mode == 'dB':
+    set_gain(-(${rf_gRdB}), "RF");
+    % elif rf_gR_mode == 'LNA':
+    set_gain(${rf_gRLNA}, "LNAstate");
     % endif
     % endif
   - |
     % if rspduo_mode.nindepgain == '2':
-    % if 'LNA' in str(rf_gR0).upper() and 'LNA' in str(rf_gR1).upper():
-    set_gain(strtol(${rf_gR0}+3, nullptr, 10), strtol(${rf_gR1}+3, nullptr, 10), "LNAstate");
-    % else:
-    set_gain(-strtod(${rf_gR0}, nullptr), -strtod(${rf_gR1}, nullptr), "RF");
+    % if rf_gR_mode == 'dB':
+    set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), "RF");
+    % elif rf_gR_mode == 'LNA':
+    set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, "LNAstate");
     % endif
     % endif
   - set_freq_corr(${freq_corr});
@@ -324,24 +325,50 @@ parameters:
   default: 40
   hide: ${'part' if rspduo_mode.nindepgain == 2 else 'all'}
 
-- id: rf_gR
-  label: RF Attenuation (dB/LNA)
+- id: rf_gR_mode
+  label: 'RF Attenuation mode: dB/LNA state'
   category: Gain Options
-  dtype: string
-  default: 0
-  hide: ${'part' if rspduo_mode.nindepgain == 1 else 'all'}
-- id: rf_gR0
-  label: 'RX0: RF Attenuation (dB/LNA)'
+  dtype: enum
+  default: 'dB'
+  options: ['dB', 'LNA']
+  option_labels: [dB, LNA state]
+  hide: part
+- id: rf_gRdB
+  label: RF Attenuation (dB)
   category: Gain Options
-  dtype: string
+  dtype: real
   default: 0
-  hide: ${'part' if rspduo_mode.nindepgain == 2 else 'all'}
-- id: rf_gR1
-  label: 'RX1: RF Attenuation (dB/LNA)'
+  hide: ${'part' if rspduo_mode.nindepgain == 1 and rf_gR_mode == 'dB' else 'all'}
+- id: rf_gRdB0
+  label: 'RX0: RF Attenuation (dB)'
   category: Gain Options
-  dtype: string
+  dtype: real
   default: 0
-  hide: ${'part' if rspduo_mode.nindepgain == 2 else 'all'}
+  hide: ${'part' if rspduo_mode.nindepgain == 2 and rf_gR_mode == 'dB' else 'all'}
+- id: rf_gRdB1
+  label: 'RX1: RF Attenuation (dB)'
+  category: Gain Options
+  dtype: real
+  default: 0
+  hide: ${'part' if rspduo_mode.nindepgain == 2 and rf_gR_mode == 'dB' else 'all'}
+- id: rf_gRLNA
+  label: RF Attenuation (LNA state)
+  category: Gain Options
+  dtype: int
+  default: 0
+  hide: ${'part' if rspduo_mode.nindepgain == 1 and rf_gR_mode == 'LNA' else 'all'}
+- id: rf_gRLNA0
+  label: 'RX0: RF Attenuation (LNA state)'
+  category: Gain Options
+  dtype: int
+  default: 0
+  hide: ${'part' if rspduo_mode.nindepgain == 2 and rf_gR_mode == 'LNA' else 'all'}
+- id: rf_gRLNA1
+  label: 'RX1: RF Attenuation (LNA state)'
+  category: Gain Options
+  dtype: int
+  default: 0
+  hide: ${'part' if rspduo_mode.nindepgain == 2 and rf_gR_mode == 'LNA' else 'all'}
 
 - id: agc_set_point
   label: AGC set point (dBfs)
@@ -493,9 +520,8 @@ documentation: |-
     IF attenuation in dB [20-59]
 
     RF Attenuation:
-    RF attenuation in dB [0-X] where X depends on center freq and High-Z antenna
-    (see LNAstate table in the Users Guide)
-    RF attenuation as LNA state: LNA<LNAstate>
+    - dB: RF attenuation in dB [0-dBMax] where dbMax depends on frequency band and antenna type (see LNAstate table in the Users Guide)
+    - LNA state: RF attenuation as LNA state [0-LNAstateMax]
 
     AGC set point (dBfs)
 

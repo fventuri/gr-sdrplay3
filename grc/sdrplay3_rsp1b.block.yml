@@ -18,11 +18,11 @@ templates:
     self.${id}.set_center_freq(${center_freq})
     self.${id}.set_bandwidth(${bandwidth})
     self.${id}.set_gain_mode(${AGC})
-    self.${id}.set_gain(-${if_gRdB}, 'IF')
-    % if 'LNA' in str(rf_gR).upper():
-    self.${id}.set_gain(int(${rf_gR}[3:]), 'LNAstate')
-    % else:
-    self.${id}.set_gain(-float(${rf_gR}), 'RF')
+    self.${id}.set_gain(-(${if_gRdB}), 'IF')
+    % if rf_gR_mode == 'dB':
+    self.${id}.set_gain(-(${rf_gRdB}), 'RF')
+    % elif rf_gR_mode == 'LNA':
+    self.${id}.set_gain(${rf_gRLNA}, 'LNAstate')
     % endif
     self.${id}.set_freq_corr(${freq_corr})
     self.${id}.set_dc_offset_mode(${dc_offset_mode})
@@ -39,12 +39,12 @@ templates:
   - set_center_freq(${center_freq})
   - set_bandwidth(${bandwidth})
   - set_gain_mode(${AGC})
-  - set_gain(-${if_gRdB}, 'IF')
+  - set_gain(-(${if_gRdB}), 'IF')
   - |
-    % if 'LNA' in str(rf_gR).upper():
-    set_gain(int(${rf_gR}[3:]), 'LNAstate')
-    % else:
-    set_gain(-float(${rf_gR}), 'RF')
+    % if rf_gR_mode == 'dB':
+    set_gain(-(${rf_gRdB}), 'RF')
+    % elif rf_gR_mode == 'LNA':
+    set_gain(${rf_gRLNA}, 'LNAstate')
     % endif
   - set_freq_corr(${freq_corr})
   - set_dc_offset_mode(${dc_offset_mode})
@@ -70,11 +70,11 @@ cpp_templates:
     this->${id}->set_center_freq(${center_freq});
     this->${id}->set_bandwidth(${bandwidth});
     this->${id}->set_gain_mode(${AGC});
-    this->${id}->set_gain(-${if_gRdB}, "IF");
-    % if 'LNA' in str(rf_gR).upper():
-    this->${id}->set_gain(strtol(${rf_gR}+3, nullptr, 10), "LNAstate");
-    % else:
-    this->${id}->set_gain(-strtod(${rf_gR}, nullptr), "RF");
+    this->${id}->set_gain(-(${if_gRdB}), "IF");
+    % if rf_gR_mode == 'dB':
+    this->${id}->set_gain(-(${rf_gRdB}), "RF");
+    % elif rf_gR_mode == 'LNA':
+    this->${id}->set_gain(${rf_gRLNA}, "LNAstate");
     % endif
     this->${id}->set_freq_corr(${freq_corr});
     this->${id}->set_dc_offset_mode(${dc_offset_mode});
@@ -96,12 +96,12 @@ cpp_templates:
   - set_center_freq(${center_freq});
   - set_bandwidth(${bandwidth});
   - set_gain_mode(${AGC});
-  - set_gain(-${if_gRdB}, "IF");
+  - set_gain(-(${if_gRdB}), "IF");
   - |
-    % if 'LNA' in str(rf_gR).upper():
-    set_gain(strtol(${rf_gR}+3, nullptr, 10), "LNAstate");
-    % else:
-    set_gain(-strtod(${rf_gR}, nullptr), "RF");
+    % if rf_gR_mode == 'dB':
+    set_gain(-(${rf_gRdB}), "RF");
+    % elif rf_gR_mode == 'LNA':
+    set_gain(${rf_gRLNA}, "LNAstate");
     % endif
   - set_freq_corr(${freq_corr});
   - set_dc_offset_mode(${dc_offset_mode});
@@ -156,12 +156,26 @@ parameters:
   default: 40
   hide: part
 
-- id: rf_gR
-  label: RF Attenuation (dB/LNA)
+- id: rf_gR_mode
+  label: 'RF Attenuation mode: dB/LNA state'
   category: Gain Options
-  dtype: string
-  default: 0
+  dtype: enum
+  default: 'dB'
+  options: ['dB', 'LNA']
+  option_labels: [dB, LNA state]
   hide: part
+- id: rf_gRdB
+  label: RF Attenuation (dB)
+  category: Gain Options
+  dtype: real
+  default: 0
+  hide: ${'part' if rf_gR_mode == 'dB' else 'all'}
+- id: rf_gRLNA
+  label: RF Attenuation (LNA state)
+  category: Gain Options
+  dtype: int
+  default: 0
+  hide: ${'part' if rf_gR_mode == 'LNA' else 'all'}
 
 - id: agc_set_point
   label: AGC set point (dBfs)
@@ -289,9 +303,8 @@ documentation: |-
     IF attenuation in dB [20-59]
 
     RF Attenuation:
-    RF attenuation in dB [0-X] where X depends on center freq and HDR mode
-    (see LNAstate table in the Users Guide)
-    RF attenuation as LNA state: LNA<LNAstate>
+    - dB: RF attenuation in dB [0-dBMax] where dbMax depends on frequency band and antenna type (see LNAstate table in the Users Guide)
+    - LNA state: RF attenuation as LNA state [0-LNAstateMax]
 
     AGC set point (dBfs)
 
