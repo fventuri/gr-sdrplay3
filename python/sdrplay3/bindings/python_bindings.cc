@@ -29,6 +29,7 @@ namespace py = pybind11;
     void bind_rsp2(py::module& m);
     void bind_rspduo(py::module& m);
     void bind_rspdx(py::module& m);
+    void bind_rspdxr2(py::module& m);
 // ) END BINDING_FUNCTION_PROTOTYPES
 
 
