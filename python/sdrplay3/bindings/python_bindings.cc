@@ -66,5 +66,6 @@ PYBIND11_MODULE(sdrplay3_python, m)
     bind_rsp2(m);
     bind_rspduo(m);
     bind_rspdx(m);
+    bind_rspdxr2(m);
     // ) END BINDING_FUNCTION_CALLS
 }

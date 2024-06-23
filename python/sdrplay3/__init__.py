@@ -11,10 +11,12 @@ This is the GNU Radio SDRPLAY3 module.
 This module supports the following SDRplay RSP devices:
   - RSP1
   - RSP1A
+  - RSP1B
   - RSP2
   - RSPduo
   - RSPdx
-This module requires SDRplay API version 3.x to work.
+  - RSPdx-R2
+This module requires SDRplay API version 3.x (at least version 3.15) to work.
 '''
 import os
 
