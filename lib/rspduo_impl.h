@@ -34,15 +34,21 @@ public:
     ~rspduo_impl();
 
     // Sample rate methods
-    double set_sample_rate(const double rate) override;
+    double set_sample_rate(const double rate,
+                           const bool synchronous = false) override;
     const pair_of_doubles &get_sample_rate_range() const override;
     const std::vector<double> get_valid_sample_rates() const override;
 
     // Center frequency methods
     // we need to redefine the overloaded methods because of C++ name hiding
-    double set_center_freq(const double freq) override { return rsp_impl::set_center_freq(freq); }
-    double set_center_freq(const double freq, const int tuner) override;
-    void set_center_freq(const double freq_A, const double freq_B) override;
+    double set_center_freq(const double freq,
+                           const bool synchronous = false) override {
+        return rsp_impl::set_center_freq(freq, synchronous);
+    }
+    double set_center_freq(const double freq, const int tuner,
+                           const bool synchronous = false) override;
+    void set_center_freq(const double freq_A, const double freq_B,
+                         const bool synchronous = false) override;
     double get_center_freq() const override { return rsp_impl::get_center_freq(); }
     double get_center_freq(const int tuner) const override;
 
@@ -52,11 +58,15 @@ public:
     const std::vector<std::string> get_antennas() const override;
 
     // Gain methods
-    double set_gain(const double gain, const std::string& name) override {
-        return rsp_impl::set_gain(gain, name);
+    double set_gain(const double gain, const std::string& name,
+                    const bool synchronous = false) override {
+        return rsp_impl::set_gain(gain, name, synchronous);
     }
-    double set_gain(const double gain, const std::string& name, const int tuner) override;
-    void set_gain(const double gain_A, const double gain_B, const std::string& name) override;
+    double set_gain(const double gain, const std::string& name, const int tuner,
+                    const bool synchronous = false) override;
+    void set_gain(const double gain_A, const double gain_B,
+                  const std::string& name,
+                  const bool synchronous = false) override;
     double get_gain(const std::string& name) const override {
         return rsp_impl::get_gain(name);
     }
@@ -97,25 +107,31 @@ private:
     const std::vector<int> rf_gr_values(const int tuner) const;
 
     // we need to redefine the overloaded methods because of C++ name hiding
-    double set_if_gain(const double gain) {
-        return rsp_impl::set_if_gain(gain);
+    double set_if_gain(const double gain, const bool synchronous = false) {
+        return rsp_impl::set_if_gain(gain, synchronous);
     }
-    double set_if_gain(const double gain, const int tuner);
-    void set_if_gain(const double gain_A, const double gain_B);
-    double set_rf_gain(const double gain, const std::vector<int> rf_gRs) {
-        return rsp_impl::set_rf_gain(gain, rf_gRs);
+    double set_if_gain(const double gain, const int tuner,
+                       const bool synchronous = false);
+    void set_if_gain(const double gain_A, const double gain_B,
+                     const bool synchronous = false);
+    double set_rf_gain(const double gain, const std::vector<int> rf_gRs,
+                       const bool synchronous = false) {
+        return rsp_impl::set_rf_gain(gain, rf_gRs, synchronous);
     }
     double set_rf_gain(const double gain, const std::vector<int> rf_gRs,
-                       const int tuner);
+                       const int tuner, const bool synchronous = false);
     void set_rf_gain(const double gain_A, const double gain_B,
-                     const std::vector<int> rf_gRs);
-    int set_lna_state(const int LNAstate, const std::vector<int> rf_gRs) {
-        return rsp_impl::set_lna_state(LNAstate, rf_gRs);
+                     const std::vector<int> rf_gRs,
+                     const bool synchronous = false);
+    int set_lna_state(const int LNAstate, const std::vector<int> rf_gRs,
+                      const bool synchronous = false) {
+        return rsp_impl::set_lna_state(LNAstate, rf_gRs, synchronous);
     }
     int set_lna_state(const int LNAstate, const std::vector<int> rf_gRs,
-                      const int tuner);
+                      const int tuner, const bool synchronous = false);
     void set_lna_state(const int LNAstate_A, const int LNAstate_B,
-                       const std::vector<int> rf_gRs);
+                       const std::vector<int> rf_gRs,
+                       const bool synchronous = false);
     double get_if_gain() const { return rsp_impl::get_if_gain(); }
     double get_if_gain(const int tuner) const;
     double get_rf_gain(const std::vector<int> rf_gRs) const {

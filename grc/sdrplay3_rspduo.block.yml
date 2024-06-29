@@ -17,29 +17,29 @@ templates:
             channels_size=${rspduo_mode.nchan}
         ),
     )
-    self.${id}.set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
+    self.${id}.set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner}, ${synchronous_updates})
     % if rspduo_mode.nindepfreq == '1':
-    self.${id}.set_center_freq(${center_freq})
+    self.${id}.set_center_freq(${center_freq}, ${synchronous_updates})
     % elif rspduo_mode.nindepfreq == '2':
-    self.${id}.set_center_freq(${center_freq0}, ${center_freq1})
+    self.${id}.set_center_freq(${center_freq0}, ${center_freq1}, ${synchronous_updates})
     % endif
     self.${id}.set_bandwidth(${bandwidth})
     self.${id}.set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}")
     % if rspduo_mode.nindepgain == '1':
     self.${id}.set_gain_mode(${AGC})
-    self.${id}.set_gain(-(${if_gRdB}), 'IF')
+    self.${id}.set_gain(-(${if_gRdB}), 'IF', ${synchronous_updates})
     % if rf_gR_mode == 'dB':
-    self.${id}.set_gain(-(${rf_gRdB}), 'RF')
+    self.${id}.set_gain(-(${rf_gRdB}), 'RF', ${synchronous_updates})
     % elif rf_gR_mode == 'LNA':
-    self.${id}.set_gain(${rf_gRLNA}, 'LNAstate')
+    self.${id}.set_gain(${rf_gRLNA}, 'LNAstate', ${synchronous_updates})
     % endif
     % elif rspduo_mode.nindepgain == '2':
     self.${id}.set_gain_modes(${AGC0}, ${AGC1})
-    self.${id}.set_gain(-(${if_gRdB0}), -(${if_gRdB1}), 'IF')
+    self.${id}.set_gain(-(${if_gRdB0}), -(${if_gRdB1}), 'IF', ${synchronous_updates})
     % if rf_gR_mode == 'dB':
-    self.${id}.set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), 'RF')
+    self.${id}.set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), 'RF', ${synchronous_updates})
     % elif rf_gR_mode == 'LNA':
-    self.${id}.set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, 'LNAstate')
+    self.${id}.set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, 'LNAstate', ${synchronous_updates})
     % endif
     % endif
     self.${id}.set_freq_corr(${freq_corr})
@@ -54,14 +54,14 @@ templates:
     self.${id}.set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
     self.${id}.set_show_gain_changes(${show_gain_changes})
   callbacks:
-  - set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
+  - set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner}, ${synchronous_updates})
   - |
     % if rspduo_mode.nindepfreq == '1':
-    set_center_freq(${center_freq})
+    set_center_freq(${center_freq}, ${synchronous_updates})
     % endif
   - |
     % if rspduo_mode.nindepfreq == '2':
-    set_center_freq(${center_freq0}, ${center_freq1})
+    set_center_freq(${center_freq0}, ${center_freq1}, ${synchronous_updates})
     % endif
   - set_bandwidth(${bandwidth})
   - set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}")
@@ -75,26 +75,26 @@ templates:
     % endif
   - |
     % if rspduo_mode.nindepgain == '1':
-    set_gain(-(${if_gRdB}), 'IF')
+    set_gain(-(${if_gRdB}), 'IF', ${synchronous_updates})
     % endif
   - |
     % if rspduo_mode.nindepgain == '2':
-    set_gain(-(${if_gRdB0}), -(${if_gRdB1}), 'IF')
+    set_gain(-(${if_gRdB0}), -(${if_gRdB1}), 'IF', ${synchronous_updates})
     % endif
   - |
     % if rspduo_mode.nindepgain == '1':
     % if rf_gR_mode == 'dB':
-    set_gain(-(${rf_gRdB}), 'RF')
+    set_gain(-(${rf_gRdB}), 'RF', ${synchronous_updates})
     % elif rf_gR_mode == 'LNA':
-    set_gain(${rf_gRLNA}, 'LNAstate')
+    set_gain(${rf_gRLNA}, 'LNAstate', ${synchronous_updates})
     % endif
     % endif
   - |
     % if rspduo_mode.nindepgain == '2':
     % if rf_gR_mode == 'dB':
-    set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), 'RF')
+    set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), 'RF', ${synchronous_updates})
     % elif rf_gR_mode == 'LNA':
-    set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, 'LNAstate')
+    set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, 'LNAstate', ${synchronous_updates})
     % endif
     % endif
   - set_freq_corr(${freq_corr})
@@ -120,29 +120,29 @@ cpp_templates:
         "${antenna_both if rspduo_mode.nchan == '2' else antenna}",
         ::sdrplay3::stream_args_t("${output_type}", ${rspduo_mode.nchan})
     );
-    this->${id}->set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner});
+    this->${id}->set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner}, ${synchronous_updates});
     % if rspduo_mode.nindepfreq == '1':
-    this->${id}->set_center_freq(${center_freq});
+    this->${id}->set_center_freq(${center_freq}, ${synchronous_updates});
     % elif rspduo_mode.nindepfreq == '2':
-    this->${id}->set_center_freq(${center_freq0}, ${center_freq1});
+    this->${id}->set_center_freq(${center_freq0}, ${center_freq1}, ${synchronous_updates});
     % endif
     this->${id}->set_bandwidth(${bandwidth});
     this->${id}->set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}");
     % if rspduo_mode.nindepgain == '1':
     this->${id}->set_gain_mode(${AGC});
-    this->${id}->set_gain(-(${if_gRdB}), "IF");
+    this->${id}->set_gain(-(${if_gRdB}), "IF", ${synchronous_updates});
     % if rf_gR_mode == 'dB':
-    this->${id}->set_gain(-(${rf_gRdB}), "RF");
+    this->${id}->set_gain(-(${rf_gRdB}), "RF", ${synchronous_updates});
     % elif rf_gR_mode == 'LNA':
-    this->${id}->set_gain(${rf_gRLNA}, "LNAstate");
+    this->${id}->set_gain(${rf_gRLNA}, "LNAstate", ${synchronous_updates});
     % endif
     % elif rspduo_mode.nindepgain == '2':
     this->${id}->set_gain_mode(${AGC0}, ${AGC1});
-    this->${id}->set_gain(-(${if_gRdB0}), -(${if_gRdB1}), "IF");
+    this->${id}->set_gain(-(${if_gRdB0}), -(${if_gRdB1}), "IF", ${synchronous_updates});
     % if rf_gR_mode == 'dB':
-    this->${id}->set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), "RF");
+    this->${id}->set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), "RF", ${synchronous_updates});
     % elif rf_gR_mode == 'LNA':
-    this->${id}->set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, "LNAstate");
+    this->${id}->set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, "LNAstate", ${synchronous_updates});
     % endif
     % endif
     this->${id}->set_freq_corr(${freq_corr});
@@ -162,14 +162,14 @@ cpp_templates:
     'True': 'true'
     'False': 'false'
   callbacks:
-  - set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner})
+  - set_sample_rate(${sample_rate if rspduo_mode == 'Single Tuner' else sample_rate_non_single_tuner}, ${synchronous_updates})
   - |
     % if rspduo_mode.nindepfreq == '1':
-    set_center_freq(${center_freq});
+    set_center_freq(${center_freq}, ${synchronous_updates});
     % endif
   - |
     % if rspduo_mode.nindepfreq == '2':
-    set_center_freq(${center_freq0}, ${center_freq1});
+    set_center_freq(${center_freq0}, ${center_freq1}, ${synchronous_updates});
     % endif
   - set_bandwidth(${bandwidth});
   - set_antenna("${antenna_both if rspduo_mode.nchan == '2' else antenna}");
@@ -183,26 +183,26 @@ cpp_templates:
     % endif
   - |
     % if rspduo_mode.nindepgain == '1':
-    set_gain(-(${if_gRdB}), "IF");
+    set_gain(-(${if_gRdB}), "IF", ${synchronous_updates});
     % endif
   - |
     % if rspduo_mode.nindepgain == '2':
-    set_gain(-(${if_gRdB0}), -(${if_gRdB1}), "IF");
+    set_gain(-(${if_gRdB0}), -(${if_gRdB1}), "IF", ${synchronous_updates});
     % endif
   - |
     % if rspduo_mode.nindepgain == '1':
     % if rf_gR_mode == 'dB':
-    set_gain(-(${rf_gRdB}), "RF");
+    set_gain(-(${rf_gRdB}), "RF", ${synchronous_updates});
     % elif rf_gR_mode == 'LNA':
-    set_gain(${rf_gRLNA}, "LNAstate");
+    set_gain(${rf_gRLNA}, "LNAstate", ${synchronous_updates});
     % endif
     % endif
   - |
     % if rspduo_mode.nindepgain == '2':
     % if rf_gR_mode == 'dB':
-    set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), "RF");
+    set_gain(-(${rf_gRdB0}), -(${rf_gRdB1}), "RF", ${synchronous_updates});
     % elif rf_gR_mode == 'LNA':
-    set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, "LNAstate");
+    set_gain(${rf_gRLNA0}, ${rf_gRLNA1}, "LNAstate", ${synchronous_updates});
     % endif
     % endif
   - set_freq_corr(${freq_corr});
@@ -447,6 +447,15 @@ parameters:
   option_labels: [Complex float32, Complex int16]
   hide: part
 
+- id: synchronous_updates
+  label: Synchronous Updates
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Asynchronous, Synchronous]
+  hide: part
+
 # Debug options
 - id: debug_mode
   label: SDRplay API debug mode (DEBUG)
@@ -547,6 +556,10 @@ documentation: |-
         Valid selections are:
         Complex float
         Complex short (native)
+
+        Synchronous Updates:
+        Wait for the requested parameter change to be completed before returning from the function.
+        Applies only to changes to sample rate, center frequency, and gains.
 
         Debug mode (DEBUG)
         Enable (or disable) debug mode for SDRplay API

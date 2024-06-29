@@ -29,8 +29,10 @@ public:
      * Set the sample rate for this RSP.
      *
      * \param rate a new rate in Sps
+     * \param synchronous return after the change has taken effect
      */
-    virtual double set_sample_rate(const double rate) = 0;
+    virtual double set_sample_rate(const double rate,
+                                   const bool synchronous = false) = 0;
 
     /*!
      * Get the sample rate for this RSP.
@@ -51,8 +53,10 @@ public:
      * Tune to the desired center frequency.
      *
      * \param freq the requested center frequency
+     * \param synchronous return after the change has taken effect
      */
-    virtual double set_center_freq(const double freq) = 0;
+    virtual double set_center_freq(const double freq,
+                                   const bool synchronous = false) = 0;
 
     /*!
      * Get the center frequency.
@@ -102,8 +106,10 @@ public:
      *
      * \param gain gain value in dB
      * \param name gain name
+     * \param synchronous return after the change has taken effect
      */
-    virtual double set_gain(const double gain, const std::string& name) = 0;
+    virtual double set_gain(const double gain, const std::string& name,
+                            const bool synchronous = false) = 0;
 
     /*!
      * Get the gain for this RSP.

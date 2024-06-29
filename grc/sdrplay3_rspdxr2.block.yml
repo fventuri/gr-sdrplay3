@@ -14,16 +14,16 @@ templates:
             channels_size=1
         ),
     )
-    self.${id}.set_sample_rate(${sample_rate})
-    self.${id}.set_center_freq(${center_freq})
+    self.${id}.set_sample_rate(${sample_rate}, ${synchronous_updates})
+    self.${id}.set_center_freq(${center_freq}, ${synchronous_updates})
     self.${id}.set_bandwidth(${bandwidth})
     self.${id}.set_antenna('${antenna}')
     self.${id}.set_gain_mode(${AGC})
-    self.${id}.set_gain(-(${if_gRdB}), 'IF')
+    self.${id}.set_gain(-(${if_gRdB}), 'IF', ${synchronous_updates})
     % if rf_gR_mode == 'dB':
-    self.${id}.set_gain(-(${rf_gRdB}), 'RF')
+    self.${id}.set_gain(-(${rf_gRdB}), 'RF', ${synchronous_updates})
     % elif rf_gR_mode == 'LNA':
-    self.${id}.set_gain(${rf_gRLNA}, 'LNAstate')
+    self.${id}.set_gain(${rf_gRLNA}, 'LNAstate', ${synchronous_updates})
     % endif
     self.${id}.set_freq_corr(${freq_corr})
     self.${id}.set_dc_offset_mode(${dc_offset_mode})
@@ -37,17 +37,17 @@ templates:
     self.${id}.set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
     self.${id}.set_show_gain_changes(${show_gain_changes})
   callbacks:
-  - set_sample_rate(${sample_rate})
-  - set_center_freq(${center_freq})
+  - set_sample_rate(${sample_rate}, ${synchronous_updates})
+  - set_center_freq(${center_freq}, ${synchronous_updates})
   - set_bandwidth(${bandwidth})
   - set_antenna('${antenna}')
   - set_gain_mode(${AGC})
-  - set_gain(-(${if_gRdB}), 'IF')
+  - set_gain(-(${if_gRdB}), 'IF', ${synchronous_updates})
   - |
     % if rf_gR_mode == 'dB':
-    set_gain(-(${rf_gRdB}), 'RF')
+    set_gain(-(${rf_gRdB}), 'RF', ${synchronous_updates})
     % elif rf_gR_mode == 'LNA':
-    set_gain(${rf_gRLNA}, 'LNAstate')
+    set_gain(${rf_gRLNA}, 'LNAstate', ${synchronous_updates})
     % endif
   - set_freq_corr(${freq_corr})
   - set_dc_offset_mode(${dc_offset_mode})
@@ -70,16 +70,16 @@ cpp_templates:
         "${rsp_selector.strip('"\'')}",
         ::sdrplay3::stream_args_t("${output_type}", 1)
     );
-    this->${id}->set_sample_rate(${sample_rate});
-    this->${id}->set_center_freq(${center_freq});
+    this->${id}->set_sample_rate(${sample_rate}, ${synchronous_updates});
+    this->${id}->set_center_freq(${center_freq}, ${synchronous_updates});
     this->${id}->set_bandwidth(${bandwidth});
     this->${id}->set_antenna("${antenna}");
     this->${id}->set_gain_mode(${AGC});
-    this->${id}->set_gain(-(${if_gRdB}), "IF");
+    this->${id}->set_gain(-(${if_gRdB}), "IF", ${synchronous_updates});
     % if rf_gR_mode == 'dB':
-    this->${id}->set_gain(-(${rf_gRdB}), "RF");
+    this->${id}->set_gain(-(${rf_gRdB}), "RF", ${synchronous_updates});
     % elif rf_gR_mode == 'LNA': 
-    this->${id}->set_gain(${rf_gRLNA}, "LNAstate");
+    this->${id}->set_gain(${rf_gRLNA}, "LNAstate", ${synchronous_updates});
     % endif
     this->${id}->set_freq_corr(${freq_corr});
     this->${id}->set_dc_offset_mode(${dc_offset_mode});
@@ -98,17 +98,17 @@ cpp_templates:
     'True': 'true'
     'False': 'false'
   callbacks:
-  - set_sample_rate(${sample_rate});
-  - set_center_freq(${center_freq});
+  - set_sample_rate(${sample_rate}, ${synchronous_updates});
+  - set_center_freq(${center_freq}, ${synchronous_updates});
   - set_bandwidth(${bandwidth});
   - set_antenna("${antenna}");
   - set_gain_mode(${AGC});
-  - set_gain(-(${if_gRdB}), "IF");
+  - set_gain(-(${if_gRdB}), "IF", ${synchronous_updates});
   - |
     % if rf_gR_mode == 'dB':
-    set_gain(-(${rf_gRdB}), "RF");
+    set_gain(-(${rf_gRdB}), "RF", ${synchronous_updates});
     % elif rf_gR_mode == 'LNA':
-    set_gain(${rf_gRLNA}, "LNAstate");
+    set_gain(${rf_gRLNA}, "LNAstate", ${synchronous_updates});
     % endif
   - set_freq_corr(${freq_corr});
   - set_dc_offset_mode(${dc_offset_mode});
@@ -265,6 +265,15 @@ parameters:
   option_labels: [Complex float32, Complex int16]
   hide: part
 
+- id: synchronous_updates
+  label: Synchronous Updates
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Asynchronous, Synchronous]
+  hide: part
+
 # Debug options
 - id: debug_mode
   label: SDRplay API debug mode (DEBUG)
@@ -354,6 +363,10 @@ documentation: |-
         Valid selections are:
         Complex float
         Complex short (native)
+
+        Synchronous Updates:
+        Wait for the requested parameter change to be completed before returning from the function.
+        Applies only to changes to sample rate, center frequency, and gains.
 
         Debug mode (DEBUG)
         Enable (or disable) debug mode for SDRplay API

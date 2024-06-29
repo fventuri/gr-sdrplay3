@@ -61,7 +61,7 @@ rspduo_impl::~rspduo_impl() {}
 
 
 // Sample rate methods
-double rspduo_impl::set_sample_rate(const double rate)
+double rspduo_impl::set_sample_rate(const double rate, const bool synchronous)
 {
     if (device.rspDuoMode == sdrplay_api_RspDuoMode_Single_Tuner) {
         return rsp_impl::set_sample_rate(rate);
@@ -107,7 +107,8 @@ const std::vector<double> rspduo_impl::get_valid_sample_rates() const
 
 
 // Center frequency methods
-double rspduo_impl::set_center_freq(const double freq, const int tuner)
+double rspduo_impl::set_center_freq(const double freq, const int tuner,
+                                    const bool synchronous)
 {
     get_independent_rx_channel_params(tuner)->tunerParams.rfFreq.rfHz = freq;
     update_if_streaming(sdrplay_api_Update_Tuner_Frf,
@@ -115,7 +116,8 @@ double rspduo_impl::set_center_freq(const double freq, const int tuner)
     return get_center_freq(tuner);
 }
 
-void rspduo_impl::set_center_freq(const double freq_A, const double freq_B)
+void rspduo_impl::set_center_freq(const double freq_A, const double freq_B,
+                                  const bool synchronous)
 {
     if (!(device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner)) {
         d_logger->warn("invalid call to set_center_freq(freq_A, freq_B) - device is not in dual tuner mode");
@@ -266,33 +268,35 @@ const std::vector<std::string> rspduo_impl::get_antennas() const
 
 
 // Gain methods
-double rspduo_impl::set_gain(const double gain, const std::string& name, const int tuner)
+double rspduo_impl::set_gain(const double gain, const std::string& name,
+                             const int tuner, const bool synchronous)
 {
     if (name == "IF") {
-        return set_if_gain(gain, tuner);
+        return set_if_gain(gain, tuner, synchronous);
     } else if (name == "RF") {
-        return set_rf_gain(gain, rf_gr_values(), tuner);
+        return set_rf_gain(gain, rf_gr_values(), tuner, synchronous);
     } else if (name == "LNAstate") {
-        return set_lna_state(gain, rf_gr_values(), tuner);
+        return set_lna_state(gain, rf_gr_values(), tuner, synchronous);
     }
     d_logger->error("invalid gain name: {}", name);
     return 0;
 }
 
-void rspduo_impl::set_gain(const double gain_A, const double gain_B, const std::string& name)
+void rspduo_impl::set_gain(const double gain_A, const double gain_B,
+                           const std::string& name, const bool synchronous)
 {
     if (!(device.rspDuoMode == sdrplay_api_RspDuoMode_Dual_Tuner)) {
         d_logger->warn("invalid call to set_gain(gain_A, gain_B) - device is not in dual tuner mode");
         return;
     }
     if (name == "IF") {
-        set_if_gain(gain_A, gain_B);
+        set_if_gain(gain_A, gain_B, synchronous);
         return;
     } else if (name == "RF") {
-        set_rf_gain(gain_A, gain_B, rf_gr_values());
+        set_rf_gain(gain_A, gain_B, rf_gr_values(), synchronous);
         return;
     } else if (name == "LNAstate") {
-        set_lna_state(gain_A, gain_B, rf_gr_values());
+        set_lna_state(gain_A, gain_B, rf_gr_values(), synchronous);
         return;
     }
     d_logger->error("invalid gain name: {}", name);
@@ -369,7 +373,8 @@ const std::vector<int> rspduo_impl::rf_gr_values(const int tuner) const
     return rf_gr_values(indrx_chparams->tunerParams.rfFreq.rfHz, highz);
 }
 
-double rspduo_impl::set_if_gain(const double gain, const int tuner)
+double rspduo_impl::set_if_gain(const double gain, const int tuner,
+                                const bool synchronous)
 {
     unsigned int gRdB = static_cast<unsigned int>(-gain);
     sdrplay_api_RxChannelParamsT *indrx_chparams =
@@ -378,11 +383,12 @@ double rspduo_impl::set_if_gain(const double gain, const int tuner)
         return get_if_gain(tuner);
     indrx_chparams->tunerParams.gain.gRdB = gRdB;
     update_if_streaming(sdrplay_api_Update_Tuner_Gr,
-                        get_independent_rx_tuner(tuner));
+                        get_independent_rx_tuner(tuner), synchronous);
     return get_if_gain(tuner);
 }
 
-void rspduo_impl::set_if_gain(const double gain_A, const double gain_B)
+void rspduo_impl::set_if_gain(const double gain_A, const double gain_B,
+                              const bool synchronous)
 {
     unsigned int gRdB_A = static_cast<unsigned int>(-gain_A);
     unsigned int gRdB_B = static_cast<unsigned int>(-gain_B);
@@ -399,12 +405,12 @@ void rspduo_impl::set_if_gain(const double gain_A, const double gain_B)
         device_params->rxChannelB->tunerParams.gain.gRdB = gRdB_B;
     }
     if (tuner != sdrplay_api_Tuner_Neither)
-        update_if_streaming(sdrplay_api_Update_Tuner_Gr, tuner);
+        update_if_streaming(sdrplay_api_Update_Tuner_Gr, tuner, synchronous);
     return;
 }
 
 double rspduo_impl::set_rf_gain(const double gain, const std::vector<int> rf_gRs,
-                                const int tuner)
+                                const int tuner, const bool synchronous)
 {
     unsigned char LNAstate = get_closest_LNAstate(gain, rf_gRs);
     sdrplay_api_RxChannelParamsT *indrx_chparams =
@@ -413,12 +419,13 @@ double rspduo_impl::set_rf_gain(const double gain, const std::vector<int> rf_gRs
         return get_rf_gain(rf_gRs, tuner);
     indrx_chparams->tunerParams.gain.LNAstate = LNAstate;
     update_if_streaming(sdrplay_api_Update_Tuner_Gr,
-                        get_independent_rx_tuner(tuner));
+                        get_independent_rx_tuner(tuner), synchronous);
     return get_rf_gain(rf_gRs, tuner);
 }
 
 void rspduo_impl::set_rf_gain(const double gain_A, const double gain_B,
-                              const std::vector<int> rf_gRs)
+                              const std::vector<int> rf_gRs,
+                              const bool synchronous)
 {
     unsigned char LNAstate_A = get_closest_LNAstate(gain_A, rf_gRs);
     unsigned char LNAstate_B = get_closest_LNAstate(gain_B, rf_gRs);
@@ -435,12 +442,13 @@ void rspduo_impl::set_rf_gain(const double gain_A, const double gain_B,
         device_params->rxChannelB->tunerParams.gain.LNAstate = LNAstate_B;
     }
     if (tuner != sdrplay_api_Tuner_Neither)
-        update_if_streaming(sdrplay_api_Update_Tuner_Gr, tuner);
+        update_if_streaming(sdrplay_api_Update_Tuner_Gr, tuner, synchronous);
     return;
 }
 
 int rspduo_impl::set_lna_state(const int LNAstate, const std::vector<int> rf_gRs,
-                               const int tuner)
+                               const int tuner,
+                               const bool synchronous)
 {
     sdrplay_api_RxChannelParamsT *indrx_chparams =
                                   get_independent_rx_channel_params(tuner);
@@ -451,13 +459,14 @@ int rspduo_impl::set_lna_state(const int LNAstate, const std::vector<int> rf_gRs
             return indrx_chparams->tunerParams.gain.LNAstate;
         indrx_chparams->tunerParams.gain.LNAstate = LNAstate;
         update_if_streaming(sdrplay_api_Update_Tuner_Gr,
-                            get_independent_rx_tuner(tuner));
+                            get_independent_rx_tuner(tuner), synchronous);
     }
     return indrx_chparams->tunerParams.gain.LNAstate;
 }
 
 void rspduo_impl::set_lna_state(const int LNAstate_A, const int LNAstate_B,
-                                const std::vector<int> rf_gRs)
+                                const std::vector<int> rf_gRs,
+                                const bool synchronous)
 {
     if (LNAstate_A < 0 || LNAstate_A >= rf_gRs.size()) {
         d_logger->error("invalid LNA state: {}", LNAstate_A);
@@ -480,7 +489,7 @@ void rspduo_impl::set_lna_state(const int LNAstate_A, const int LNAstate_B,
         device_params->rxChannelB->tunerParams.gain.LNAstate = LNAstate_B;
     }
     if (tuner != sdrplay_api_Tuner_Neither)
-        update_if_streaming(sdrplay_api_Update_Tuner_Gr, tuner);
+        update_if_streaming(sdrplay_api_Update_Tuner_Gr, tuner, synchronous);
     return;
 }
 

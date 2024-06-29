@@ -29,12 +29,14 @@ public:
     virtual ~rsp_impl();
 
     // Sample rate methods
-    double set_sample_rate(const double rate) override;
+    double set_sample_rate(const double rate,
+                           const bool synchronous = false) override;
     double get_sample_rate() const override;
     const pair_of_doubles &get_sample_rate_range() const override;
 
     // Center frequency methods
-    double set_center_freq(const double freq) override;
+    double set_center_freq(const double freq,
+                           const bool synchronous = false) override;
     double get_center_freq() const override;
     const pair_of_doubles &get_freq_range() const override;
 
@@ -45,7 +47,8 @@ public:
 
     // Gain methods
     const std::vector<std::string> get_gain_names() const override;
-    double set_gain(const double gain, const std::string& name) override;
+    double set_gain(const double gain, const std::string& name,
+                    const bool synchronous = false) override;
     double get_gain(const std::string& name) const override;
     const pair_of_doubles &get_gain_range(const std::string& name) const override;
     bool set_gain_mode(bool automatic) override;
@@ -88,15 +91,20 @@ protected:
     io_signature::sptr args_to_io_sig(const struct stream_args_t& args) const;
 
     void update_sample_rate_and_decimation(double fsHz, int decimation,
-                                           sdrplay_api_If_kHzT if_type);
-    void update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_update);
+                                           sdrplay_api_If_kHzT if_type,
+                                           const bool synchronous = false);
     void update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_update,
-                             sdrplay_api_TunerSelectT tuner);
+                             const bool synchronous = false);
+    void update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_update,
+                             sdrplay_api_TunerSelectT tuner,
+                             const bool synchronous = false);
 
-    double set_if_gain(const double gain);
-    double set_rf_gain(const double gain, const std::vector<int> rf_gRs);
+    double set_if_gain(const double gain, const bool synchronous = false);
+    double set_rf_gain(const double gain, const std::vector<int> rf_gRs,
+                       const bool synchronous = false);
     static unsigned char get_closest_LNAstate(const double gain, const std::vector<int> rf_gRs);
-    int set_lna_state(const int LNAstate, const std::vector<int> rf_gRs);
+    int set_lna_state(const int LNAstate, const std::vector<int> rf_gRs,
+                      const bool synchronous = false);
     double get_if_gain() const;
     double get_rf_gain(const std::vector<int> rf_gRs) const;
     int get_lna_state() const;
@@ -152,6 +160,17 @@ private:
 
     bool sample_sequence_gaps_check;
     bool show_gain_changes;
+
+    // changes to sample rate, fequency, and gain reduction reported by
+    // RX callback
+    int sample_rate_changed;
+    int frequency_changed;
+    int gain_reduction_changed;
+    // synchronous updates
+    std::mutex value_changed_mutex;
+    std::condition_variable value_changed_cv;
+
+    constexpr static std::chrono::milliseconds update_timeout = std::chrono::milliseconds(500);
 
 protected:
     sdrplay_api_DeviceT device;

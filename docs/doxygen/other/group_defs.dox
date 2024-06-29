@@ -2,5 +2,6 @@
  * \defgroup block GNU Radio SDRPLAY3 C++ Signal Processing Blocks
  * \brief All C++ blocks that can be used from the SDRPLAY3 GNU Radio
  *        module are listed here or in the subcategories below.
- *
  */
+
+/*! \defgroup sdrplay3 SDRplay RSP Sources */

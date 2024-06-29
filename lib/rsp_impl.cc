@@ -125,7 +125,7 @@ io_signature::sptr rsp_impl::args_to_io_sig(const struct stream_args_t& args) co
 
 
 // Sample rate methods
-double rsp_impl::set_sample_rate(const double rate)
+double rsp_impl::set_sample_rate(const double rate, const bool synchronous)
 {
     auto sample_rate_range = get_sample_rate_range();
     if (rate < sample_rate_range[0] || rate > sample_rate_range[1]) {
@@ -162,7 +162,7 @@ double rsp_impl::set_sample_rate(const double rate)
 #ifdef USE_LOWIF
     }
 #endif /* USE_LOWIF */
-    update_sample_rate_and_decimation(fsHz, decimation, if_type);
+    update_sample_rate_and_decimation(fsHz, decimation, if_type, synchronous);
     return get_sample_rate();
 }
 
@@ -178,7 +178,8 @@ const double (&rsp_impl::get_sample_rate_range() const)[2]
 }
 
 void rsp_impl::update_sample_rate_and_decimation(double fsHz, int decimation,
-                                                 sdrplay_api_If_kHzT if_type)
+                                                 sdrplay_api_If_kHzT if_type,
+                                                 const bool synchronous)
 {
     sdrplay_api_ReasonForUpdateT reason = sdrplay_api_Update_None;
     if (device_params->devParams && fsHz != device_params->devParams->fsFreq.fsHz) {
@@ -205,17 +206,17 @@ void rsp_impl::update_sample_rate_and_decimation(double fsHz, int decimation,
         reason = (sdrplay_api_ReasonForUpdateT)(reason | sdrplay_api_Update_Tuner_BwType);
     }
 
-    update_if_streaming(reason);
+    update_if_streaming(reason, synchronous);
 }
 
 
 // Center frequency methods
-double rsp_impl::set_center_freq(const double freq)
+double rsp_impl::set_center_freq(const double freq, const bool synchronous)
 {
     if (freq == rx_channel_params->tunerParams.rfFreq.rfHz)
         return get_center_freq();
     rx_channel_params->tunerParams.rfFreq.rfHz = freq;
-    update_if_streaming(sdrplay_api_Update_Tuner_Frf);
+    update_if_streaming(sdrplay_api_Update_Tuner_Frf, synchronous);
     return get_center_freq();
 }
 
@@ -306,14 +307,15 @@ const std::vector<std::string> rsp_impl::get_gain_names() const
     return gain_names;
 }
 
-double rsp_impl::set_gain(const double gain, const std::string& name)
+double rsp_impl::set_gain(const double gain, const std::string& name,
+                          const bool synchronous)
 {
     if (name == "IF") {
-        return set_if_gain(gain);
+        return set_if_gain(gain, synchronous);
     } else if (name == "RF") {
-        return set_rf_gain(gain, rf_gr_values());
+        return set_rf_gain(gain, rf_gr_values(), synchronous);
     } else if (name == "LNAstate") {
-        return set_lna_state(gain, rf_gr_values());
+        return set_lna_state(gain, rf_gr_values(), synchronous);
     }
     d_logger->error("invalid gain name: {}", name);
     return 0;
@@ -351,23 +353,24 @@ const double (&rsp_impl::get_gain_range(const std::string& name) const)[2]
     return null_gain_range;
 }
 
-double rsp_impl::set_if_gain(const double gain)
+double rsp_impl::set_if_gain(const double gain, const bool synchronous)
 {
     unsigned int gRdB = static_cast<unsigned int>(-gain);
     if (gRdB == rx_channel_params->tunerParams.gain.gRdB)
         return get_if_gain();
     rx_channel_params->tunerParams.gain.gRdB = gRdB;
-    update_if_streaming(sdrplay_api_Update_Tuner_Gr);
+    update_if_streaming(sdrplay_api_Update_Tuner_Gr, synchronous);
     return get_if_gain();
 }
 
-double rsp_impl::set_rf_gain(const double gain, const std::vector<int> rf_gRs)
+double rsp_impl::set_rf_gain(const double gain, const std::vector<int> rf_gRs,
+                             const bool synchronous)
 {
     unsigned char LNAstate = get_closest_LNAstate(gain, rf_gRs);
     if (LNAstate == rx_channel_params->tunerParams.gain.LNAstate)
         return get_rf_gain(rf_gRs);
     rx_channel_params->tunerParams.gain.LNAstate = LNAstate;
-    update_if_streaming(sdrplay_api_Update_Tuner_Gr);
+    update_if_streaming(sdrplay_api_Update_Tuner_Gr, synchronous);
     return get_rf_gain(rf_gRs);
 }
 
@@ -389,13 +392,14 @@ unsigned char rsp_impl::get_closest_LNAstate(const double gain,
     return LNAstate;
 }
 
-int rsp_impl::set_lna_state(const int LNAstate, const std::vector<int> rf_gRs)
+int rsp_impl::set_lna_state(const int LNAstate, const std::vector<int> rf_gRs,
+                            const bool synchronous)
 {
     if (LNAstate < 0 || LNAstate >= rf_gRs.size()) {
         d_logger->error("invalid LNA state: {}", LNAstate);
     } else {
         rx_channel_params->tunerParams.gain.LNAstate = LNAstate;
-        update_if_streaming(sdrplay_api_Update_Tuner_Gr);
+        update_if_streaming(sdrplay_api_Update_Tuner_Gr, synchronous);
     }
     return rx_channel_params->tunerParams.gain.LNAstate;
 }
@@ -705,6 +709,13 @@ void rsp_impl::stream_A_callback(short *xi, short *xq,
         sample_gaps_check(numSamples, params->firstSampleNum, next_sample_num,
                           rsp->d_logger, 0);
     }
+    rsp->sample_rate_changed |= params->fsChanged;
+    rsp->frequency_changed |= params->rfChanged;
+    rsp->gain_reduction_changed |= params->grChanged;
+    if (params->fsChanged || params->rfChanged || params->grChanged) {
+        std::lock_guard<std::mutex> value_changed_lock(rsp->value_changed_mutex);
+        rsp->value_changed_cv.notify_all();
+    }
     rsp->stream_callback(xi, xq, params, numSamples, reset, 0);
 }
 
@@ -718,6 +729,13 @@ void rsp_impl::stream_B_callback(short *xi, short *xq,
         static unsigned int next_sample_num = 0;
         sample_gaps_check(numSamples, params->firstSampleNum, next_sample_num,
                           rsp->d_logger, 1);
+    }
+    rsp->sample_rate_changed |= params->fsChanged;
+    rsp->frequency_changed |= params->rfChanged;
+    rsp->gain_reduction_changed |= params->grChanged;
+    if (params->fsChanged || params->rfChanged || params->grChanged) {
+        std::lock_guard<std::mutex> value_changed_lock(rsp->value_changed_mutex);
+        rsp->value_changed_cv.notify_all();
     }
     rsp->stream_callback(xi, xq, params, numSamples, reset, 1);
 }
@@ -882,23 +900,61 @@ bool rsp_impl::rsp_select(const unsigned char hwVer, const std::string& selector
     return device_found;
 }
 
-void rsp_impl::update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_update)
+void rsp_impl::update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_update,
+                                   const bool synchronous)
 {
-    update_if_streaming(reason_for_update, device.tuner);
+    update_if_streaming(reason_for_update, device.tuner, synchronous);
 }
 
 static const std::string reason_as_text(sdrplay_api_ReasonForUpdateT reason_for_update);
 void rsp_impl::update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_update,
-                                   sdrplay_api_TunerSelectT tuner)
+                                   sdrplay_api_TunerSelectT tuner,
+                                   const bool synchronous)
 {
     if (run_status == RunStatus::idle || reason_for_update == sdrplay_api_Update_None)
         return;
+// fv
+struct timespec start_time;
+clock_gettime(CLOCK_REALTIME, &start_time);
+    if (synchronous) {
+        if (reason_for_update & sdrplay_api_Update_Dev_Fs)
+            sample_rate_changed = 0;
+        if (reason_for_update & sdrplay_api_Update_Tuner_Frf)
+            frequency_changed = 0;
+        if (reason_for_update & sdrplay_api_Update_Tuner_Gr)
+            gain_reduction_changed = 0;
+    }
     sdrplay_api_ErrT err;
     err = sdrplay_api_Update(device.dev, tuner, reason_for_update,
                              sdrplay_api_Update_Ext1_None);
     if (err != sdrplay_api_Success) {
         d_logger->error("sdrplay_api_Update({}) Error: {}", reason_as_text(reason_for_update), sdrplay_api_GetErrorString(err));
     }
+    if (synchronous) {
+        if (reason_for_update & sdrplay_api_Update_Dev_Fs) {
+            std::unique_lock<std::mutex> lock(value_changed_mutex);
+            if (!value_changed_cv.wait_for(lock, update_timeout, [this]{return sample_rate_changed;})) {
+               d_logger->warn("sample rate update timeout.");
+            }
+        }
+        if (reason_for_update & sdrplay_api_Update_Tuner_Frf) {
+            std::unique_lock<std::mutex> lock(value_changed_mutex);
+            if (!value_changed_cv.wait_for(lock, update_timeout, [this]{return frequency_changed;})) {
+               d_logger->warn("RF center frequency update timeout.");
+            }
+        }
+        if (reason_for_update & sdrplay_api_Update_Tuner_Gr) {
+            std::unique_lock<std::mutex> lock(value_changed_mutex);
+            if (!value_changed_cv.wait_for(lock, update_timeout, [this]{return gain_reduction_changed;})) {
+               d_logger->warn("gain reduction update timeout.");
+            }
+        }
+    }
+// fv
+struct timespec end_time;
+clock_gettime(CLOCK_REALTIME, &end_time);
+long elapsed = (end_time.tv_sec - start_time.tv_sec) * 1000000000 + (end_time.tv_nsec - start_time.tv_nsec);
+d_logger->info("update_if_streaming({}) - elapsed: {}ns", reason_as_text(reason_for_update), elapsed);
 }
 
 static const std::string reason_as_text(sdrplay_api_ReasonForUpdateT reason_for_update)

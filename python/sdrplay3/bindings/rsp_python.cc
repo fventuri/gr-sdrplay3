@@ -30,6 +30,7 @@ void bind_rsp(py::module& m)
         .def("set_sample_rate",
              &rsp::set_sample_rate,
              py::arg("rate"),
+             py::arg("synchronous"),
              D(rsp, set_sample_rate))
 
         .def("get_sample_rate",
@@ -43,6 +44,7 @@ void bind_rsp(py::module& m)
         .def("set_center_freq",
              &rsp::set_center_freq,
              py::arg("freq"),
+             py::arg("synchronous"),
              D(rsp, set_center_freq))
 
         .def("get_center_freq",
@@ -77,6 +79,7 @@ void bind_rsp(py::module& m)
              &rsp::set_gain,
              py::arg("gain"),
              py::arg("name"),
+             py::arg("synchronous"),
              D(rsp, set_gain))
 
         .def("get_gain",

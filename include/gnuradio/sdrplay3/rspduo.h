@@ -45,8 +45,10 @@ public:
      * Set the sample rate for this RSPduo.
      *
      * \param rate a new rate in Sps
+     * \param synchronous return after the change has taken effect
      */
-    virtual double set_sample_rate(const double rate) = 0;
+    virtual double set_sample_rate(const double rate,
+                                   const bool synchronous = false) = 0;
 
     /*!
      * Get the sample rate range.
@@ -68,24 +70,30 @@ public:
      * Tune to the desired center frequency.
      *
      * \param freq the requested center frequency
+     * \param synchronous return after the change has taken effect
      */
-    virtual double set_center_freq(const double freq) = 0;
+    virtual double set_center_freq(const double freq,
+                                   const bool synchronous = false) = 0;
 
     /*!
      * Tune to the desired center frequency (independent RX case).
      *
      * \param freq the requested center frequency
      * \param tuner tuner number (0 or 1)
+     * \param synchronous return after the change has taken effect
      */
-    virtual double set_center_freq(const double freq, const int tuner) = 0;
+    virtual double set_center_freq(const double freq, const int tuner,
+                                   const bool synchronous = false) = 0;
 
     /*!
      * Tune to the desired center frequencies (independent RX case).
      *
      * \param freq_A the requested center frequency for tuner A
      * \param freq_B the requested center frequency for tuner B
+     * \param synchronous return after the change has taken effect
      */
-    virtual void set_center_freq(const double freq_A, const double freq_B) = 0;
+    virtual void set_center_freq(const double freq_A, const double freq_B,
+                                 const bool synchronous = false) = 0;
 
     /*!
      * Get the center frequency.
@@ -128,8 +136,10 @@ public:
      *
      * \param gain gain value in dB
      * \param name gain name
+     * \param synchronous return after the change has taken effect
      */
-    virtual double set_gain(const double gain, const std::string& name) = 0;
+    virtual double set_gain(const double gain, const std::string& name,
+                            const bool synchronous = false) = 0;
 
     /*!
      * Set the gain for this RSPduo (independent RX case).
@@ -137,9 +147,11 @@ public:
      * \param name gain name
      * \param gain gain value in dB
      * \param tuner tuner number (0 or 1)
+     * \param synchronous return after the change has taken effect
      */
     virtual double set_gain(const double gain, const std::string& name,
-                            const int tuner) = 0;
+                            const int tuner,
+                            const bool synchronous = false) = 0;
 
     /*!
      * Set both gains for this RSPduo.
@@ -147,9 +159,11 @@ public:
      * \param name gain name
      * \param gain_A gain value in dB for tuner A
      * \param gain_B gain value in dB for tuner B
+     * \param synchronous return after the change has taken effect
      */
     virtual void set_gain(const double gain_A, const double gain_B,
-                          const std::string& name) = 0;
+                          const std::string& name,
+                          const bool synchronous = false) = 0;
 
     /*!
      * Get the gain for this RSPduo.
