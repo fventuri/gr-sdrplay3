@@ -913,9 +913,6 @@ void rsp_impl::update_if_streaming(sdrplay_api_ReasonForUpdateT reason_for_updat
 {
     if (run_status == RunStatus::idle || reason_for_update == sdrplay_api_Update_None)
         return;
-// fv
-struct timespec start_time;
-clock_gettime(CLOCK_REALTIME, &start_time);
     if (synchronous) {
         if (reason_for_update & sdrplay_api_Update_Dev_Fs)
             sample_rate_changed = 0;
@@ -950,11 +947,6 @@ clock_gettime(CLOCK_REALTIME, &start_time);
             }
         }
     }
-// fv
-struct timespec end_time;
-clock_gettime(CLOCK_REALTIME, &end_time);
-long elapsed = (end_time.tv_sec - start_time.tv_sec) * 1000000000 + (end_time.tv_nsec - start_time.tv_nsec);
-d_logger->info("update_if_streaming({}) - elapsed: {}ns", reason_as_text(reason_for_update), elapsed);
 }
 
 static const std::string reason_as_text(sdrplay_api_ReasonForUpdateT reason_for_update)
