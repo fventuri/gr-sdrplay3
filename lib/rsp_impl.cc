@@ -864,24 +864,17 @@ bool rsp_impl::rsp_select(const unsigned char hwVer, const std::string& selector
     }
     // device index or serial number?
     bool device_found = false;
-    if (selector.size() <= 2) {
-        unsigned int device_index = 0;
-        try {
-            device_index = std::stoi(selector);
-        } catch (std::invalid_argument&) {
-            // if the sector is empty or it is just '' or "", choose device 0
-            // otherwise make it return a device-not-found error
-            if (!(selector == "" || selector == "''" || selector == "\"\"")) {
-                device_index = ndevices;
+    // if the sector is empty or it is just '' or "", choose the first device matching the hw model
+    if (selector == "" || selector == "''" || selector == "\"\"") {
+        for (unsigned int device_index = 0; device_index < ndevices; ++device_index) {
+            if (devices[device_index].valid &&
+                    hwVer == devices[device_index].hwVer) {
+                device = devices[device_index];
+                device_found = true;
+                break;
             }
         }
-        if (device_index < ndevices && 
-                devices[device_index].valid &&
-                hwVer == devices[device_index].hwVer) {
-            device = devices[device_index];
-            device_found = true;
-        }
-    } else {
+    } else if (selector.size() > 2) {
         // look for the serial number
         for (unsigned int device_index = 0; device_index < ndevices; ++device_index) {
             if (devices[device_index].valid &&
@@ -891,6 +884,21 @@ bool rsp_impl::rsp_select(const unsigned char hwVer, const std::string& selector
                 device_found = true;
                 break;
             }
+        }
+    } else {
+        // look for an actual device index
+        unsigned int device_index = 0;
+        try {
+            device_index = std::stoi(selector);
+        } catch (std::invalid_argument&) {
+            // make it return a device-not-found error
+            device_index = ndevices;
+        }
+        if (device_index < ndevices && 
+                devices[device_index].valid &&
+                hwVer == devices[device_index].hwVer) {
+            device = devices[device_index];
+            device_found = true;
         }
     }
     if (!device_found) {
