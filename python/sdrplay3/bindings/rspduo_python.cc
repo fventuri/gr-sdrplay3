@@ -42,7 +42,7 @@ void bind_rspduo(py::module& m)
         .def("set_sample_rate",
              &rspduo::set_sample_rate,
              py::arg("rate"),
-             py::arg("synchronous"),
+             py::arg("synchronous") = false,
              D(rspduo, set_sample_rate))
 
         .def("get_sample_rate_range",
@@ -56,21 +56,21 @@ void bind_rspduo(py::module& m)
         .def("set_center_freq",
              overload_cast_<double, const bool>()(&rspduo::set_center_freq),
              py::arg("freq"),
-             py::arg("synchronous"),
+             py::arg("synchronous") = false,
              D(rspduo, set_center_freq))
 
         .def("set_center_freq",
              overload_cast_<double, int, const bool>()(&rspduo::set_center_freq),
              py::arg("freq"),
              py::arg("tuner"),
-             py::arg("synchronous"),
+             py::arg("synchronous") = false,
              D(rspduo, set_center_freq))
 
         .def("set_center_freq",
              overload_cast_<double, double, const bool>()(&rspduo::set_center_freq),
              py::arg("freq_A"),
              py::arg("freq_B"),
-             py::arg("synchronous"),
+             py::arg("synchronous") = false,
              D(rspduo, set_center_freq))
 
         .def("get_center_freq",
@@ -99,7 +99,7 @@ void bind_rspduo(py::module& m)
              overload_cast_<double, const std::string&, const bool>()(&rspduo::set_gain),
              py::arg("gain"),
              py::arg("name"),
-             py::arg("synchronous"),
+             py::arg("synchronous") = false,
              D(rspduo, set_gain))
 
         .def("set_gain",
@@ -107,7 +107,7 @@ void bind_rspduo(py::module& m)
              py::arg("gain"),
              py::arg("name"),
              py::arg("tuner"),
-             py::arg("synchronous"),
+             py::arg("synchronous") = false,
              D(rspduo, set_gain))
 
         .def("set_gain",
@@ -115,7 +115,7 @@ void bind_rspduo(py::module& m)
              py::arg("gain_A"),
              py::arg("gain_B"),
              py::arg("name"),
-             py::arg("synchronous"),
+             py::arg("synchronous") = false,
              D(rspduo, set_gain))
 
         .def("get_gain",
