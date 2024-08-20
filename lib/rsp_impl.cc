@@ -101,6 +101,11 @@ rsp_impl::rsp_impl(const unsigned char hwVer,
 
     sample_sequence_gaps_check = false;
     show_gain_changes = false;
+
+    // Set up message ports
+    message_port_register_in(pmt::mp("freq"));
+    set_msg_handler(pmt::mp("freq"),
+                    [this](const pmt::pmt_t& msg) { this->handle_set_freq(msg); });
 }
 
 rsp_impl::~rsp_impl()
@@ -940,6 +945,17 @@ void rsp_impl::set_sample_sequence_gaps_check(bool enable)
 void rsp_impl::set_show_gain_changes(bool enable)
 {
     show_gain_changes = enable;
+}
+
+void rsp_impl::handle_set_freq(const pmt::pmt_t& msg)
+{
+    if (pmt::is_pair(msg)) {
+        pmt::pmt_t x = pmt::cdr(msg);
+        if (pmt::is_real(x)) {
+            double center_freq = pmt::to_double(x);
+            set_center_freq(center_freq);
+        }
+    }
 }
 
 

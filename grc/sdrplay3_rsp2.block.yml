@@ -291,6 +291,20 @@ parameters:
   option_labels: [Disabled, Enabled]
   hide: part
 
+- id: showports
+  label: Show Msg Ports
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [No, Yes]
+  hide: part
+
+
+inputs:
+- domain: message
+  id: freq 
+  optional: true
+  hide: ${not showports}
 
 outputs:
 - dtype: ${output_type}

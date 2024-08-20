@@ -78,6 +78,9 @@ public:
     void set_sample_sequence_gaps_check(bool enable) override;
     void set_show_gain_changes(bool enable) override;
 
+    // Message passing methods
+    void handle_set_freq(const pmt::pmt_t& msg);
+
 protected:
 
     /*! \brief Components common to all RSP devices.
