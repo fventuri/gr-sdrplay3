@@ -28,6 +28,7 @@ templates:
     self.${id}.set_dc_offset_mode(${dc_offset_mode})
     self.${id}.set_iq_balance_mode(${iq_balance_mode})
     self.${id}.set_agc_setpoint(${agc_set_point})
+    self.${id}.set_stream_tags(${stream_tags})
     self.${id}.set_debug_mode(${debug_mode})
     self.${id}.set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
     self.${id}.set_show_gain_changes(${show_gain_changes})
@@ -47,6 +48,7 @@ templates:
   - set_dc_offset_mode(${dc_offset_mode})
   - set_iq_balance_mode(${iq_balance_mode})
   - set_agc_setpoint(${agc_set_point})
+  - set_stream_tags(${stream_tags})
   - set_debug_mode(${debug_mode})
   - set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
   - set_show_gain_changes(${show_gain_changes})
@@ -74,6 +76,7 @@ cpp_templates:
     this->${id}->set_dc_offset_mode(${dc_offset_mode});
     this->${id}->set_iq_balance_mode(${iq_balance_mode});
     this->${id}->set_agc_setpoint(${agc_set_point});
+    this->${id}->set_stream_tags(${stream_tags});
     this->${id}->set_debug_mode(${debug_mode});
     this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
     this->${id}->set_show_gain_changes(${show_gain_changes});
@@ -98,6 +101,7 @@ cpp_templates:
   - set_dc_offset_mode(${dc_offset_mode});
   - set_iq_balance_mode(${iq_balance_mode});
   - set_agc_setpoint(${agc_set_point});
+  - set_stream_tags(${stream_tags});
   - set_debug_mode(${debug_mode});
   - set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
   - set_show_gain_changes(${show_gain_changes});
@@ -215,6 +219,15 @@ parameters:
   option_labels: [Asynchronous, Synchronous]
   hide: part
 
+- id: stream_tags
+  label: Add Stream Tags
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
 # Debug options
 - id: debug_mode
   label: SDRplay API debug mode (DEBUG)
@@ -295,7 +308,10 @@ documentation: |-
 
         Synchronous Updates:
         Wait for the requested parameter change to be completed before returning from the function.
-        Applies only to changes to sample rate, center frequency, and gains.
+        Applies only to changes to sample rate, center frequency, or gains.
+
+        Add stream tags:
+        Enable (or disable) stream tags to signal changes to sample rate, center frequency, or gains (LNA state or IF gain reduction)
 
         Debug mode (DEBUG)
         Enable (or disable) debug mode for SDRplay API

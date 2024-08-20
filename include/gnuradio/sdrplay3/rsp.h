@@ -177,6 +177,13 @@ public:
     virtual void set_agc_setpoint(double set_point) = 0;
 
     /*!
+     * Add stream tags for parameter changes (sample rate, frequency, gains)
+     *
+     * \param enable enable (or disable) stream tags for parameter changes
+     */
+    virtual void set_stream_tags(bool enable) = 0;
+
+    /*!
      * Set debug mode for SDRplay API
      *
      * \param enable enable (or disable) debug mode for SDRplay API
