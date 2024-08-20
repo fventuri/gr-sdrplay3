@@ -21,6 +21,11 @@ static constexpr double SDRPLAY_SAMPLE_RATE_MAX = 10.66e6;
 static constexpr double SDRPLAY_FREQ_MIN = 1e3;
 static constexpr double SDRPLAY_FREQ_MAX = 2000e6;
 
+// stream tags for parameter changes
+static const pmt::pmt_t RATE_KEY = pmt::string_to_symbol("rate");
+static const pmt::pmt_t FREQ_KEY = pmt::string_to_symbol("freq");
+static const pmt::pmt_t GAINS_KEY = pmt::string_to_symbol("gains");
+
 const std::map<std::string, struct rsp_impl::_output_type> rsp_impl::output_types = {
     { "fc32", { OutputType::fc32, sizeof(gr_complex) } },
     { "sc16", { OutputType::sc16, sizeof(short[2]) } }
@@ -91,6 +96,8 @@ rsp_impl::rsp_impl(const unsigned char hwVer,
     ring_buffers[1].xq = nullptr;
     ring_buffers[1].head = 0;
     ring_buffers[1].tail = 0;
+
+    stream_tags = false;
 
     sample_sequence_gaps_check = false;
     show_gain_changes = false;
@@ -588,6 +595,10 @@ int rsp_impl::work(int noutput_items,
         }
         ring_buffer.tail = new_tail;
 
+        if (stream_tags) {
+            add_stream_tags(start, end, noutput_items, stream_index);
+        }
+
         ring_buffer.overflow.notify_one();
     }
 
@@ -620,6 +631,13 @@ bool rsp_impl::start_api_init()
     return true;
 }
 
+// Stream tags
+void rsp_impl::set_stream_tags(bool enable)
+{
+    stream_tags = enable;
+}
+
+// internal functions
 static void sample_copy_fc32(size_t start, size_t end, int noutput_items,
                              short *xi, short *xq, void *out)
 {
@@ -690,6 +708,52 @@ static void sample_copy_sc16(size_t start, size_t end, int noutput_items,
     return;
 }
 
+void rsp_impl::add_stream_tags(size_t start, size_t end, int noutput_items,
+                               int stream_index)
+{
+    if (noutput_items == 0)
+        return;
+    while (!param_changes[stream_index].empty()) {
+        struct param_change &pc = param_changes[stream_index].front();
+        size_t relative_offset = pc.offset - start;
+        if (end > start || end == 0) {
+            // no wrap around case
+            relative_offset = pc.offset - start;
+        } else {
+            // wrap around case
+            if (pc.offset >= start && pc.offset < start + (noutput_items - end)) {
+                relative_offset = pc.offset - start;
+            } else if (pc.offset >= 0 && pc.offset < end) {
+                relative_offset = pc.offset - (noutput_items - end);
+            } else {
+                relative_offset = -1;
+            }
+        }
+        if (!(relative_offset >= 0 && relative_offset < noutput_items)) {
+            break;
+        }
+        unsigned long offset = nitems_written(stream_index) + relative_offset;
+        switch (pc.pctype) {
+        case pct_rate:
+            add_item_tag(stream_index, offset, RATE_KEY, pmt::from_double(pc.rate));
+            break;
+        case pct_freq:
+            add_item_tag(stream_index, offset, FREQ_KEY, pmt::from_double(pc.freq));
+            break;
+        case pct_gains:
+            add_item_tag(stream_index, offset, GAINS_KEY,
+                         pmt::make_tuple(pmt::from_long(pc.gains[0]),
+                                         pmt::from_long(pc.gains[1])));
+            break;
+        }
+        {
+            std::unique_lock<std::mutex> lock(param_change_mutex[stream_index]);
+            param_changes[stream_index].pop();
+        }
+    }
+    return;
+}
+
 
 // callback functions
 static void sample_gaps_check(unsigned int num_samples,
@@ -716,7 +780,8 @@ void rsp_impl::stream_A_callback(short *xi, short *xq,
         std::lock_guard<std::mutex> value_changed_lock(rsp->value_changed_mutex);
         rsp->value_changed_cv.notify_all();
     }
-    rsp->stream_callback(xi, xq, params, numSamples, reset, 0);
+    rsp->stream_callback(xi, xq, params, numSamples, reset, 0,
+                         rsp->device_params->rxChannelA);
 }
 
 void rsp_impl::stream_B_callback(short *xi, short *xq,
@@ -737,7 +802,8 @@ void rsp_impl::stream_B_callback(short *xi, short *xq,
         std::lock_guard<std::mutex> value_changed_lock(rsp->value_changed_mutex);
         rsp->value_changed_cv.notify_all();
     }
-    rsp->stream_callback(xi, xq, params, numSamples, reset, 1);
+    rsp->stream_callback(xi, xq, params, numSamples, reset, 1,
+                         rsp->device_params->rxChannelB);
 }
 
 void rsp_impl::event_callback(sdrplay_api_EventT eventId,
@@ -752,7 +818,8 @@ void rsp_impl::event_callback(sdrplay_api_EventT eventId,
 void rsp_impl::stream_callback(short *xi, short *xq,
                                sdrplay_api_StreamCbParamsT *params,
                                unsigned int numSamples, unsigned int reset,
-                               int stream_index)
+                               int stream_index,
+                               sdrplay_api_RxChannelParamsT *rx_params)
 {
     int ring_buffer_overflow = RingBufferSize - numSamples;
     auto& ring_buffer = ring_buffers[stream_index];
@@ -786,6 +853,30 @@ void rsp_impl::stream_callback(short *xi, short *xq,
         std::memcpy(ring_buffer.xq, xq + first, memcpy_size_rest);
     }
     ring_buffer.head = new_head;
+
+    if (stream_tags) {
+        if (params->fsChanged) {
+            struct param_change pc = {.offset=start, .pctype=pct_rate,
+                                      .rate=sample_rate};
+            std::unique_lock<std::mutex> lock(param_change_mutex[stream_index]);
+            param_changes[stream_index].push(pc);
+        }
+        if (params->rfChanged) {
+            double freq = rx_params->tunerParams.rfFreq.rfHz;
+            struct param_change pc = {.offset=start, .pctype=pct_freq,
+                                      .freq=freq};
+            std::unique_lock<std::mutex> lock(param_change_mutex[stream_index]);
+            param_changes[stream_index].push(pc);
+        }
+        if (params->grChanged) {
+            int lna_state = rx_params->tunerParams.gain.LNAstate;
+            int gRdB = rx_params->tunerParams.gain.gRdB;
+            struct param_change pc = {.offset=start, .pctype=pct_gains,
+                                      .gains={lna_state, gRdB}};
+            std::unique_lock<std::mutex> lock(param_change_mutex[stream_index]);
+            param_changes[stream_index].push(pc);
+        }
+    }
 
     ring_buffer.empty.notify_one();
 
