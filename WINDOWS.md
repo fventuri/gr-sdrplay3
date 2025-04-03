@@ -42,7 +42,7 @@ For this step we'll follow the recommendation in GNU Radio wiki and use Ryan Vol
 
 ## step 3 - (optional) build gr-sdrplay3 from source
 
-This step requires Microsoft Visual Studio 2019; I used VS2109 Community Edition, which is free (https://visualstudio.microsoft.com/vs/older-downloads/)
+This step requires Microsoft Visual Studio 2022; I used VS2022 Community Edition, which is free (https://visualstudio.microsoft.com/downloads/)
 
 - we'll follow the intructions from [here](.conda/README.md#building-the-package)
 - create and activate the build environment; in the radioconda terminal from step 1 run these commands:
