@@ -53,4 +53,17 @@ GR_PYBIND_MAKE_OOT(sdrplay3
 #    ${CMAKE_BINARY_DIR}/test_modules/gnuradio/sdrplay3/
 #  DEPENDS sdrplay3_python)
 
+if(APPLE)
+	# libsdrplay_api.so install path required by macOS 14 (Sonoma)
+	execute_process(COMMAND readlink -f ${LIBSDRPLAY_LIBRARIES}
+        	OUTPUT_STRIP_TRAILING_WHITESPACE
+        	OUTPUT_VARIABLE LIBSDRPLAY_INSTNAME)
+    execute_process(COMMAND basename "${LIBSDRPLAY_INSTNAME}"
+        	OUTPUT_STRIP_TRAILING_WHITESPACE
+        	OUTPUT_VARIABLE LIBSDRPLAY_DEPNAME)
+    add_custom_command(TARGET sdrplay3_python
+    	POST_BUILD COMMAND
+    	${CMAKE_INSTALL_NAME_TOOL} -change ${LIBSDRPLAY_DEPNAME} ${LIBSDRPLAY_INSTNAME} $<TARGET_FILE_NAME:sdrplay3_python>)
+endif(APPLE)
+
 install(TARGETS sdrplay3_python DESTINATION ${GR_PYTHON_DIR}/gnuradio/sdrplay3 COMPONENT pythonapi)
