@@ -52,7 +52,7 @@ This step requires Microsoft Visual Studio 2022; I used VS2022 Community Edition
 - use the conda base environment to build 'gr-sdrplay3' as recommended here: https://docs.conda.io/projects/conda-build/en/latest/install-conda-build.html
 - install conda build tools
 ```
-    install conda-build -y
+    conda install conda-build -y
 ```
 - build the gr-sdrplay3 module
 ```
@@ -60,7 +60,7 @@ This step requires Microsoft Visual Studio 2022; I used VS2022 Community Edition
     cd gr-sdrplay3
     conda build .conda\recipe
 ```
-- if you want to build this module for a specific version (tag) number, before the 'conda build' run `git checkout vA.B.C.D`, where 'vA.B.C.D' is the version/tag (for instance 'v3.11.0.8' as the time of this writing, but it will change as new versions are released)
+- if you want to build this module for a specific version (tag) number, before the `conda build` command run `git checkout vA.B.C.D`, where 'vA.B.C.D' is the version/tag (for instance 'v3.11.0.8' as the time of this writing, but it will change as new versions are released)
 - this step will take several minutes to complete (10-12 on my computer)
 - if successful, it should create a ready to install conda package under 'C:\Users\<username>\radioconda\conda-bld\win-64'; the file name is something like this 'gnuradio-sdrplay3-3.11.0.8-py312h702a0ab_0.conda'. If you don't see that file there, look at the output from the 'conda build' command and see what failed and why
 - more details can be found [here](.conda/README.md)
