@@ -79,7 +79,7 @@ public:
     void set_show_gain_changes(bool enable) override;
 
     // Message passing methods
-    void handle_set_freq(const pmt::pmt_t& msg);
+    void handle_command(const pmt::pmt_t& msg);
 
 protected:
 

@@ -103,9 +103,9 @@ rsp_impl::rsp_impl(const unsigned char hwVer,
     show_gain_changes = false;
 
     // Set up message ports
-    message_port_register_in(pmt::mp("freq"));
-    set_msg_handler(pmt::mp("freq"),
-                    [this](const pmt::pmt_t& msg) { this->handle_set_freq(msg); });
+    message_port_register_in(pmt::mp("command"));
+    set_msg_handler(pmt::mp("command"),
+                    [this](const pmt::pmt_t& msg) { this->handle_command(msg); });
 }
 
 rsp_impl::~rsp_impl()
@@ -947,15 +947,53 @@ void rsp_impl::set_show_gain_changes(bool enable)
     show_gain_changes = enable;
 }
 
-void rsp_impl::handle_set_freq(const pmt::pmt_t& msg)
+void rsp_impl::handle_command(const pmt::pmt_t& msg)
 {
-    if (pmt::is_pair(msg)) {
-        pmt::pmt_t x = pmt::cdr(msg);
-        if (pmt::is_real(x)) {
-            double center_freq = pmt::to_double(x);
-            set_center_freq(center_freq);
-        }
+    if (!pmt::is_dict(msg)) {
+        d_logger->error("Command message is not a dict: {}", pmt::write_string(msg));
+        return;
     }
+
+    pmt::pmt_t key;
+    pmt::pmt_t value;
+
+    // center frequency
+    key = pmt::mp("freq");
+    value = pmt::dict_ref(msg, key, pmt::PMT_NIL);
+    if (value != pmt::PMT_NIL) {
+        if (!pmt::is_real(value)) goto invalid_value;
+        set_center_freq(pmt::to_double(value));
+    }
+
+    // IF gain reduction
+    key = pmt::mp("if_gain");
+    value = pmt::dict_ref(msg, key, pmt::PMT_NIL);
+    if (value != pmt::PMT_NIL) {
+        if (!pmt::is_real(value)) goto invalid_value;
+        set_gain(pmt::to_double(value), "IF");
+    }
+
+    // RF gain reduction
+    key = pmt::mp("rf_gain");
+    value = pmt::dict_ref(msg, key, pmt::PMT_NIL);
+    if (value != pmt::PMT_NIL) {
+        if (!pmt::is_real(value)) goto invalid_value;
+        set_gain(pmt::to_double(value), "RF");
+    }
+
+    // LNAstate
+    key = pmt::mp("lna_state");
+    value = pmt::dict_ref(msg, key, pmt::PMT_NIL);
+    if (value != pmt::PMT_NIL) {
+        if (!pmt::is_real(value)) goto invalid_value;
+        set_gain(pmt::to_double(value), "LNAstate");
+    }
+
+    return;
+
+invalid_value:
+    d_logger->alert("Invalid command value for key {}: {}", pmt::write_string(key), pmt::write_string(value));
+    return;
 }
 
 

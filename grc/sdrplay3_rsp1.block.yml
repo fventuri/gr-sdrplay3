@@ -267,7 +267,7 @@ parameters:
 
 inputs:
 - domain: message
-  id: freq
+  id: command
   optional: true
   hide: ${not showports}
 
