@@ -954,45 +954,39 @@ void rsp_impl::handle_command(const pmt::pmt_t& msg)
         return;
     }
 
-    pmt::pmt_t key;
-    pmt::pmt_t value;
+    pmt::pmt_t msg_items = pmt::dict_items(msg);
+    for (size_t i = 0; i < pmt::length(msg_items); i++) {
+        pmt::pmt_t command = pmt::car(pmt::nth(i, msg_items));
+        pmt::pmt_t value = pmt::cdr(pmt::nth(i, msg_items));
+        bool is_valid;
 
-    // center frequency
-    key = pmt::mp("freq");
-    value = pmt::dict_ref(msg, key, pmt::PMT_NIL);
-    if (value != pmt::PMT_NIL) {
-        if (!pmt::is_real(value)) goto invalid_value;
-        set_center_freq(pmt::to_double(value));
+        if (pmt::eqv(command, pmt::mp("freq"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_center_freq(pmt::to_double(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("if_gain"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_gain(pmt::to_double(value), "IF");
+            }
+        } else if (pmt::eqv(command, pmt::mp("rf_gain"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_gain(pmt::to_double(value), "RF");
+            }
+        } else if (pmt::eqv(command, pmt::mp("lna_state"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_gain(pmt::to_double(value), "LNAstate");
+            }
+        } else {
+            d_logger->alert("Invalid command: {}", pmt::write_string(command));
+            break;
+        }
+
+        if (!is_valid) {
+            d_logger->alert("Invalid command value for {}: {}", pmt::write_string(command), pmt::write_string(value));
+            break;
+        }
     }
 
-    // IF gain reduction
-    key = pmt::mp("if_gain");
-    value = pmt::dict_ref(msg, key, pmt::PMT_NIL);
-    if (value != pmt::PMT_NIL) {
-        if (!pmt::is_real(value)) goto invalid_value;
-        set_gain(pmt::to_double(value), "IF");
-    }
-
-    // RF gain reduction
-    key = pmt::mp("rf_gain");
-    value = pmt::dict_ref(msg, key, pmt::PMT_NIL);
-    if (value != pmt::PMT_NIL) {
-        if (!pmt::is_real(value)) goto invalid_value;
-        set_gain(pmt::to_double(value), "RF");
-    }
-
-    // LNAstate
-    key = pmt::mp("lna_state");
-    value = pmt::dict_ref(msg, key, pmt::PMT_NIL);
-    if (value != pmt::PMT_NIL) {
-        if (!pmt::is_real(value)) goto invalid_value;
-        set_gain(pmt::to_double(value), "LNAstate");
-    }
-
-    return;
-
-invalid_value:
-    d_logger->alert("Invalid command value for key {}: {}", pmt::write_string(key), pmt::write_string(value));
     return;
 }
 
