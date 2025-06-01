@@ -947,49 +947,6 @@ void rsp_impl::set_show_gain_changes(bool enable)
     show_gain_changes = enable;
 }
 
-void rsp_impl::handle_command(const pmt::pmt_t& msg)
-{
-    if (!pmt::is_dict(msg)) {
-        d_logger->error("Command message is not a dict: {}", pmt::write_string(msg));
-        return;
-    }
-
-    pmt::pmt_t msg_items = pmt::dict_items(msg);
-    for (size_t i = 0; i < pmt::length(msg_items); i++) {
-        pmt::pmt_t command = pmt::car(pmt::nth(i, msg_items));
-        pmt::pmt_t value = pmt::cdr(pmt::nth(i, msg_items));
-        bool is_valid;
-
-        if (pmt::eqv(command, pmt::mp("freq"))) {
-            if ((is_valid = pmt::is_real(value))) {
-                set_center_freq(pmt::to_double(value));
-            }
-        } else if (pmt::eqv(command, pmt::mp("if_gain"))) {
-            if ((is_valid = pmt::is_real(value))) {
-                set_gain(pmt::to_double(value), "IF");
-            }
-        } else if (pmt::eqv(command, pmt::mp("rf_gain"))) {
-            if ((is_valid = pmt::is_real(value))) {
-                set_gain(pmt::to_double(value), "RF");
-            }
-        } else if (pmt::eqv(command, pmt::mp("lna_state"))) {
-            if ((is_valid = pmt::is_real(value))) {
-                set_gain(pmt::to_double(value), "LNAstate");
-            }
-        } else {
-            d_logger->alert("Invalid command: {}", pmt::write_string(command));
-            break;
-        }
-
-        if (!is_valid) {
-            d_logger->alert("Invalid command value for {}: {}", pmt::write_string(command), pmt::write_string(value));
-            break;
-        }
-    }
-
-    return;
-}
-
 
 // internal methods
 bool rsp_impl::rsp_select(const unsigned char hwVer, const std::string& selector)
@@ -1145,6 +1102,78 @@ static const std::string reason_as_text(sdrplay_api_ReasonForUpdateT reason_for_
         }
         return reason;
     }
+}
+
+void rsp_impl::handle_command(const pmt::pmt_t& msg)
+{
+    if (!pmt::is_dict(msg)) {
+        d_logger->error("Command message is not a dict: {}", pmt::write_string(msg));
+        return;
+    }
+
+    pmt::pmt_t msg_items = pmt::dict_items(msg);
+    for (size_t i = 0; i < pmt::length(msg_items); i++) {
+        pmt::pmt_t nth_msg = pmt::nth(i, msg_items);
+        pmt::pmt_t command = pmt::car(nth_msg);
+        pmt::pmt_t value = pmt::cdr(nth_msg);
+        bool is_valid;
+
+        if (pmt::eqv(command, pmt::mp("rate"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_sample_rate(pmt::to_double(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("freq"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_center_freq(pmt::to_double(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("bandwidth"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_bandwidth(pmt::to_double(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("if_gain"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_gain(pmt::to_double(value), "IF");
+            }
+        } else if (pmt::eqv(command, pmt::mp("rf_gain"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_gain(pmt::to_double(value), "RF");
+            }
+        } else if (pmt::eqv(command, pmt::mp("lna_state"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_gain(pmt::to_double(value), "LNAstate");
+            }
+        } else if (pmt::eqv(command, pmt::mp("if_agc"))) {
+            if ((is_valid = pmt::is_bool(value))) {
+                set_gain_mode(pmt::to_bool(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("ppm"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_freq_corr(pmt::to_double(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("dc_offset_corr"))) {
+            if ((is_valid = pmt::is_bool(value))) {
+                set_dc_offset_mode(pmt::to_bool(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("iq_balance_corr"))) {
+            if ((is_valid = pmt::is_bool(value))) {
+                set_iq_balance_mode(pmt::to_bool(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("agc_setpoint"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_agc_setpoint(pmt::to_double(value));
+            }
+        } else {
+            d_logger->alert("Invalid command: {}", pmt::write_string(command));
+            break;
+        }
+
+        if (!is_valid) {
+            d_logger->alert("Invalid command value for {}: {}", pmt::write_string(command), pmt::write_string(value));
+            break;
+        }
+    }
+
+    return;
 }
 
 void rsp_impl::print_device_config() const

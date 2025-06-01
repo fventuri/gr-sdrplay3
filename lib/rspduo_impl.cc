@@ -762,6 +762,123 @@ sdrplay_api_TunerSelectT rspduo_impl::get_independent_rx_tuner(const int tuner) 
     return tuner != 1 ?  sdrplay_api_Tuner_A : sdrplay_api_Tuner_B;
 }
 
+void rspduo_impl::handle_command(const pmt::pmt_t& msg)
+{
+    if (!pmt::is_dict(msg)) {
+        d_logger->error("Command message is not a dict: {}", pmt::write_string(msg));
+        return;
+    }
+
+    int tuner = -1;
+    pmt::pmt_t tuner_value = pmt::dict_ref(msg, pmt::mp("tuner"), pmt::PMT_NIL);
+    if (!(pmt::eq(tuner_value, pmt::PMT_NIL))) {
+        if (!pmt::is_integer(tuner_value)) {
+            d_logger->alert("Invalid command value for tuner: {}", pmt::write_string(tuner_value));
+            return;
+        }
+        tuner = pmt::to_long(tuner_value);
+    }
+
+    pmt::pmt_t unhandled_commands = pmt::make_dict();
+
+    pmt::pmt_t msg_items = pmt::dict_items(msg);
+    for (size_t i = 0; i < pmt::length(msg_items); i++) {
+        pmt::pmt_t nth_msg = pmt::nth(i, msg_items);
+        pmt::pmt_t command = pmt::car(nth_msg);
+        pmt::pmt_t value = pmt::cdr(nth_msg);
+        bool is_valid;
+
+        if (pmt::eqv(command, pmt::mp("tuner"))) {
+            // tuner command was already processed above
+            ;
+        } else if (pmt::eqv(command, pmt::mp("rate"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                set_sample_rate(pmt::to_double(value), tuner);
+            }
+        } else if (pmt::eqv(command, pmt::mp("freq"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                if (tuner == -1) {
+                    set_center_freq(pmt::to_double(value));
+                } else {
+                    set_center_freq(pmt::to_double(value), tuner);
+                }
+            } else if ((is_valid = pmt::is_pair(value))) {
+                pmt::pmt_t value1 = pmt::car(value);
+                pmt::pmt_t value2 = pmt::cdr(value);
+                if ((is_valid = pmt::is_real(value1)) && (is_valid = pmt::is_real(value2))) {
+                    set_center_freq(pmt::to_double(value1), pmt::to_double(value2));
+                }
+            }
+        } else if (pmt::eqv(command, pmt::mp("antenna"))) {
+            if ((is_valid = pmt::is_symbol(value))) {
+                set_antenna(pmt::symbol_to_string(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("if_gain"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                if (tuner == -1) {
+                    set_gain(pmt::to_double(value), "IF");
+                } else {
+                    set_gain(pmt::to_double(value), "IF", tuner);
+                }
+            }
+        } else if (pmt::eqv(command, pmt::mp("rf_gain"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                if (tuner == -1) {
+                    set_gain(pmt::to_double(value), "RF");
+                } else {
+                    set_gain(pmt::to_double(value), "RF", tuner);
+                }
+            }
+        } else if (pmt::eqv(command, pmt::mp("lna_state"))) {
+            if ((is_valid = pmt::is_real(value))) {
+                if (tuner == -1) {
+                    set_gain(pmt::to_double(value), "LNAstate");
+                } else {
+                    set_gain(pmt::to_double(value), "LNAstate", tuner);
+                }
+            }
+        } else if (pmt::eqv(command, pmt::mp("if_agc"))) {
+            if ((is_valid = pmt::is_bool(value))) {
+                if (tuner == -1) {
+                    set_gain_mode(pmt::to_bool(value));
+                } else {
+                    set_gain_mode(pmt::to_bool(value), tuner);
+                }
+            }
+        } else if (pmt::eqv(command, pmt::mp("rf_notch"))) {
+            if ((is_valid = pmt::is_bool(value))) {
+                set_rf_notch_filter(pmt::to_bool(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("dab_notch"))) {
+            if ((is_valid = pmt::is_bool(value))) {
+                set_dab_notch_filter(pmt::to_bool(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("am_notch"))) {
+            if ((is_valid = pmt::is_bool(value))) {
+                set_am_notch_filter(pmt::to_bool(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("bias-t"))) {
+            if ((is_valid = pmt::is_bool(value))) {
+                set_biasT(pmt::to_bool(value));
+            }
+        } else {
+            unhandled_commands = pmt::dict_add(unhandled_commands, command, value);
+        }
+
+        if (!is_valid) {
+            d_logger->alert("Invalid command value for {}: {}", pmt::write_string(command), pmt::write_string(value));
+            break;
+        }
+    }
+
+    // all other cases, send up to the main RSP handler 
+    if (!(pmt::eq(unhandled_commands, pmt::PMT_NIL))) {
+        rsp_impl::handle_command(unhandled_commands);
+    }
+
+    return;
+}
+
 void rspduo_impl::print_device_config() const
 {
     rsp_impl::print_device_config();

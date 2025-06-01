@@ -78,9 +78,6 @@ public:
     void set_sample_sequence_gaps_check(bool enable) override;
     void set_show_gain_changes(bool enable) override;
 
-    // Message passing methods
-    void handle_command(const pmt::pmt_t& msg);
-
 protected:
 
     /*! \brief Components common to all RSP devices.
@@ -128,6 +125,8 @@ protected:
     virtual void event_callback(sdrplay_api_EventT eventId,
                                 sdrplay_api_TunerSelectT tuner,
                                 sdrplay_api_EventParamsT *params);
+
+    virtual void handle_command(const pmt::pmt_t& msg);
 
     virtual void print_device_config() const;
 

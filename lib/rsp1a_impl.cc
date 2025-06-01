@@ -88,5 +88,52 @@ void rsp1a_impl::set_biasT(bool enable)
     update_if_streaming(sdrplay_api_Update_Rsp1a_BiasTControl);
 }
 
+void rsp1a_impl::handle_command(const pmt::pmt_t& msg)
+{
+    if (!pmt::is_dict(msg)) {
+        d_logger->error("Command message is not a dict: {}", pmt::write_string(msg));
+        return;
+    }
+
+    pmt::pmt_t unhandled_commands = pmt::make_dict();
+
+    pmt::pmt_t msg_items = pmt::dict_items(msg);
+    for (size_t i = 0; i < pmt::length(msg_items); i++) {
+        pmt::pmt_t nth_msg = pmt::nth(i, msg_items);
+        pmt::pmt_t command = pmt::car(nth_msg);
+        pmt::pmt_t value = pmt::cdr(nth_msg);
+        bool is_valid;
+
+        if (pmt::eqv(command, pmt::mp("rf_notch"))) {
+            if ((is_valid = pmt::is_bool(value))) {
+                set_rf_notch_filter(pmt::to_bool(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("dab_notch"))) {
+            if ((is_valid = pmt::is_bool(value))) {
+                set_dab_notch_filter(pmt::to_bool(value));
+            }
+        } else if (pmt::eqv(command, pmt::mp("bias-t"))) {
+            if ((is_valid = pmt::is_bool(value))) {
+                set_biasT(pmt::to_bool(value));
+            }
+        } else {
+            unhandled_commands = pmt::dict_add(unhandled_commands, command, value);
+        }
+
+        if (!is_valid) {
+            d_logger->alert("Invalid command value for {}: {}", pmt::write_string(command), pmt::write_string(value));
+            break;
+        }
+    }
+
+    // all other cases, send up to the main RSP handler 
+    if (!(pmt::eq(unhandled_commands, pmt::PMT_NIL))) {
+        rsp_impl::handle_command(unhandled_commands);
+    }
+
+    return;
+}
+
+
 } /* namespace sdrplay3 */
 } /* namespace gr */

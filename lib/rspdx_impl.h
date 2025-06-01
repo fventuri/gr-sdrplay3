@@ -49,6 +49,8 @@ private:
     static const std::vector<int> rf_gr_values(const double freq, const bool hdr_mode);
     const std::vector<int> rf_gr_values() const override;
 
+    void handle_command(const pmt::pmt_t& msg) override;
+
     void print_device_config() const override;
 };
 #pragma warning( pop )

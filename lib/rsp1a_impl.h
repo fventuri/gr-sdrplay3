@@ -40,6 +40,8 @@ private:
 
     static const std::vector<int> rf_gr_values(const double freq);
     const std::vector<int> rf_gr_values() const override;
+
+    void handle_command(const pmt::pmt_t& msg) override;
 };
 #pragma warning( pop )
 
