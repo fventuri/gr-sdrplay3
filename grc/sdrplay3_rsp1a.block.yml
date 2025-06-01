@@ -31,6 +31,7 @@ templates:
     self.${id}.set_rf_notch_filter(${rf_notch_filter})
     self.${id}.set_dab_notch_filter(${dab_notch_filter})
     self.${id}.set_biasT(${biasT})
+    self.${id}.set_stream_tags(${stream_tags})
     self.${id}.set_debug_mode(${debug_mode})
     self.${id}.set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
     self.${id}.set_show_gain_changes(${show_gain_changes})
@@ -53,6 +54,7 @@ templates:
   - set_rf_notch_filter(${rf_notch_filter})
   - set_dab_notch_filter(${dab_notch_filter})
   - set_biasT(${biasT})
+  - set_stream_tags(${stream_tags})
   - set_debug_mode(${debug_mode})
   - set_sample_sequence_gaps_check(${sample_sequence_gaps_check})
   - set_show_gain_changes(${show_gain_changes})
@@ -83,6 +85,7 @@ cpp_templates:
     this->${id}->set_rf_notch_filter(${rf_notch_filter});
     this->${id}->set_dab_notch_filter(${dab_notch_filter});
     this->${id}->set_biasT(${biasT});
+    this->${id}->set_stream_tags(${stream_tags});
     this->${id}->set_debug_mode(${debug_mode});
     this->${id}->set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
     this->${id}->set_show_gain_changes(${show_gain_changes});
@@ -110,6 +113,7 @@ cpp_templates:
   - set_rf_notch_filter(${rf_notch_filter});
   - set_dab_notch_filter(${dab_notch_filter});
   - set_biasT(${biasT});
+  - set_stream_tags(${stream_tags});
   - set_debug_mode(${debug_mode});
   - set_sample_sequence_gaps_check(${sample_sequence_gaps_check});
   - set_show_gain_changes(${show_gain_changes});
@@ -254,6 +258,15 @@ parameters:
   option_labels: [Asynchronous, Synchronous]
   hide: part
 
+- id: stream_tags
+  label: Add Stream Tags
+  category: Other Options
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [Disabled, Enabled]
+  hide: part
+
 # Debug options
 - id: debug_mode
   label: SDRplay API debug mode (DEBUG)
@@ -282,6 +295,20 @@ parameters:
   option_labels: [Disabled, Enabled]
   hide: part
 
+- id: showports
+  label: Show Msg Ports
+  dtype: bool
+  default: 'False'
+  options: ['False', 'True']
+  option_labels: [No, Yes]
+  hide: part
+
+
+inputs:
+- domain: message
+  id: command
+  optional: true
+  hide: ${not showports}
 
 outputs:
 - dtype: ${output_type}
@@ -340,7 +367,10 @@ documentation: |-
 
         Synchronous Updates:
         Wait for the requested parameter change to be completed before returning from the function.
-        Applies only to changes to sample rate, center frequency, and gains.
+        Applies only to changes to sample rate, center frequency, or gains.
+
+        Add stream tags:
+        Enable (or disable) stream tags to signal changes to sample rate, center frequency, or gains (LNA state or IF gain reduction)
 
         Debug mode (DEBUG)
         Enable (or disable) debug mode for SDRplay API

@@ -11,6 +11,7 @@
 #include <gnuradio/sdrplay3/rsp.h>
 #include <sdrplay_api.h>
 #include <condition_variable>
+#include <queue>
 
 namespace gr {
 namespace sdrplay3 {
@@ -69,6 +70,9 @@ public:
                      gr_vector_const_void_star& input_items,
                      gr_vector_void_star& output_items) override;
 
+    // Stream tags
+    void set_stream_tags(bool enable) override;
+
     // Debug methods
     void set_debug_mode(bool enable) override;
     void set_sample_sequence_gaps_check(bool enable) override;
@@ -114,11 +118,15 @@ protected:
     virtual const std::vector<int> rf_gr_values() const = 0;
 
     bool start_api_init();
+    void add_stream_tags(size_t start, size_t end, int noutput_items,
+                         int stream_index);
 
     // callback functions
     virtual void event_callback(sdrplay_api_EventT eventId,
                                 sdrplay_api_TunerSelectT tuner,
                                 sdrplay_api_EventParamsT *params);
+
+    virtual void handle_command(const pmt::pmt_t& msg);
 
     virtual void print_device_config() const;
 
@@ -142,7 +150,8 @@ private:
     void stream_callback(short *xi, short *xq,
                          sdrplay_api_StreamCbParamsT *params,
                          unsigned int numSamples, unsigned int reset,
-                         int stream_index);
+                         int stream_index,
+                         sdrplay_api_RxChannelParamsT *rx_channel);
 
     // ring buffers to transfer data from the stream callbacks to work()
     // RingBufferSize must be a power of 2 to simplify wrap-around
@@ -158,9 +167,6 @@ private:
         std::mutex mtx;
     } ring_buffers[2];
 
-    bool sample_sequence_gaps_check;
-    bool show_gain_changes;
-
     // changes to sample rate, fequency, and gain reduction reported by
     // RX callback
     int sample_rate_changed;
@@ -171,6 +177,24 @@ private:
     std::condition_variable value_changed_cv;
 
     constexpr static std::chrono::milliseconds update_timeout = std::chrono::milliseconds(500);
+
+    // param changes as stream tags
+    bool stream_tags;
+    enum ParamChangeType {pct_rate=1, pct_freq=2, pct_gains=3};
+    struct param_change {
+        unsigned long offset;
+        enum ParamChangeType pctype;
+        union {
+            double rate;
+            double freq;
+            int gains[2];
+        };
+    };
+    std::queue<struct param_change> param_changes[2];
+    std::mutex param_change_mutex[2];
+
+    bool sample_sequence_gaps_check;
+    bool show_gain_changes;
 
 protected:
     sdrplay_api_DeviceT device;

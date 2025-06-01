@@ -128,6 +128,11 @@ void bind_rsp(py::module& m)
              py::arg("set_point"),
              D(rsp, set_agc_setpoint))
 
+        .def("set_stream_tags",
+             &rsp::set_stream_tags,
+             py::arg("enable"),
+             D(rsp, set_stream_tags))
+
         .def("set_debug_mode",
              &rsp::set_debug_mode,
              py::arg("enable"),

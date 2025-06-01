@@ -143,6 +143,8 @@ private:
     }
     int get_lna_state(const int tuner) const;
 
+    void handle_command(const pmt::pmt_t& msg) override;
+
     void print_device_config() const override;
 
 
